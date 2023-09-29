@@ -1,0 +1,7 @@
+- Go to: https://github.com/xthan/fashion-200k/tree/master
+- Click on the google drive link
+- Download the women.tar.gz file
+- Download the labels folder
+- Unzip women.tar.gz and the labels into a folder called 'Fashion200k' or something similar.
+- Use the 'fashion200k_processing.sh' file that I created to move all images one level up (currently, images are in a folder like dresses/gowns/123456, we want to move those images into dresses/gowns and delete the folder 123456). The shell script can be used as: bash fashion200k_processing.sh <PATH>, where <PATH> should be replaced with the path to the 'women' folder within 'Fashion200k'. For example: <PATH> = '\data\Fashion200k\women". (NOTE: this may take a few hours to run because there are a lot of subfolders)
+
