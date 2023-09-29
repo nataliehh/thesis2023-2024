@@ -11,3 +11,5 @@ polyvore
 Then, run the following commands in the images folder:
 find . -mindepth 2 -type f -print -exec mv --backup=numbered {} . \;
 rm -R -- */
+
+(Note: the find command can take a while to run, it has to go through thousands of folders)
