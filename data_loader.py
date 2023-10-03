@@ -218,7 +218,7 @@ class Polyvore(CustomDataLoader):
 class SciCap(CustomDataLoader):
     MAXLEN = 77  # maximum length for caption
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.image_root = os.path.join("SciCap-No-Subfig-Img", self.split)
         self.data = self._init_data()
 
@@ -402,7 +402,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
             return d
     else:
         if data == "SciCap":
-            d = SciCap("/data/science/scicap_data", split=split, transform=preprocess_fn)
+            d = SciCap(os.path.join(path, "scicap"), split=split, transform=preprocess_fn)
             d = TokenizedDataset(d, **data_kwargs)
 
         elif data in ["Simpsons", "Simpsons-Captions"]:
