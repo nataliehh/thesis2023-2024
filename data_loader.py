@@ -94,6 +94,7 @@ class CustomDataLoader(torch.utils.data.Dataset):
         
         return dict(x=x, captions=sentences)
 
+# Data from: https://github.com/201528014227051/RSICD_optimal
 class RSICD(CustomDataLoader):
     """ Data from: https://arxiv.org/abs/1712.07835 """
     def __init__(self, *args, **kwargs):
@@ -129,6 +130,7 @@ class RSICD(CustomDataLoader):
         else:
             return super().__getitem__(idx)
 
+# Data from: https://github.com/xthan/fashion-200k/tree/master
 class Fashion200k(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -146,7 +148,7 @@ class Fashion200k(CustomDataLoader):
         split = {'train': 'train', 'val': 'test'}[split]
 
         txt_path = ['dress', 'jacket', 'pants', 'skirt', 'top']
-        txt_format = '{}_{}_detect_all.txt' # Need to provide the fashion class and dataset split
+        txt_format = 'labels/{}_{}_detect_all.txt' # Need to provide the fashion class and dataset split
 
         if self.cls:
             class_index = 1 if self.subclass else 0
@@ -178,6 +180,7 @@ class Fashion200k(CustomDataLoader):
             data = [dict({'id': item_id}, **data[item_id]) for item_id in data]
         return data
 
+# Data from: https://github.com/xthan/polyvore-dataset/tree/master
 class Polyvore(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -190,7 +193,7 @@ class Polyvore(CustomDataLoader):
             self.classes = sorted(self.classes)
 
     def _load_annotation_db(self, split):
-        json_path = os.path.join(self.root, f"{split}_info.json")
+        json_path = os.path.join(self.root, f"{split}_no_dup.json")
         
         anno_json = read_json(json_path)
         
@@ -201,9 +204,11 @@ class Polyvore(CustomDataLoader):
             meta_json = read_json(metadata_path)
 
             for item in anno_json:
+                # NOT WORKING!!!
                 data.append({"image_path": item["images"], "class_name": meta_json[str(item['id'])]['semantic_category']})
         else:
             for item in anno_json:
+                # NOT WORKING!!!
                 data.append({"image_path": item["images"], "sentences": item["title"] + "." + item["description"]})
 
         return data
@@ -377,7 +382,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
         "RESISC45": (RESISC45, "NWPU-RESISC45"),
         "Fashion200k": (Fashion200k, "fashion200k"),
         "FashionGen": (None, None, None),  # Currently unavailable
-        "Polyvore": (Polyvore, "PolyvoreOutfits"),
+        "Polyvore": (Polyvore, "polyvore"),
         "Simpsons-Captions": (None, "simpsons-blip-captions"),
         "Simpsons-Images": (None, "simpsons_dataset")
     }
@@ -385,8 +390,8 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
 
     if data in config:
         dataset_class, dataset_path = config.get(data) 
-        random_item = True if data == 'Fashion200k' else False
-        d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, random_item = random_item)
+        randomitem = True if data == 'Fashion200k' else False
+        d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
         if cls:
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
@@ -423,7 +428,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
             d = ConcatDataset([
                 Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn),
                 # FashionGen("/data/FashionGen", split=split, transform=preprocess_fn),
-                Polyvore("./data/PolyvoreOutfits", split=split, transform=preprocess_fn),
+                Polyvore("./data/polyvore", split=split, transform=preprocess_fn),
             ])
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
