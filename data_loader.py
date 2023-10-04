@@ -395,8 +395,8 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
         "Fashion200k": (Fashion200k, "fashion200k", True),
         "FashionGen": (None, None, None, None),  # Currently unavailable
         "Polyvore": (Polyvore, "polyvore", True),
-        "Simpsons-Captions": (None, "simpsons-blip-captions", False),
-        "Simpsons-Images": (None, "simpsons_dataset", False)
+        # "Simpsons-Captions": (None, "simpsons-blip-captions", False),
+        # "Simpsons-Images": (None, "simpsons_dataset", False)
     }
     REMOTE_SENSING = ["RSICD", "UCM", "Sydney", "RS-ALL", "WHU-RS19", "RSSCN7", "AID", "RESISC45"]
 
@@ -442,7 +442,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
             d = TokenizedDataset(d, image_key=image_key, text_key=text_key, **data_kwargs)
 
         elif data == "Simpsons-Images":
-            d = ImageFolder("/data/simpsons_dataset", transform=preprocess_fn)
+            d = ImageFolder("./data/kaggle_simpsons_characters/simpsons_dataset", transform=preprocess_fn)
 
         elif data =='FASHION-ALL':
             d = ConcatDataset([
