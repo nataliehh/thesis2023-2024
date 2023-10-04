@@ -213,8 +213,7 @@ class Polyvore(CustomDataLoader):
 
         return data
 
-# class Polyvore_CLS(Fashion200k_CLS): # can inherit the __getitem__ function from Fashion200k_CLS
-
+# Data from: https://github.com/tingyaohsu/SciCap
 class SciCap(CustomDataLoader):
     MAXLEN = 77  # maximum length for caption
     def __init__(self, *args, **kwargs):
@@ -228,7 +227,7 @@ class SciCap(CustomDataLoader):
         data = []
         for filename in os.listdir(json_root):
             json_object = read_json(os.path.join(json_root, filename))
-            if json_object["contains-subfigure"]:
+            if json_object["contains-subfigure"]: # Only keep images without subfigures for simplicity
                 continue
 
             path = str(filename).replace("json", "png")
@@ -366,38 +365,46 @@ def create_datainfo(args, dataset, batch_size, is_train):
 
     return DataInfo(dataloader, sampler)
 
-
+# The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_kwargs):
     path = './data/'
     split = "train" if is_train else "val"
 
     config = { # config dictionary that contains the call function to the dataset creator and the (relative) path to its data
-        "RSICD": (RSICD, "RSICD"),
-        "UCM": (UCMCaptions, "UCM_captions"),
-        "Sydney": (SydneyCaptions, "Sydney_captions"),
-        "UCM-CLS": (UCM, "UCMerced_LandUse"),
-        "WHU-RS19": (WHURS19, "WHU-RS19"),
-        "RSSCN7": (RSSCN7, "RSSCN7"),
-        "AID": (AID, "AID"),
-        "RESISC45": (RESISC45, "NWPU-RESISC45"),
-        "Fashion200k": (Fashion200k, "fashion200k"),
-        "FashionGen": (None, None, None),  # Currently unavailable
-        "Polyvore": (Polyvore, "polyvore"),
-        "Simpsons-Captions": (None, "simpsons-blip-captions"),
-        "Simpsons-Images": (None, "simpsons_dataset")
+        "RSICD": (RSICD, "RSICD", True),
+        "UCM": (UCMCaptions, "UCM", False),
+        "Sydney": (SydneyCaptions, "sydney_captions", False),
+        "UCM-CLS": (UCM, "UCMerced_LandUse", False),
+        "WHU-RS19": (WHURS19, "WHU-RS19", False),
+        "RSSCN7": (RSSCN7, "RSSCN7", False),
+        "AID": (AID, "AID", False),
+        "RESISC45": (RESISC45, "NWPU-RESISC45", False),
+        "Fashion200k": (Fashion200k, "fashion200k", True),
+        "FashionGen": (None, None, None, None),  # Currently unavailable
+        "Polyvore": (Polyvore, "polyvore", True),
+        "Simpsons-Captions": (None, "simpsons-blip-captions", False),
+        "Simpsons-Images": (None, "simpsons_dataset", False)
     }
     REMOTE_SENSING = ["RSICD", "UCM", "Sydney", "RS-ALL", "WHU-RS19", "RSSCN7", "AID", "RESISC45"]
 
+    # We use a dictionary for the configuration of each dataset loader
     if data in config:
-        dataset_class, dataset_path = config.get(data) 
+        # A configuration specifies the class instantiation, path to the dataset and whether we are using a custom dataset loader
+        # Custom dataset loaders allow for extra arguments
+        dataset_class, dataset_path, custom = config.get(data) 
         randomitem = True if data == 'Fashion200k' else False
-        d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
+        if custom:
+            d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
+        else:
+            d = dataset_class(os.path.join(path, dataset_path), transform=preprocess_fn)
         if cls:
+            # Classification datasets use a captioning template, either 'a photo of [CLASS]' or 'an aerial photograph of [CLASS]' (for remote sensing)
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
                  template = template = [lambda c: f"an aerial photograph of {c}."]
             return d, d.classes, template
         else:
+            # We tokenize the caption datasets
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
             return d
     else:
