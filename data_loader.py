@@ -151,16 +151,29 @@ class Fashion200k(CustomDataLoader):
         txt_format = 'labels/{}_{}_detect_all.txt' # Need to provide the fashion class and dataset split
 
         if self.cls:
-            class_index = 1 if self.subclass else 0
+            # We concat all label files in the split to allow us to easily get all image paths and classes
+            path = './data/fashion200k/labels'
+            full_txt = []
+            # Go over all text files
+            for txt in os.listdir(path):
+                if split in txt: # If the text file contains the correct split ('train' or 'test')
+                    with open(os.path.join(path, txt), 'r') as f:
+                        data = f.readlines()
+                        full_txt += data
+            
+            class_index = 2 if self.subclass else 1
             split = {'train': 'train', 'val': 'test'}[split]
-            json_path = os.path.join(self.root, f"{split}_info.json")
-            anno_json = read_json(json_path)
+            # json_path = os.path.join(self.root, f"{split}_info.json")
+            # anno_json = read_json(json_path)
 
             data = []
-            for item in anno_json:
-                for image_path in item['images']:
-                    class_name = image_path.split("/")[class_index].replace("_", " ")
-                    data.append({ "image_path": image_path, "class_name": class_name })
+            for item in full_txt:
+                # for image_path in item['images']:
+                # The lines in the labels have the format: path\tconfidence_score\tdescription
+                image_path = item.split('\t')[0] # We extract the path to the image
+                # The path has the format: /women/category/subcategory/id_folder/image, we want either the category or subcategory
+                class_name = image_path.split("/")[class_index].replace("_", " ") 
+                data.append({ "image_path": image_path, "class_name": class_name })
         else:
             data = {}
             for txt in txt_path:
