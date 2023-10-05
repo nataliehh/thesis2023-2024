@@ -7,6 +7,7 @@ import random
 from PIL import Image
 from multiprocessing import Value
 from typing import List, Dict
+import pandas as pd
 
 from tools import read_json
 
@@ -193,7 +194,7 @@ class Fashion200k(CustomDataLoader):
             data = [dict({'id': item_id}, **data[item_id]) for item_id in data]
         return data
 
-# Data from: https://github.com/xthan/polyvore-dataset/tree/master
+# Data from: https://github.com/mvasil/fashion-compatibility
 class Polyvore(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -206,23 +207,35 @@ class Polyvore(CustomDataLoader):
             self.classes = sorted(self.classes)
 
     def _load_annotation_db(self, split):
-        json_path = os.path.join(self.root, f"{split}_no_dup.json")
-        
+        # Read the file which contains the IDs belong to the (train/val/test) split
+        split_info_path = os.path.join(self.root, f"disjoint/{split}.json")
+        split_info = read_json(split_info_path)
+        # Make a list of all the image IDs belonging to the current split
+        split_item_ids = []
+        for grouping in split_info:
+            items = grouping['items']
+            item_ids = [item['item_id'] for item in items] # Get image IDs
+            split_item_ids += item_ids
+
+        # Load in the item metadata, which contains names and descriptions of fashion items
+        json_path = os.path.join(self.root, "polyvore_item_metadata.json")
         anno_json = read_json(json_path)
+        # Load in the categories dataframe, that maps category IDs to (sub)categories
+        category_df = pd.read_csv(os.path.join(self.root, 'categories.csv'), header = None, names = ['ID', 'subcategory', 'category'])
+        # Convert to a dictionary for easier access later
+        category_dict = category_df[['ID', 'subcategory']].set_index('ID').T.to_dict('records')
         
         data = []
 
-        if self.cls:
-            metadata_path = os.path.join(self.root, "polyvore_item_metadata.json")
-            meta_json = read_json(metadata_path)
-
-            for item in anno_json:
-                # NOT WORKING!!!
-                data.append({"image_path": item["images"], "class_name": meta_json[str(item['id'])]['semantic_category']})
-        else:
-            for item in anno_json:
-                # NOT WORKING!!!
-                data.append({"image_path": item["images"], "sentences": item["title"] + "." + item["description"]})
+        for item_key in anno_json:
+            if item_key not in split_item_ids: # Skip items not in the current split
+                continue
+            item = anno_json[item_key]
+            item_path = os.path.join(self.root, 'images' + item_key + '.png')
+            if self.cls: # For classification, we use the (sub)category as the class label
+                data.append({"image_path": item_path, "class_name": item["semantic_category"]}) # category_dict[str(item['id'])]
+            else: # For captions, we use the fashion item's title (=name) and description as its caption
+                data.append({"image_path": item_path, "sentences": item["title"] + "." + item["description"]})
 
         return data
 
@@ -394,7 +407,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
         "RESISC45": (RESISC45, "NWPU-RESISC45", False),
         "Fashion200k": (Fashion200k, "fashion200k", True),
         "FashionGen": (None, None, None, None),  # Currently unavailable
-        "Polyvore": (Polyvore, "polyvore", True),
+        "Polyvore": (Polyvore, "polyvore_outfits", True),
         # "Simpsons-Captions": (None, "simpsons-blip-captions", False),
         # "Simpsons-Images": (None, "simpsons_dataset", False)
     }

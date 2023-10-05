@@ -1,0 +1,38 @@
+Run within ./data folder:
+
+Sydney:
+pip install gdown
+mkdir sydney_captions
+gdown --id 1zAA8qG8FZLCj2t4t9JPgNS48sA2iltaU
+unzip Sydney_captions.zip -d sydney_captions
+rm Sydney_captions.zip
+
+UCM-CLS (merced landuse)
+wget http://weegee.vision.ucmerced.edu/datasets/UCMerced_LandUse.zip -O UCMerced_LandUse.zip
+unzip UCMerced_LandUse.zip 
+rm UCMerced_LandUse.zip
+
+
+WHU-RS19
+wget https://github.com/CAPTAIN-WHU/BED4RS/raw/main/datasets/WHU-RS19.zip
+unzip WHU-RS19.zip
+rm WHU-RS19.zip
+
+RSSCN7
+mkdir RSSCN7
+git clone https://github.com/palewithout/RSSCN7.git RSSCN7
+rm -r ./RSSCN7/.git/
+
+AID
+pip install gdown
+gdown --id 1cvjfe_MZJI9HXwkRgoQbSCH55qQd6Esm
+unzip AID.zip
+rm AID.zip
+
+RESISC45
+pip install gdown
+gdown --id 1DnPSU5nVSN7xv95bpZ3XQ0JhKXZOKgIv
+unrar x NWPU-RESISC45.rar
+rm NWPU-RESISC45.rar
+
+RSICD & UCM Captions: https://github.com/201528014227051/RSICD_optimal 
