@@ -220,10 +220,6 @@ class Polyvore(CustomDataLoader):
         # Load in the item metadata, which contains names and descriptions of fashion items
         json_path = os.path.join(self.root, "polyvore_item_metadata.json")
         anno_json = read_json(json_path)
-        # Load in the categories dataframe, that maps category IDs to (sub)categories
-        category_df = pd.read_csv(os.path.join(self.root, 'categories.csv'), header = None, names = ['ID', 'subcategory', 'category'])
-        # Convert to a dictionary for easier access later
-        category_dict = category_df[['ID', 'subcategory']].set_index('ID').T.to_dict('records')
         
         data = []
 
@@ -233,11 +229,50 @@ class Polyvore(CustomDataLoader):
             item = anno_json[item_key]
             item_path = os.path.join(self.root, 'images' + item_key + '.png')
             if self.cls: # For classification, we use the (sub)category as the class label
-                data.append({"image_path": item_path, "class_name": item["semantic_category"]}) # category_dict[str(item['id'])]
+                data.append({"image_path": item_path, "class_name": item["semantic_category"]}) 
             else: # For captions, we use the fashion item's title (=name) and description as its caption
                 data.append({"image_path": item_path, "sentences": item["title"] + "." + item["description"]})
 
         return data
+
+# Data from: https://github.com/monib110/fashionstyle-generation-GMM/blob/main/README.md
+class FashionGen(CustomDataLoader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data = self._load_annotation_db(self.split)
+        
+    def _load_annotation_db(self, split):
+        split = {'train': 'train', 'val': 'validation'}[split]
+        h5_path = os.path.join(self.root, f"fashiongen_256_256_{split}.h5") # hdf5
+        h5_file = h5py.File(h5_path)
+
+        data = {}
+        for idx in range(len(h5_file['index'])):
+            item_id = int(h5_file['input_productID'][idx])
+            input_name = h5_file['input_name'][idx][0]
+            input_desc = h5_file['input_description'][idx][0]
+
+            if item_id in data:
+                data[item_id]['image_idx'].append(idx)
+            else:
+                data[item_id] = dict(image_idx=[idx], input_name=input_name, input_desc=input_desc)
+        data = [dict({'id': item_id}, **data[item_id]) for item_id in data]
+
+        images = h5_file['input_image']
+
+        return data, images
+
+    def __getitem__(self, idx):
+            item = self.data[idx]
+    
+            x = self.images[random.choice(item['image_idx'])]
+            x = Image.fromarray(x)
+            x = self.transform(x)
+    
+            sentences = item['input_name'].decode('latin-1') + ". "
+            sentences += item['input_desc'].decode('latin-1')
+    
+            return dict(x=x, captions=sentences)
 
 # Data from: https://github.com/tingyaohsu/SciCap
 class SciCap(CustomDataLoader):
@@ -257,7 +292,7 @@ class SciCap(CustomDataLoader):
                 continue
 
             path = str(filename).replace("json", "png")
-            caption = json_object['0-originally-extracted']
+            caption = json_object['0-originally-extracted'] # Contains the text caption of the figure
             caption = caption[:self.MAXLEN]  # cut long captions
             data.append({'image_path': path, 'class_name': caption})
 
@@ -406,7 +441,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls, subclass, **data_k
         "AID": (AID, "AID", False),
         "RESISC45": (RESISC45, "NWPU-RESISC45", False),
         "Fashion200k": (Fashion200k, "fashion200k", True),
-        "FashionGen": (None, None, None, None),  # Currently unavailable
+        "FashionGen": (FashionGen, "fashiongen", True), 
         "Polyvore": (Polyvore, "polyvore_outfits", True),
         # "Simpsons-Captions": (None, "simpsons-blip-captions", False),
         # "Simpsons-Images": (None, "simpsons_dataset", False)

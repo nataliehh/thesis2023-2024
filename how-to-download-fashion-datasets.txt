@@ -10,6 +10,3 @@ FashionGen
 gdown 1yR-_NJ6CxCYB2i8UECEB2doNssj5J8Li
 gdown 1R4JtSAtbbOi9mByBj-KpchNf9nDn6BO1
 
-Polyvore
-https://github.com/mvasil/fashion-compatibility
-
