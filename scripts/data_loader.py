@@ -244,7 +244,7 @@ class Polyvore(CustomDataLoader):
 class FashionGen(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = self._load_annotation_db(self.split)
+        self.data, self.images = self._load_annotation_db(self.split)
         if self.cls:
             self.classes = set()
             for cls in self.data['input_category']:

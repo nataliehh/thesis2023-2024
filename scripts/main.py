@@ -11,17 +11,17 @@ import torch
 from torch.cuda.amp import GradScaler
 
 from open_clip import create_model_and_transforms, get_tokenizer, create_loss
-from scheduler import cosine_lr, const_lr, const_lr_cooldown
+from .scheduler import cosine_lr, const_lr, const_lr_cooldown
 
 import fsspec
 
 # use custom functions
-from params import parse_args
-from data_loader import get_data
-from model import create_custom_model
-from train import train_one_epoch
-from evaluate import evaluate
-from loss import create_loss
+from .params import parse_args
+from .data_loader import get_data
+from .model import create_custom_model
+from .train import train_one_epoch
+from .evaluate import evaluate
+from .loss import create_loss
 
 
 LATEST_CHECKPOINT_NAME = "epoch_latest.pt"

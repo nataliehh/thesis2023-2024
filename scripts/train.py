@@ -6,6 +6,19 @@ import torch
 
 from open_clip import get_cast_dtype
 
+import json
+import os
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch.nn.parallel.distributed import DistributedDataParallel
+
+from open_clip import get_cast_dtype, CLIP, CustomTextCLIP
+from .distributed import is_master
+from .zero_shot import zero_shot_eval
+from .precision import get_autocast
+
 
 def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=None):
     device = torch.device(args.device)
@@ -202,21 +215,10 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
 
 
 
-
-import json
-import os
-
-import numpy as np
-import torch
-import torch.nn.functional as F
-from torch.nn.parallel.distributed import DistributedDataParallel
-
-from open_clip import get_cast_dtype, CLIP, CustomTextCLIP
-from distributed import is_master
-from zero_shot import zero_shot_eval
-from precision import get_autocast
-
-
+#################################################
+#################################################
+#################################################
+##### OTHER TRAIN.PY FILE FROM S-CLIP!!!
 class AverageMeter(object):
     """Computes and stores the average and current value"""
 
