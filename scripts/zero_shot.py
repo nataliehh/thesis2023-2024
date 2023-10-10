@@ -38,7 +38,14 @@ def run(model, classifier, dataloader, args):
     cast_dtype = get_cast_dtype(args.precision)
     with torch.no_grad():
         top1, top5, n = 0., 0., 0.
-        for images, target in tqdm(dataloader, unit_scale=args.batch_size):
+        for d in tqdm(dataloader, unit_scale=args.batch_size):
+            if len(d) == 2:
+                images, target = d
+            else:
+                # print(d)
+                print(type(d))
+                print(len(d))
+                print(d.shape)
             images = images.to(args.device)
             if cast_dtype is not None:
                 images = images.to(dtype=cast_dtype)

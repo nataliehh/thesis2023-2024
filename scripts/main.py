@@ -28,7 +28,7 @@ LATEST_CHECKPOINT_NAME = "epoch_latest.pt"
 
 def pt_load(file_path, map_location=None):
     if file_path.startswith('s3'):
-        logging.info('Loading remote checkpoint, which may take a bit.')
+        print('Loading remote checkpoint, which may take a bit.')
     of = fsspec.open(file_path, "rb")
     with of as f:
         out = torch.load(f, map_location=map_location)
@@ -85,7 +85,9 @@ def main(args):
     log_base_path = os.path.join(args.logs, args.name)
     args.log_path = None
     if args.train_data:
+        print('Making log path:', log_base_path)
         os.makedirs(log_base_path, exist_ok=True)
+        os.makedirs(os.path.join(log_base_path, 'checkpoints'), exist_ok=True)
         log_filename = f'out-{args.rank}' if args.log_local else 'out.log'
         args.log_path = os.path.join(log_base_path, log_filename)
         if os.path.exists(args.log_path) and not resume_latest:
@@ -97,55 +99,70 @@ def main(args):
     if resume_latest:
         resume_from = None
         checkpoint_path = args.checkpoint_path
-        resume_from = get_latest_checkpoint(checkpoint_path)
-        if resume_from:
-            logging.info(f'Found latest resume checkpoint at {resume_from}.')
-        else:
-            logging.info(f'No latest resume checkpoint found in {checkpoint_path}.')
+        # If using remote_sync, need to check the remote instead of the local checkpoints folder.
+        if args.remote_sync is not None:
+            checkpoint_path = os.path.join(args.remote_sync, args.name, "checkpoints")
+            if args.save_most_recent:
+                print('Error. Cannot use save-most-recent with remote_sync and resume latest.')
+                return -1
+            if args.remote_sync_protocol != 's3':
+                print('Error. Sync protocol not supported when using resume latest.')
+                return -1
+        if is_master(args):
+            # Checking for existing checkpoint via master rank only. It is possible for
+            # different rank processes to see different files if a shared file-system is under
+            # stress, however it's very difficult to fully work around such situations.
+            if args.save_most_recent:
+                # if --save-most-recent flag is set, look for latest at a fixed filename
+                resume_from = os.path.join(checkpoint_path, LATEST_CHECKPOINT_NAME)
+                if not os.path.exists(resume_from):
+                    # If no latest checkpoint has been saved yet, don't try to resume
+                    resume_from = None
+            else:
+                # otherwise, list checkpoint dir contents and pick the newest checkpoint
+                resume_from = get_latest_checkpoint(checkpoint_path, remote=args.remote_sync is not None)
+            if resume_from:
+                logging.info(f'Found latest resume checkpoint at {resume_from}.')
+            else:
+                logging.info(f'No latest resume checkpoint found in {checkpoint_path}.')
+        if args.distributed:
+            # sync found checkpoint path to all ranks
+            resume_from = broadcast_object(args, resume_from)
         args.resume = resume_from
+
 
     if args.precision == 'fp16':
         logging.warning('It is recommended to use AMP mixed-precision instead of FP16. '
             'FP16 support needs further verification and tuning, especially for train.')
 
-    logging.info(f'Running with a single process. Device {device}.')
+    print(f'Running with a single process. Device {device}.')
 
     dist_model = None
 
-    if isinstance(args.force_image_size, (tuple, list)) and len(args.force_image_size) == 1:
-        # arg is nargs, single (square) image size list -> int
-        args.force_image_size = args.force_image_size[0]
+    args.checkpoint_path = os.path.join(log_base_path, "checkpoints")
+    log_base_path = os.path.join(args.logs, args.name)
+
+    # if isinstance(args.force_image_size, (tuple, list)) and len(args.force_image_size) == 1:
+    #     # arg is nargs, single (square) image size list -> int
+    #     args.force_image_size = args.force_image_size[0]
     random_seed(args.seed, 0)
     model, preprocess_train, preprocess_val = create_model_and_transforms(
-        args.model,
-        args.pretrained,
-        precision=args.precision,
-        device=device,
-        jit=args.torchscript,
-        force_quick_gelu=args.force_quick_gelu,
-        force_custom_text=args.force_custom_text,
-        force_patch_dropout=args.force_patch_dropout,
-        force_image_size=args.force_image_size,
-        pretrained_image=args.pretrained_image,
-        image_mean=args.image_mean,
-        image_std=args.image_std,
-        aug_cfg=args.aug_cfg,
-        output_dict=True,
-    )
+        args.model, args.pretrained, precision=args.precision, device=device, output_dict=True,)
 
     model = create_custom_model(args, model)  # use custom model
 
     random_seed(args.seed, args.rank)
 
+    
     if args.train_data:
-        logging.info("Model:")
-        logging.info(f"{str(model)}")
-        logging.info("Params:")
+        # print("Model:")
+        # print(f"{str(model)}")
+        # print("Params:")
         params_file = os.path.join(args.logs, args.name, "params.txt")
         with open(params_file, "w") as f:
             for name in sorted(vars(args)):
                 val = getattr(args, name)
-                logging.info(f"  {name}: {val}")
+                # print(f"  {name}: {val}")
                 f.write(f"{name}: {val}\n")
 
     # create optimizer and scaler
@@ -153,8 +170,6 @@ def main(args):
     scaler = None
 
     if args.train_data:
-        assert not args.trace, 'Cannot train with traced model'
-
         exclude = lambda n, p: p.ndim < 2 or "bn" in n or "ln" in n or "bias" in n or 'logit_scale' in n
         include = lambda n, p: not exclude(n, p)
 
@@ -187,16 +202,17 @@ def main(args):
                 optimizer.load_state_dict(checkpoint["optimizer"])
             if scaler is not None and 'scaler' in checkpoint:
                 scaler.load_state_dict(checkpoint['scaler'])
-            logging.info(f"=> resuming checkpoint '{args.resume}' (epoch {start_epoch})")
+            print(f"=> resuming checkpoint '{args.resume}' (epoch {start_epoch})")
         else:
             # loading a bare (model only) checkpoint for fine-tune or evaluation
             model.load_state_dict(checkpoint)
-            logging.info(f"=> loaded checkpoint '{args.resume}' (epoch {start_epoch})")
+            print(f"=> loaded checkpoint '{args.resume}' (epoch {start_epoch})")
 
     # initialize datasets
+    print('Getting data...')
     data = get_data(args, (preprocess_train, preprocess_val), epoch=start_epoch, tokenizer=get_tokenizer(args.model))
     assert len(data), 'At least one train or eval dataset must be specified.'
-
+    print('Data got.')
     # create scheduler if train
     scheduler = None
     if args.train_data and optimizer is not None:
@@ -213,8 +229,7 @@ def main(args):
                 optimizer, args.lr, args.warmup, total_steps,
                 cooldown_steps, args.lr_cooldown_power, args.lr_cooldown_end)
         else:
-            logging.error(
-                f'Unknown scheduler, {args.lr_scheduler}. Available options are: cosine, const, const-cooldown.')
+            logging.error(f'Unknown scheduler, {args.lr_scheduler}. Available options are: cosine, const, const-cooldown.')
             exit(1)
 
     # determine if this worker should save logs and checkpoints. only do so if it is rank == 0
@@ -237,7 +252,7 @@ def main(args):
     loss = create_loss(args)
 
     for epoch in range(start_epoch, args.epochs):
-        logging.info(f'Start epoch {epoch}')
+        print(f'Start epoch {epoch}')
 
         train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
         completed_epoch = epoch + 1
@@ -246,22 +261,13 @@ def main(args):
             evaluate(model, data, completed_epoch, args, writer)
 
         # Saving checkpoints.
-        if args.save_logs:
-            checkpoint_dict = {
-                "epoch": completed_epoch,
-                "name": args.name,
-                "state_dict": model.state_dict(),
-                "optimizer": optimizer.state_dict(),
-            }
-            if scaler is not None:
-                checkpoint_dict["scaler"] = scaler.state_dict()
+        checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+        if scaler is not None:
+            checkpoint_dict["scaler"] = scaler.state_dict()
 
-            # only save the last epoch to save server storage
-            if completed_epoch == args.epochs:
-                torch.save(
-                    checkpoint_dict,
-                    os.path.join(args.checkpoint_path, f"epoch_latest.pt"),
-                )
+        # only save the last epoch to save server storage
+        if completed_epoch == args.epochs:
+            torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
 
 if __name__ == "__main__":
     main(sys.argv[1:])

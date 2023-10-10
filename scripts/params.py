@@ -54,12 +54,8 @@ def add_base_args(parser):
     parser.add_argument("--warmup", type=int, default=10, help="Number of steps to warmup for.")
     parser.add_argument("--zeroshot-frequency", type=int, default=1, help="How often to run zero shot.")
     parser.add_argument("--resume", default=None, type=str, help="path to latest checkpoint (default: none)",)
-    parser.add_argument(
-        "--precision",
-        choices=["amp", "amp_bf16", "amp_bfloat16", "bf16", "fp16", "fp32"],
-        default="amp",
-        help="Floating point precision."
-    )
+    parser.add_argument("--precision", choices=["amp", "amp_bf16", "amp_bfloat16", "bf16", "fp16", "fp32"],
+        default="amp", help="Floating point precision.")
     parser.add_argument("--model", type=str, default="RN50", help="Name of the vision backbone to use.",)
     parser.add_argument(
         "--pretrained",
@@ -96,9 +92,7 @@ def add_base_args(parser):
         help="Path for keyword candidate set",
     )
     parser.add_argument(
-        "--name",
-        type=str,
-        default=None,
+        "--name", type=str, default=None,
         help="Optional identifier for the experiment when storing logs. Otherwise use current time.",
     )
     # Had to re-add these after removing them
@@ -114,74 +108,17 @@ def add_base_args(parser):
         default=False,
         help="log files on local master, otherwise global master only.",
     )
-    parser.add_argument(
-        '--force-image-size', type=int, nargs='+', default=None,
-        help='Override default image size'
-    )
-    parser.add_argument(
-        "--torchscript",
-        default=False,
-        action='store_true',
-        help="torch.jit.script the model, also uses jit version of OpenAI models if pretrained=='openai'",
-    )
-    parser.add_argument(
-        "--force-quick-gelu",
-        default=False,
-        action='store_true',
-        help="Force use of QuickGELU activation for non-OpenAI transformer models.",
-    )
-    parser.add_argument(
-        "--force-custom-text",
-        default=False,
-        action='store_true',
-        help="Force use of CustomTextCLIP model (separate text-tower).",
-    )
-    parser.add_argument(
-        "--force-patch-dropout",
-        default=None,
-        type=float,
-        help="Override the patch dropout during training, for fine tuning with no dropout near the end as in the paper",
-    )
-    parser.add_argument(
-        "--pretrained-image",
-        default=False,
-        action='store_true',
-        help="Load imagenet pretrained weights for image tower backbone if available.",
-    )
-    parser.add_argument(
-        '--image-mean', type=float, nargs='+', default=None, metavar='MEAN',
-        help='Override default image mean value of dataset')
-    parser.add_argument(
-        '--image-std', type=float, nargs='+', default=None, metavar='STD',
-        help='Override default image std deviation of of dataset')
-    parser.add_argument('--aug-cfg', nargs='*', default={}, action=ParseKwargs)
     parser.add_argument("--rank", type=int, default=0, help="Rank??")
     parser.add_argument("--world_size", type=int, default=1, help="World size??")
-    parser.add_argument("--device", type=str, default='cuda:0', help="Device??")
-    parser.add_argument("--distill",  action='store_true', default = False,  help="Distill??")
+    parser.add_argument("--device", type=str, default='cuda:0', help="Device (CPU or GPU")
     parser.add_argument("--distributed", action='store_true', default=False, help="Distributed??")
+    parser.add_argument("--accum-freq", type=int, default=1, help="Update the model every --acum-freq steps.")
     parser.add_argument(
-        "--trace",
-        default=False,
-        action='store_true',
-        help="torch.jit.trace the model for inference / eval only",
-    )
-    parser.add_argument(
-        "--accum-freq", type=int, default=1, help="Update the model every --acum-freq steps."
-    )
-    parser.add_argument(
-        "--lr-scheduler",
-        type=str,
-        default='cosine',
+        "--lr-scheduler", type=str, default='cosine',
         help="LR scheduler. One of: 'cosine', 'const' (constant), 'const-cooldown' (constant w/ cooldown). Default: "
-             "cosine",
-    )
-    parser.add_argument(
-        "--local-loss",
-        default=False,
-        action="store_true",
-        help="calculate loss w/ local features @ global (instead of realizing full global @ global matrix)"
-    )
+             "cosine",)
+    parser.add_argument("--local-loss", default=False, action="store_true",
+        help="calculate loss w/ local features @ global (instead of realizing full global @ global matrix)")
     parser.add_argument(
         "--horovod",
         default=False,
@@ -194,18 +131,12 @@ def add_base_args(parser):
         default=False,
         help="Use this flag to skip the learning rate decay.",
     )
-    parser.add_argument(
-        "--grad-clip-norm", type=float, default=None, help="Gradient clip."
-    )
-    parser.add_argument(
-        "--log-every-n-steps",
-        type=int,
-        default=100,
-        help="Log every n steps to tensorboard/console/wandb.",
-    )
+    parser.add_argument("--grad-clip-norm", type=float, default=None, help="Gradient clip.")
+    parser.add_argument("--log-every-n-steps", type=int, default=100, help="Log every n steps to tensorboard/console/wandb.",)
     parser.add_argument(
         "--val-frequency", type=int, default=1, help="How often to run evaluation with val data."
     )
+    parser.add_argument("--workers", type=int, default=4, help="Number of dataloader workers per GPU.")
     return parser
 
 
@@ -225,7 +156,7 @@ def parse_args(args):
         args.keyword_path = None
 
     if args.train_data is None and args.name is not None:
-        args.resume = f"logs/{args.name}/checkpoints/epoch_latest.pt"
+        args.resume = f"{args.name}/checkpoints/epoch_latest.pt"
         for model in ["RN50", "ViT-B-32", "ViT-B-16"]:
             if model in args.resume:
                 args.model = model

@@ -75,7 +75,6 @@ class CustomDataLoader(torch.utils.data.Dataset):
     # Get the x value (= image) of an item, and transform it
     def get_x(self, item):
         key = 'image_path' if 'image_path' in item else 'filename'
-        # print(self.root)
         if self.randomitem:
             path = os.path.join(self.root, self.image_root, random.choice(item[key]))
         else:
@@ -221,16 +220,20 @@ class Polyvore(CustomDataLoader):
             items = grouping['items']
             item_ids = [item['item_id'] for item in items] # Get image IDs
             split_item_ids += item_ids
+        split_item_ids = set(split_item_ids) # remove duplicates
 
         # Load in the item metadata, which contains names and descriptions of fashion items
         json_path = os.path.join(self.root, "polyvore_item_metadata.json")
         anno_json = read_json(json_path)
-        
+        item_ids = set(anno_json.keys()) # Get the (unique) IDs of all images
+
+        id_intersection = item_ids.intersection(split_item_ids) # Keep only the IDs which are in the current split
         data = []
 
-        for item_key in anno_json:
-            if item_key not in split_item_ids: # Skip items not in the current split
-                continue
+        for item_key in id_intersection:
+            # Skip items not in the current split - calling this on anno_json is several magnitudes slower than the intersect call above
+            # if item_key not in split_item_ids: 
+            #     continue
             item = anno_json[item_key]
             item_path = item_key + '.jpg'
             if self.cls: # For classification, we use the (sub)category as the class label
@@ -258,12 +261,18 @@ class FashionGen(CustomDataLoader):
         h5_file = h5py.File(h5_path)
         if self.cls:
             return h5_file
+
+        # Access the relevant lists for the for-loop
+        h5_file_index = h5_file['index']
+        h5_file_item_id = h5_file['input_productID']
+        h5_file_input_name = h5_file['input_name']
+        h5_file_input_desc = h5_file['input_description']
             
         data = {}
-        for idx in range(len(h5_file['index'])):
-            item_id = int(h5_file['input_productID'][idx])
-            input_name = h5_file['input_name'][idx][0]
-            input_desc = h5_file['input_description'][idx][0]
+        for idx in range(len(h5_file_index)):
+            item_id = int(h5_file_item_id[idx])
+            input_name = h5_file_input_name[idx][0]
+            input_desc = h5_file_input_desc[idx][0]    
 
             if item_id in data:
                 data[item_id]['image_idx'].append(idx)
@@ -453,8 +462,9 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
     split = "train" if is_train else "val"
     cls = 'CLS' in data
     subcls = 'SUBCLS' in data
-    data = data.replace('-CLS', '')
-    data = data.replace('-SUBCLS', '')
+    if data != 'UCM-CLS':
+        data = data.replace('-CLS', '')
+        data = data.replace('-SUBCLS', '')
 
     config = { # config dictionary that contains the call function to the dataset creator and the (relative) path to its data
         "RSICD": (RSICD, "RSICD", True),
@@ -487,7 +497,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
             # Classification datasets use a captioning template, either 'a photo of [CLASS]' or 'an aerial photograph of [CLASS]' (for remote sensing)
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
-                 template = template = [lambda c: f"an aerial photograph of {c}."]
+                 template = [lambda c: f"an aerial photograph of {c}."]
             return d, d.classes, template
         else:
             # We tokenize the caption datasets
@@ -573,7 +583,12 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
         data["val"] = create_datainfo(args, d_val, args.batch_size, is_train=False)
 
     if args.imagenet_val is not None:
-        d_zeroshot, classnames, template = get_custom_data(args, args.imagenet_val, preprocess_val, is_train=False)
+        d = get_custom_data(args, args.imagenet_val, preprocess_val, is_train=False)
+        if len(d) == 3:
+            d_zeroshot, classnames, template = d
+        else: # Some datasets come in the format [(image, classname), (image, classname)], so we fix this
+            d_zeroshot, classnames = zip(*d)
+            template = [lambda c: f"an aerial photograph of {c}."]
         data["zeroshot-val"] = create_datainfo(args, d_zeroshot, args.batch_size, is_train=False)
         data["classnames"] = classnames
         data["template"] = template

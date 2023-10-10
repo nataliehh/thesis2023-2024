@@ -25,10 +25,7 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
     autocast = get_autocast(args.precision)
     cast_dtype = get_cast_dtype(args.precision)
 
-
     model.train()
-    if args.distill:
-        dist_model.eval()
 
     data['train'].set_epoch(epoch)  # set epoch in process safe manner via sampler or shared_epoch
     dataloader = data['train'].dataloader
@@ -83,10 +80,7 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
                 model_out = model(**inputs)
                 model_out.update(model_out_extra)  # extra info for loss
                 logit_scale = model_out["logit_scale"]
-                if args.distill:
-                    with torch.no_grad():
-                        dist_model_out = dist_model(images, texts)
-                    model_out.update({f'dist_{k}' : v for k, v in dist_model_out.items()})
+                
                 losses = loss(**model_out, output_dict=True)
 
                 total_loss = sum(losses.values())
@@ -265,8 +259,6 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
 
 
     model.train()
-    if args.distill:
-        dist_model.eval()
 
     data['train'].set_epoch(epoch)  # set epoch in process safe manner via sampler or shared_epoch
     dataloader = data['train'].dataloader
@@ -298,10 +290,7 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
             with autocast():
                 model_out = model(images, texts)
                 logit_scale = model_out["logit_scale"]
-                if args.distill:
-                    with torch.no_grad():
-                        dist_model_out = dist_model(images, texts)
-                    model_out.update({f'dist_{k}' : v for k, v in dist_model_out.items()})
+                
                 losses = loss(**model_out, output_dict=True)
 
                 total_loss = sum(losses.values())
