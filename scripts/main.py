@@ -147,7 +147,8 @@ def main(args):
     #     args.force_image_size = args.force_image_size[0]
     random_seed(args.seed, 0)
     model, preprocess_train, preprocess_val = create_model_and_transforms(
-        args.model, args.pretrained, precision=args.precision, device=device, output_dict=True,)
+        args.model, args.pretrained, precision=args.precision, device=device, output_dict=True,
+        aug_cfg = args.aug_cfg, )
 
     model = create_custom_model(args, model)  # use custom model
 
@@ -257,9 +258,12 @@ def main(args):
         train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
         completed_epoch = epoch + 1
 
-        if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
-            evaluate(model, data, completed_epoch, args, writer)
+        print('Done training.')
 
+        # if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
+        #     evaluate(model, data, completed_epoch, args, writer)
+
+        print('Done evaluating.')
         # Saving checkpoints.
         checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
         if scaler is not None:

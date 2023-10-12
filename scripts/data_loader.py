@@ -142,58 +142,62 @@ class Fashion200k(CustomDataLoader):
 
         if self.cls:
             # Remove some broken links
-            self.data = [item for item in self.data if os.path.exists(os.path.join(self.root, 'women', item["image_path"]))]
+            self.data = [item for item in self.data if os.path.exists(os.path.join(self.root, item["image_path"]))]
 
             # Get a list of non-duplicate class names, and sort them
             self.classes = set([item['class_name'] for item in self.data])
             self.classes = sorted(self.classes)
 
     def _load_annotation_db(self, split):
-        split = {'train': 'train', 'val': 'test'}[split]
+        split = {'train': 'train', 'val': 'test', 'test': 'test'}[split]
 
-        txt_path = ['dress', 'jacket', 'pants', 'skirt', 'top']
-        txt_format = 'labels/{}_{}_detect_all.txt' # Need to provide the fashion class and dataset split
+        # txt_path = ['dress', 'jacket', 'pants', 'skirt', 'top']
+        # txt_format = 'labels/{}_{}_detect_all.txt' # Need to provide the fashion class and dataset split
 
-        if self.cls:
-            # We concat all label files in the split to allow us to easily get all image paths and classes
-            path = './data/fashion200k/labels'
-            full_txt = []
-            # Go over all text files
-            for txt in os.listdir(path):
-                if split in txt: # If the text file contains the correct split ('train' or 'test')
-                    with open(os.path.join(path, txt), 'r') as f:
-                        data = f.readlines()
-                        full_txt += data
+        path = './data/fashion200k/labels'
+        full_txt = []
+        
+        # Go over all text files
+        # We concat all label files in the split to allow us to easily get all image paths and classes
+        for txt in os.listdir(path):
+            if split in txt: # If the text file contains the correct split ('train' or 'test')
+                with open(os.path.join(path, txt), 'r') as f:
+                    data = f.readlines()
+                    full_txt += data
+                    
+        image_paths = []
+        descriptions = []
+        # Extract the image paths from the labeling information files
+        for item in full_txt:
+            # The lines in the labels have the format: path\tconfidence_score\tdescription
+            image_path, _, description = item.split('\t')
+            image_path = image_path.split('/') # We extract the path to the image
+            id_folder = image_path.pop(3) # Remove ID folder from path
+            image_path = '/'.join(image_path) # Restore image path 
+            image_paths.append(image_path)
+            descriptions.append(description)
             
+        if self.cls:
             class_index = 2 if self.subclass else 1
-            split = {'train': 'train', 'val': 'test'}[split]
-            # json_path = os.path.join(self.root, f"{split}_info.json")
-            # anno_json = read_json(json_path)
 
             data = []
-            for item in full_txt:
-                # for image_path in item['images']:
-                # The lines in the labels have the format: path\tconfidence_score\tdescription
-                image_path = item.split('\t')[0] # We extract the path to the image
-                # The path has the format: /women/category/subcategory/id_folder/image, we want either the category or subcategory
+            for image_path in image_paths:
+                # The path has the format: /women/category/subcategory/image, we want either the category or subcategory
                 class_name = image_path.split("/")[class_index].replace("_", " ") 
                 data.append({ "image_path": image_path, "class_name": class_name })
         else:
             data = {}
-            for txt in txt_path:
-                with open(os.path.join(self.root, txt_format.format(txt, split)), 'r') as f:
-                    for line in f.readlines():
-                        line = line.strip()
-                        image_path, _, sentences = line.split('\t')
-                        item_id = image_path.split('/')[3]
+            for i, image_path in enumerate(image_paths):
+                # The names of items look like 12345_0.jpeg, here we extract the part before the underscore
+                item_id = image_path.split('/')[-1].split('_')[0]
 
-                        if not os.path.exists(os.path.join(self.root, image_path)):
-                            continue
+                if not os.path.exists(os.path.join(self.root, image_path)):
+                    continue
 
-                        if item_id in data:
-                            data[item_id]['image_path'].append(image_path)
-                        else:
-                            data[item_id] = dict(image_path=[image_path], sentences=sentences)
+                if item_id in data:
+                    data[item_id]['image_path'].append(image_path)
+                else:
+                    data[item_id] = dict(image_path=[image_path], sentences=descriptions[i])
             data = [dict({'id': item_id}, **data[item_id]) for item_id in data]
         return data
 
@@ -247,13 +251,15 @@ class Polyvore(CustomDataLoader):
 class FashionGen(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data, self.images = self._load_annotation_db(self.split)
         if self.cls:
+            self.data = self._load_annotation_db(self.split) 
             self.classes = set()
             for cls in self.data['input_category']:
                 cls = cls[0].decode('UTF-8').lower()
                 self.classes.add(cls)
             self.classes = list(sorted(list(self.classes)))
+        else:
+            self.data, self.images = self._load_annotation_db(self.split)
         
     def _load_annotation_db(self, split):
         split = {'train': 'train', 'val': 'validation'}[split]
@@ -271,8 +277,8 @@ class FashionGen(CustomDataLoader):
         data = {}
         for idx in range(len(h5_file_index)):
             item_id = int(h5_file_item_id[idx])
-            input_name = h5_file_input_name[idx][0]
-            input_desc = h5_file_input_desc[idx][0]    
+            input_name = h5_file_input_name[idx][0].decode('latin-1') + ". "
+            input_desc = h5_file_input_desc[idx][0].decode('latin-1')    
 
             if item_id in data:
                 data[item_id]['image_idx'].append(idx)
@@ -299,8 +305,8 @@ class FashionGen(CustomDataLoader):
         x = Image.fromarray(x)
         x = self.transform(x)
 
-        sentences = item['input_name'].decode('latin-1') + ". "
-        sentences += item['input_desc'].decode('latin-1')
+        sentences = item['input_name']#.decode('latin-1') + ". "
+        sentences += item['input_desc']#.decode('latin-1')
 
         return dict(x=x, captions=sentences)
 
@@ -458,6 +464,7 @@ def create_datainfo(args, dataset, batch_size, is_train):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass = False, **data_kwargs):
+    print(data)
     path = './data/'
     split = "train" if is_train else "val"
     cls = 'CLS' in data
@@ -488,7 +495,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
         # A configuration specifies the class instantiation, path to the dataset and whether we are using a custom dataset loader
         # Custom dataset loaders allow for extra arguments
         dataset_class, dataset_path, custom = config.get(data) 
-        randomitem = True if data == 'Fashion200k' else False
+        randomitem = False #True if data == 'Fashion200k' else False
         if custom:
             d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
         else:
@@ -498,6 +505,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {c}."]
+            print(d.classes)
             return d, d.classes, template
         else:
             # We tokenize the caption datasets

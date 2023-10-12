@@ -136,7 +136,8 @@ def add_base_args(parser):
     parser.add_argument(
         "--val-frequency", type=int, default=1, help="How often to run evaluation with val data."
     )
-    parser.add_argument("--workers", type=int, default=4, help="Number of dataloader workers per GPU.")
+    parser.add_argument("--workers", type=int, default=1, help="Number of dataloader workers per GPU.")
+    parser.add_argument('--aug-cfg', nargs='*', default={}, action=ParseKwargs)
     return parser
 
 
