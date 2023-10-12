@@ -75,7 +75,7 @@ class CustomDataLoader(torch.utils.data.Dataset):
     # Get the x value (= image) of an item, and transform it
     def get_x(self, item):
         key = 'image_path' if 'image_path' in item else 'filename'
-        if self.randomitem:
+        if self.randomitem and not self.cls:
             path = os.path.join(self.root, self.image_root, random.choice(item[key]))
         else:
             path = os.path.join(self.root, self.image_root, item[key])
@@ -292,11 +292,12 @@ class FashionGen(CustomDataLoader):
 
     def __getitem__(self, idx):
         if self.cls:
+            key = 'input_subcategory' if self.subclass else 'input_category'
             x = self.data['input_image'][idx]
             x = Image.fromarray(x)
             x = self.transform(x)
     
-            cls_name = self.data['input_category'][idx][0].decode('UTF-8').lower()
+            cls_name = self.data[key][idx][0].decode('UTF-8').lower()
             y = self.classes.index(cls_name)
             return x, y
         item = self.data[idx]
@@ -468,7 +469,8 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
     path = './data/'
     split = "train" if is_train else "val"
     cls = 'CLS' in data
-    subcls = 'SUBCLS' in data
+    subclass = 'SUBCLS' in data
+    randomitem ='Fashion200k' in data
     if data != 'UCM-CLS':
         data = data.replace('-CLS', '')
         data = data.replace('-SUBCLS', '')
@@ -495,7 +497,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
         # A configuration specifies the class instantiation, path to the dataset and whether we are using a custom dataset loader
         # Custom dataset loaders allow for extra arguments
         dataset_class, dataset_path, custom = config.get(data) 
-        randomitem = False #True if data == 'Fashion200k' else False
+        
         if custom:
             d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
         else:
@@ -538,7 +540,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
         elif data =='Fashion-ALL':
             d = ConcatDataset([
                 Polyvore("./data/polyvore_outfits", split=split, transform=preprocess_fn),
-                Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn),
+                Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
                 FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),
             ])
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
