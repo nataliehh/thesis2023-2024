@@ -57,7 +57,7 @@ def main(args):
     # args = parse_args(args)
 
     if torch.cuda.is_available():
-        # Enable tf32 on Ampere GPUs that's only 8% slower than float16 and almost as accurate as float32
+        # Enable tf32 on Ampere GPUs - only 8% slower than float16 & almost as accurate as float32
         # This was a default in pytorch until 1.12
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.benchmark = True
@@ -71,14 +71,10 @@ def main(args):
         keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
             if args.keyword_path is not None else 'none'
         date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
-        args.name = '-'.join([
-            date_str,
-            f"data_{args.train_data}",
-            f"ratio_{args.label_ratio}",
-            f"model_{args.model}",
-            f"method_{args.method}",
-            f"keyword_{keyword_type}",
-            f"seed_{args.seed}",
+        args.name = '-'.join([date_str, f"data_{args.train_data}",
+            f"ratio_{args.label_ratio}", f"model_{args.model}",
+            f"method_{args.method}", f"keyword_{keyword_type}",
+            #f"seed_{args.seed}",
         ])
 
     resume_latest = args.resume == 'latest'
@@ -91,60 +87,39 @@ def main(args):
         log_filename = f'out-{args.rank}' if args.log_local else 'out.log'
         args.log_path = os.path.join(log_base_path, log_filename)
         if os.path.exists(args.log_path) and not resume_latest:
-            print(
-                "Error. Experiment already exists. Use --name {} to specify a new experiment."
-            )
+            print("Error. Experiment already exists. Use --name {} to specify a new experiment.")
             return -1
 
     if resume_latest:
         resume_from = None
         checkpoint_path = args.checkpoint_path
-        # If using remote_sync, need to check the remote instead of the local checkpoints folder.
-        if args.remote_sync is not None:
-            checkpoint_path = os.path.join(args.remote_sync, args.name, "checkpoints")
-            if args.save_most_recent:
-                print('Error. Cannot use save-most-recent with remote_sync and resume latest.')
-                return -1
-            if args.remote_sync_protocol != 's3':
-                print('Error. Sync protocol not supported when using resume latest.')
-                return -1
-        if is_master(args):
-            # Checking for existing checkpoint via master rank only. It is possible for
-            # different rank processes to see different files if a shared file-system is under
-            # stress, however it's very difficult to fully work around such situations.
-            if args.save_most_recent:
-                # if --save-most-recent flag is set, look for latest at a fixed filename
-                resume_from = os.path.join(checkpoint_path, LATEST_CHECKPOINT_NAME)
-                if not os.path.exists(resume_from):
-                    # If no latest checkpoint has been saved yet, don't try to resume
-                    resume_from = None
-            else:
-                # otherwise, list checkpoint dir contents and pick the newest checkpoint
-                resume_from = get_latest_checkpoint(checkpoint_path, remote=args.remote_sync is not None)
-            if resume_from:
-                logging.info(f'Found latest resume checkpoint at {resume_from}.')
-            else:
-                logging.info(f'No latest resume checkpoint found in {checkpoint_path}.')
-        if args.distributed:
-            # sync found checkpoint path to all ranks
-            resume_from = broadcast_object(args, resume_from)
+
+        if args.save_most_recent:
+            # if --save-most-recent flag is set, look for latest at a fixed filename
+            resume_from = os.path.join(checkpoint_path, LATEST_CHECKPOINT_NAME)
+            if not os.path.exists(resume_from):
+                # If no latest checkpoint has been saved yet, don't try to resume
+                resume_from = None
+        else:
+            # otherwise, list checkpoint dir contents and pick the newest checkpoint
+            resume_from = get_latest_checkpoint(checkpoint_path, remote=args.remote_sync is not None)
+        if resume_from:
+            logging.info(f'Found latest resume checkpoint at {resume_from}.')
+        else:
+            logging.info(f'No latest resume checkpoint found in {checkpoint_path}.')
         args.resume = resume_from
 
-
     if args.precision == 'fp16':
-        logging.warning('It is recommended to use AMP mixed-precision instead of FP16. '
-            'FP16 support needs further verification and tuning, especially for train.')
+        logging.warning("It's recommended to use AMP mixed-precision instead of FP16. "
+            "FP16 support needs further verification and tuning, especially for train.")
 
-    print(f'Running with a single process. Device {device}.')
+    print(f'Running with a single process on device {device}.')
 
     dist_model = None
 
     args.checkpoint_path = os.path.join(log_base_path, "checkpoints")
     log_base_path = os.path.join(args.logs, args.name)
 
-    # if isinstance(args.force_image_size, (tuple, list)) and len(args.force_image_size) == 1:
-    #     # arg is nargs, single (square) image size list -> int
-    #     args.force_image_size = args.force_image_size[0]
     random_seed(args.seed, 0)
     model, preprocess_train, preprocess_val = create_model_and_transforms(
         args.model, args.pretrained, precision=args.precision, device=device, output_dict=True,
@@ -154,21 +129,15 @@ def main(args):
 
     random_seed(args.seed, args.rank)
 
-    
     if args.train_data:
-        # print("Model:")
-        # print(f"{str(model)}")
-        # print("Params:")
         params_file = os.path.join(args.logs, args.name, "params.txt")
         with open(params_file, "w") as f:
             for name in sorted(vars(args)):
                 val = getattr(args, name)
-                # print(f"  {name}: {val}")
                 f.write(f"{name}: {val}\n")
 
     # create optimizer and scaler
-    optimizer = None
-    scaler = None
+    optimizer, scaler = None, None
 
     if args.train_data:
         exclude = lambda n, p: p.ndim < 2 or "bn" in n or "ln" in n or "bias" in n or 'logit_scale' in n
@@ -181,11 +150,8 @@ def main(args):
         optimizer = torch.optim.AdamW(
             [{"params": gain_or_bias_params, "weight_decay": 0.},
              {"params": rest_params, "weight_decay": args.wd},],
-            lr=args.lr,
-            betas=(args.beta1, args.beta2),
-            eps=args.eps,
+            lr=args.lr, betas=(args.beta1, args.beta2), eps=args.eps,
         )
-
         scaler = GradScaler() if args.precision == "amp" else None
 
     # optionally resume from a checkpoint
@@ -218,17 +184,16 @@ def main(args):
     scheduler = None
     if args.train_data and optimizer is not None:
         total_steps = (data["train"].dataloader.num_batches // args.accum_freq) * args.epochs
+        scheduler_args = {'optimizer':optimizer, 'base_lr': args.lr, 'warmup_length': args.warmup, 'steps': total_steps}
         if args.lr_scheduler == "cosine":
-            scheduler = cosine_lr(optimizer, args.lr, args.warmup, total_steps)
+            scheduler = cosine_lr(**scheduler_args)
         elif args.lr_scheduler == "const":
-            scheduler = const_lr(optimizer, args.lr, args.warmup, total_steps)
+            scheduler = const_lr(**scheduler_args)
         elif args.lr_scheduler == "const-cooldown":
             assert args.epochs_cooldown is not None, \
                 "Please specify the number of cooldown epochs for this lr schedule."
             cooldown_steps = (data["train"].dataloader.num_batches // args.accum_freq) * args.epochs_cooldown
-            scheduler = const_lr_cooldown(
-                optimizer, args.lr, args.warmup, total_steps,
-                cooldown_steps, args.lr_cooldown_power, args.lr_cooldown_end)
+            scheduler = const_lr_cooldown(**(scheduler_args + [cooldown_steps, args.lr_cooldown_power, args.lr_cooldown_end]))
         else:
             logging.error(f'Unknown scheduler, {args.lr_scheduler}. Available options are: cosine, const, const-cooldown.')
             exit(1)
@@ -242,12 +207,10 @@ def main(args):
         with open('eval.txt', 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(
-                        args.name, args.imagenet_val, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(args.name, args.imagenet_val, k, 100 * v))
                 elif k in ["image_to_text_R@1", "image_to_text_R@5", "image_to_text_R@10",
                            "text_to_image_R@1", "text_to_image_R@5", "text_to_image_R@10"]:
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(
-                        args.name, args.val_data, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(args.name, args.val_data, k, 100 * v))
         return
 
     loss = create_loss(args)

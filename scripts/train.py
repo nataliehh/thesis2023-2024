@@ -257,7 +257,6 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
     autocast = get_autocast(args.precision)
     cast_dtype = get_cast_dtype(args.precision)
 
-
     model.train()
 
     data['train'].set_epoch(epoch)  # set epoch in process safe manner via sampler or shared_epoch

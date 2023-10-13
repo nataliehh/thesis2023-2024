@@ -1,22 +1,30 @@
 # Code based on: https://github.com/alinlab/s-clip/blob/master/custom/data.py
 # And on: https://github.com/isaaccorley/torchrs/blob/main/torchrs/datasets/
 import os
-import json
 import h5py
 import random
 from PIL import Image
 from multiprocessing import Value
 from typing import List, Dict
-import pandas as pd
+from tqdm import tqdm
+import time
+import numpy as np
+import time
 
 from tools import read_json
 
 import torch
 import torchvision.transforms as T
-from torch.utils.data import Dataset, DataLoader, ConcatDataset, Subset
+from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torch.utils.data.distributed import DistributedSampler
 from torchvision.datasets import ImageFolder
 from datasets import load_dataset
+
+# Active learning imports
+from open_clip import create_model_and_transforms, get_cast_dtype
+import torch.nn.functional as F
+from .precision import get_autocast
+from scipy.spatial.distance import cdist
 
 from torchrs.datasets import UCMCaptions, SydneyCaptions
 from torchrs.datasets import UCM, WHURS19, RSSCN7, AID, RESISC45
@@ -416,14 +424,52 @@ class TokenizedDataset(torch.utils.data.Dataset):
         return images, tokens, keyword_labels
 
 
-def split_data(d, split_ratio, seed=42, hf_data=False):
-    # set random seed
+def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, args = None):
     gen = torch.Generator()
-    gen.manual_seed(seed)
+    gen.manual_seed(seed) # set random seed
 
     # split labeled and unlabeled data
     indices = torch.randperm(len(d), generator=gen)
     size = int(len(d) * split_ratio)
+
+    # Active learning
+    if active_learning and args.train_data:
+        # Load in the dataset with a dataloader
+        data = DataLoader(d,batch_size=1024,shuffle=False,num_workers=0, 
+                          pin_memory=False,sampler=None,drop_last=True,)
+        # Load in base CLIP model
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        clip_model, _, _ = create_model_and_transforms(
+            args.model, args.pretrained, precision=args.precision, device=device, 
+            output_dict=True, aug_cfg = args.aug_cfg, 
+        )
+        # Set some params to make inference with CLIP fit into memory
+        autocast = get_autocast(args.precision)
+        cast_dtype = get_cast_dtype(args.precision)
+        # Keep track of the image features with a list
+        image_features = []
+        with torch.no_grad():
+            for images, targets in tqdm(data, unit_scale=args.batch_size):
+                # targets = targets.to(device)
+                images = images.to(device)
+                if cast_dtype is not None:
+                    images = images.to(dtype=cast_dtype)
+                with autocast():
+                    image_feature = clip_model.encode_image(images)
+                    image_feature = F.normalize(image_feature, dim=-1)
+                image_features += image_feature.to('cpu')
+        image_features = np.array(image_features).astype(np.float64)
+        t_start = time.time()
+        # Compute similarity (1-cosine_distance = cosine_similarity)
+        sim = cdist(image_features, image_features, metric = 'cosine')
+        print('cosine time:', time.time() - t_start)
+        print(sim.shape)
+        # Mask diagonal as 0, so np.max() doesn't return an element's sim. with itself as the max similarity
+        mask = np.zeros(sim.shape, dtype=bool)
+        np.fill_diagonal(sim, 0)
+        # Get max similarity per element
+        avg_sim = np.max(sim, axis = 0)#max_sim = np.max(sim, axis = 0)
+        indices = avg_sim.argsort()
 
     if hf_data is False:
         d1 = Subset(d, indices[:size])
@@ -529,7 +575,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
             d.set_transform(transform)
 
             train_ratio = 0.9  # use 90% for training data
-            d_train, d_val = split_data(d["train"], train_ratio, seed=42, hf_data=True)
+            d_train, d_val = split_data(d["train"], train_ratio, seed=42, hf_data=True, args = args)
             d = d_train if is_train else d_val
 
             d = TokenizedDataset(d, image_key=image_key, text_key=text_key, **data_kwargs)
@@ -572,14 +618,14 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
 
         if args.train_data == "RS-SHIFT":
             d_train = get_custom_data(args, "RS", **train_kwargs)
-            d_train, _ = split_data(d_train, args.label_ratio, seed=args.seed)
+            d_train, _ = split_data(d_train, args.label_ratio, seed=args.seed, args = args)
             d_query, _, _ = get_custom_data(args, "RESISC45", **train_kwargs)
         elif args.train_data == "Simpsons":
             d_train = get_custom_data(args, "Simpsons-Captions", **train_kwargs)
             d_query = get_custom_data(args, "Simpsons-Images", **train_kwargs)
         else:
             d_train = get_custom_data(args, args.train_data, **train_kwargs)
-            d_train, d_query = split_data(d_train, args.label_ratio, seed=args.seed)
+            d_train, d_query = split_data(d_train, args.label_ratio, seed=args.seed, args = args)
 
         if args.method == "base":
             data["train"] = create_datainfo(args, d_train, args.batch_size, is_train=True)
