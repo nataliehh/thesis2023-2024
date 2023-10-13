@@ -435,7 +435,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, a
     # Active learning
     if active_learning and args.train_data:
         # Load in the dataset with a dataloader
-        data = DataLoader(d,batch_size=1024,shuffle=False,num_workers=0, 
+        data = DataLoader(d,batch_size=512,shuffle=False,num_workers=0, 
                           pin_memory=False,sampler=None,drop_last=True,)
         # Load in base CLIP model
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -448,27 +448,31 @@ def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, a
         cast_dtype = get_cast_dtype(args.precision)
         # Keep track of the image features with a list
         image_features = []
+        text_features = []
         with torch.no_grad():
-            for images, targets in tqdm(data, unit_scale=args.batch_size):
-                # targets = targets.to(device)
+            for images, texts in tqdm(data, unit_scale=args.batch_size):
+                texts = texts.to(device)
                 images = images.to(device)
                 if cast_dtype is not None:
                     images = images.to(dtype=cast_dtype)
                 with autocast():
                     image_feature = clip_model.encode_image(images)
                     image_feature = F.normalize(image_feature, dim=-1)
+                    text_feature = clip_model.encode_text(texts)
+                    text_feature = F.normalize(text_feature, dim=-1)
                 image_features += image_feature.to('cpu')
+                text_features += text_feature.to('cpu')
         image_features = np.array(image_features).astype(np.float64)
+        text_features = np.array(text_features).astype(np.float64)
         t_start = time.time()
         # Compute similarity (1-cosine_distance = cosine_similarity)
-        sim = cdist(image_features, image_features, metric = 'cosine')
+        sim = cdist(image_features, text_features, metric = 'cosine').diagonal()
         print('cosine time:', time.time() - t_start)
         print(sim.shape)
         # Mask diagonal as 0, so np.max() doesn't return an element's sim. with itself as the max similarity
-        mask = np.zeros(sim.shape, dtype=bool)
-        np.fill_diagonal(sim, 0)
+        # np.fill_diagonal(sim, 0)
         # Get max similarity per element
-        avg_sim = np.max(sim, axis = 0)#max_sim = np.max(sim, axis = 0)
+        avg_sim = sim #np.max(sim, axis = 0)#max_sim = np.max(sim, axis = 0)
         indices = avg_sim.argsort()
 
     if hf_data is False:
