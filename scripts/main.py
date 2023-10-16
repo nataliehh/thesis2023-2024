@@ -56,24 +56,27 @@ def get_latest_checkpoint(path: str):
 def main(args):
     # args = parse_args(args)
 
+    args.device = 'cpu'
     if torch.cuda.is_available():
         # Enable tf32 on Ampere GPUs - only 8% slower than float16 & almost as accurate as float32
         # This was a default in pytorch until 1.12
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False
-        device = 'cuda:0'
-    else:
-        device = 'cpu'
+        args.device = 'cuda:0'   
         
-    # get the name of the experiments
-    if args.name is None:
+    # We don't specify any AL method if we are not active learning 
+    if not args.active_learning :
+        args.al_method = None 
+    
+    if args.name is None: # get the name of the experiments
         keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
             if args.keyword_path is not None else 'none'
         date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
         args.name = '-'.join([date_str, f"data_{args.train_data}",
             f"ratio_{args.label_ratio}", f"model_{args.model}",
             f"method_{args.method}", f"keyword_{keyword_type}",
+            f"AL_method_{args.al_method}",
             #f"seed_{args.seed}",
         ])
 
@@ -84,7 +87,7 @@ def main(args):
         print('Making log path:', log_base_path)
         os.makedirs(log_base_path, exist_ok=True)
         os.makedirs(os.path.join(log_base_path, 'checkpoints'), exist_ok=True)
-        log_filename = f'out-{args.rank}' if args.log_local else 'out.log'
+        log_filename = 'out.log'
         args.log_path = os.path.join(log_base_path, log_filename)
         if os.path.exists(args.log_path) and not resume_latest:
             print("Error. Experiment already exists. Use --name {} to specify a new experiment.")
@@ -113,7 +116,7 @@ def main(args):
         logging.warning("It's recommended to use AMP mixed-precision instead of FP16. "
             "FP16 support needs further verification and tuning, especially for train.")
 
-    print(f'Running with a single process on device {device}.')
+    print(f'Running with a single process on device {args.device}.')
 
     dist_model = None
 
@@ -122,7 +125,7 @@ def main(args):
 
     random_seed(args.seed, 0)
     model, preprocess_train, preprocess_val = create_model_and_transforms(
-        args.model, args.pretrained, precision=args.precision, device=device, output_dict=True,
+        args.model, args.pretrained, precision=args.precision, device=args.device, output_dict=True,
         aug_cfg = args.aug_cfg, )
 
     model = create_custom_model(args, model)  # use custom model
@@ -211,6 +214,7 @@ def main(args):
                 elif k in ["image_to_text_R@1", "image_to_text_R@5", "image_to_text_R@10",
                            "text_to_image_R@1", "text_to_image_R@5", "text_to_image_R@10"]:
                     f.write('{}\t{}\t{}\t{:.2f}\n'.format(args.name, args.val_data, k, 100 * v))
+            f.write('\n')
         return
 
     loss = create_loss(args)
@@ -235,6 +239,7 @@ def main(args):
         # only save the last epoch to save server storage
         if completed_epoch == args.epochs:
             torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
+    return log_base_path
 
 if __name__ == "__main__":
     main(sys.argv[1:])

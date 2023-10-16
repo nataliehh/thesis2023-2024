@@ -424,7 +424,7 @@ class TokenizedDataset(torch.utils.data.Dataset):
         return images, tokens, keyword_labels
 
 
-def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, args = None):
+def split_data(d, split_ratio, seed=42, hf_data=False, al_method = "image-text", args = None):
     gen = torch.Generator()
     gen.manual_seed(seed) # set random seed
 
@@ -433,7 +433,8 @@ def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, a
     size = int(len(d) * split_ratio)
 
     # Active learning
-    if active_learning and args.train_data:
+    if args.active_learning and args.train_data:
+        print('Performing active learning.')
         # Load in the dataset with a dataloader
         data = DataLoader(d,batch_size=512,shuffle=False,num_workers=0, 
                           pin_memory=False,sampler=None,drop_last=True,)
@@ -466,14 +467,24 @@ def split_data(d, split_ratio, seed=42, hf_data=False, active_learning = True, a
         text_features = np.array(text_features).astype(np.float64)
         t_start = time.time()
         # Compute similarity (1-cosine_distance = cosine_similarity)
-        sim = cdist(image_features, text_features, metric = 'cosine').diagonal()
+        if al_method == "image-text":
+            sim = 1 - cdist(image_features, text_features, metric = 'cosine')
+            sim = sim/sim.sum(axis=1)[:,None] # Normalize rows so each one sums to 1
+            sim_score = sim.diagonal() # We only care about the similarity of an image to its corresponding text
+        else:
+            scoring = {'max': np.max, 'min': np.min, 'mean': np.mean, 'median': np.median}
+            choice = al_method.split("-")[-1] # AL-method has the format 'image-...' where '...' is some scoring choice
+            sim = 1 - cdist(image_features, image_features, metric = 'cosine')
+            #Mask diagonal as 0 for np.max() so it doesn't return an element's sim. with itself as the max similarity
+            if choice == 'max':
+                np.fill_diagonal(sim, 0)
+            sim_score = scoring[choice](sim, axis = 0)
         print('cosine time:', time.time() - t_start)
         print(sim.shape)
-        # Mask diagonal as 0, so np.max() doesn't return an element's sim. with itself as the max similarity
-        # np.fill_diagonal(sim, 0)
+
         # Get max similarity per element
-        avg_sim = sim #np.max(sim, axis = 0)#max_sim = np.max(sim, axis = 0)
-        indices = avg_sim.argsort()
+        avg_sim = sim 
+        indices = sim_score.argsort()
 
     if hf_data is False:
         d1 = Subset(d, indices[:size])

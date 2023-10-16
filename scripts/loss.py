@@ -9,7 +9,6 @@ has_distributed = False
 def create_loss(args):
     return SemiSupervisedClipLoss(
         args.method,
-        local_loss=args.local_loss,
         cache_labels=True,
         rank=args.rank,
         world_size=args.world_size,

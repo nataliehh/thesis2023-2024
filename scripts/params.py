@@ -96,48 +96,24 @@ def add_base_args(parser):
         help="Optional identifier for the experiment when storing logs. Otherwise use current time.",
     )
     # Had to re-add these after removing them
-    parser.add_argument(
-        "--logs",
-        type=str,
-        default='',
-        help="Where to store tensorboard logs. Use None to avoid storing logs.",
-    )
-    parser.add_argument(
-        "--log-local",
-        action="store_true",
-        default=False,
-        help="log files on local master, otherwise global master only.",
-    )
+    parser.add_argument("--logs", type=str, default='', help="Where to store logs. Use None to avoid storing logs.",)
     parser.add_argument("--rank", type=int, default=0, help="Rank??")
     parser.add_argument("--world_size", type=int, default=1, help="World size??")
-    parser.add_argument("--device", type=str, default='cuda:0', help="Device (CPU or GPU")
     parser.add_argument("--distributed", action='store_true', default=False, help="Distributed??")
     parser.add_argument("--accum-freq", type=int, default=1, help="Update the model every --acum-freq steps.")
-    parser.add_argument(
-        "--lr-scheduler", type=str, default='cosine',
-        help="LR scheduler. One of: 'cosine', 'const' (constant), 'const-cooldown' (constant w/ cooldown). Default: "
-             "cosine",)
-    parser.add_argument("--local-loss", default=False, action="store_true",
-        help="calculate loss w/ local features @ global (instead of realizing full global @ global matrix)")
-    parser.add_argument(
-        "--horovod",
-        default=False,
-        action="store_true",
-        help="Use horovod for distributed training."
-    )
-    parser.add_argument(
-        "--skip-scheduler",
-        action="store_true",
-        default=False,
-        help="Use this flag to skip the learning rate decay.",
-    )
+    parser.add_argument("--lr-scheduler", type=str, default='cosine',
+        help="LR scheduler. One of: 'cosine' (=default), 'const' (constant), 'const-cooldown' (constant w/ cooldown).")
+    parser.add_argument("--horovod", default=False, action="store_true", help="Use horovod for distributed training.")
+    parser.add_argument("--skip-scheduler", action="store_true", default=False, help="Whether to skip the learning rate decay.",)
     parser.add_argument("--grad-clip-norm", type=float, default=None, help="Gradient clip.")
-    parser.add_argument("--log-every-n-steps", type=int, default=100, help="Log every n steps to tensorboard/console/wandb.",)
-    parser.add_argument(
-        "--val-frequency", type=int, default=1, help="How often to run evaluation with val data."
-    )
+    parser.add_argument("--log-every-n-steps", type=int, default=100, help="Log every n steps.",)
+    parser.add_argument("--val-frequency", type=int, default=1, help="How often to run evaluation with val data.")
     parser.add_argument("--workers", type=int, default=1, help="Number of dataloader workers per GPU.")
     parser.add_argument('--aug-cfg', nargs='*', default={}, action=ParseKwargs)
+
+    # Own arguments
+    parser.add_argument("--active_learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
+    parser.add_argument("--al_method", type=str, default='image-text', help="Type of active learning strategy to apply.")
     return parser
 
 
