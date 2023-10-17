@@ -67,7 +67,8 @@ def main(args):
         
     # We don't specify any AL method if we are not active learning 
     if not args.active_learning :
-        args.al_method = None 
+        args.al_method = None
+        args.al_ratio = None
     
     if args.name is None: # get the name of the experiments
         keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
@@ -76,7 +77,7 @@ def main(args):
         args.name = '-'.join([date_str, f"data_{args.train_data}",
             f"ratio_{args.label_ratio}", f"model_{args.model}",
             f"method_{args.method}", f"keyword_{keyword_type}",
-            f"AL_method_{args.al_method}",
+            f"AL_method_{args.al_method}", f"AL_ratio_{args.al_ratio}",
             #f"seed_{args.seed}",
         ])
 

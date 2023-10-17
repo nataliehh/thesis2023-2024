@@ -436,7 +436,13 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
 
     # Active learning
     if args.active_learning and args.train_data and args.al_ratio > 0:
+        # Fix al_ratio to be at most as large as the requested split
+        args.al_ratio = min(args.al_ratio, split_ratio) 
+        num_al =  int(args.al_ratio*len(d))
+        labeled_size = size - num_al
         print('Performing active learning.')
+        print('Number of AL selected images:', num_al)
+        print('Number of labeled images:', size)
         # Load in the dataset with a dataloader
         data = DataLoader(d,batch_size=512,shuffle=False,num_workers=0, 
                           pin_memory=False,sampler=None,)
@@ -485,7 +491,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
                 np.fill_diagonal(sim, 0)
             if args.al_ratio < 1:
                 # We compute how much data should be regarded as labeled here
-                labeled_size = int(size *(1-args.al_ratio) )
                 print('Using {} labeled images'.format(labeled_size))
                 labeled_data = perm_indices[:labeled_size]
                 sim = sim[:,labeled_data]
