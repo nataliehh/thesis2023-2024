@@ -111,9 +111,10 @@ def add_base_args(parser):
     parser.add_argument("--workers", type=int, default=1, help="Number of dataloader workers per GPU.")
     parser.add_argument('--aug-cfg', nargs='*', default={}, action=ParseKwargs)
 
-    # Own arguments
+    # Own arguments for active learning
     parser.add_argument("--active_learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
     parser.add_argument("--al_method", type=str, default='image-text', help="Type of active learning strategy to apply.")
+    parser.add_argument("--al_ratio", type=int, default=0.5, help="How much active learning to apply vs. how much data to treat as labeled.")
     return parser
 
 

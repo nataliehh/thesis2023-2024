@@ -424,20 +424,22 @@ class TokenizedDataset(torch.utils.data.Dataset):
         return images, tokens, keyword_labels
 
 
-def split_data(d, split_ratio, seed=42, hf_data=False, al_method = "image-text", args = None):
+def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
     gen = torch.Generator()
     gen.manual_seed(seed) # set random seed
 
     # split labeled and unlabeled data
-    indices = torch.randperm(len(d), generator=gen)
+    perm_indices = torch.randperm(len(d), generator=gen)
     size = int(len(d) * split_ratio)
+    print('Dataset length:', len(d))
+    print('Labeled size:', size)
 
     # Active learning
-    if args.active_learning and args.train_data:
+    if args.active_learning and args.train_data and args.al_ratio > 0:
         print('Performing active learning.')
         # Load in the dataset with a dataloader
         data = DataLoader(d,batch_size=512,shuffle=False,num_workers=0, 
-                          pin_memory=False,sampler=None,drop_last=True,)
+                          pin_memory=False,sampler=None,)
         # Load in base CLIP model
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         clip_model, _, _ = create_model_and_transforms(
@@ -467,25 +469,40 @@ def split_data(d, split_ratio, seed=42, hf_data=False, al_method = "image-text",
         text_features = np.array(text_features).astype(np.float64)
         t_start = time.time()
         # Compute similarity (1-cosine_distance = cosine_similarity)
-        if al_method == "image-text":
+        if args.al_method == "image-text":
             sim = 1 - cdist(image_features, text_features, metric = 'cosine')
             sim = sim/sim.sum(axis=1)[:,None] # Normalize rows so each one sums to 1
             sim_score = sim.diagonal() # We only care about the similarity of an image to its corresponding text
         else:
             scoring = {'max': np.max, 'min': np.min, 'mean': np.mean, 'median': np.median}
-            choice = al_method.split("-")[-1] # AL-method has the format 'image-...' where '...' is some scoring choice
+            choice = args.al_method.split("-")[-1] # AL-method has the format 'image-...' where '...' is some scoring choice
+            assert choice in scoring
             sim = 1 - cdist(image_features, image_features, metric = 'cosine')
+            print('sim shape', sim.shape)
+            print('img shape', image_features.shape)
             #Mask diagonal as 0 for np.max() so it doesn't return an element's sim. with itself as the max similarity
             if choice == 'max':
                 np.fill_diagonal(sim, 0)
+            if args.al_ratio < 1:
+                # We compute how much data should be regarded as labeled here
+                labeled_size = int(size *(1-args.al_ratio) )
+                print('Using {} labeled images'.format(labeled_size))
+                labeled_data = perm_indices[:labeled_size]
+                sim = sim[:,labeled_data]
             sim_score = scoring[choice](sim, axis = 0)
         print('cosine time:', time.time() - t_start)
         print(sim.shape)
 
         # Get max similarity per element
-        avg_sim = sim 
-        indices = sim_score.argsort()
-
+        sim_score_ind = sim_score.argsort()
+        
+        if args.al_ratio < 1:
+            indices = np.append(perm_indices, sim_score_ind)
+        else:
+            indices = sim_score_ind
+    else:
+        indices = perm_indices
+        
     if hf_data is False:
         d1 = Subset(d, indices[:size])
         d2 = Subset(d, indices[size:])
