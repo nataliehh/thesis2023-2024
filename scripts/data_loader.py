@@ -53,7 +53,6 @@ class DataInfo:
             self.sampler.set_epoch(epoch)
 
 class CustomDataLoader(torch.utils.data.Dataset):
-    
     splits = ["train", "val", "test"]
     def __init__(self, root: str , split: str = 'train', transform: T.Compose = None, image_root: str = '', rawsent: bool = False, 
                  randomitem: bool = False, subclass: bool = False, cls: bool = False):
@@ -402,7 +401,6 @@ class TokenizedDataset(torch.utils.data.Dataset):
         if isinstance(texts, list):
             texts = str(random.choice(texts))
         tokens = self.tokenize([str(texts)])[0]
-
         # done if not using keywords
         if self.keywords is None:
             return images, tokens
@@ -415,8 +413,10 @@ class TokenizedDataset(torch.utils.data.Dataset):
                 # find index of the keyword
                 key = self.keyword_tokens[i]
                 idx = self._find_keyword(tokens.tolist(), key)
-                assert all(tokens[idx+i] == key[i] for i in range(len(key)))
-
+                if idx is not None:
+                    assert all(tokens[idx+i] == key[i] for i in range(len(key)))
+                else:
+                    idx = -1
                 keyword_labels[i][0] = 1
                 keyword_labels[i][1] = idx
                 keyword_labels[i][2] = len(key)
@@ -514,7 +514,8 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
     else:
         d1 = [d[int(i)] for i in indices[:size]]
         d2 = [d[int(i)] for i in indices[size:]]
-
+    print('D1 indices:', indices[:size])
+    print('D2 indices:', indices[size:])
     return d1, d2
 
 

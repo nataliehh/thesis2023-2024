@@ -96,7 +96,7 @@ def add_base_args(parser):
         help="Optional identifier for the experiment when storing logs. Otherwise use current time.",
     )
     # Had to re-add these after removing them
-    parser.add_argument("--logs", type=str, default='', help="Where to store logs. Use None to avoid storing logs.",)
+    parser.add_argument("--logs", type=str, default='./checkpoint', help="Where to store logs. Use None to avoid storing logs.",)
     parser.add_argument("--rank", type=int, default=0, help="Rank??")
     parser.add_argument("--world_size", type=int, default=1, help="World size??")
     parser.add_argument("--distributed", action='store_true', default=False, help="Distributed??")
@@ -115,6 +115,9 @@ def add_base_args(parser):
     parser.add_argument("--active_learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
     parser.add_argument("--al_method", type=str, default='image-text', help="Type of active learning strategy to apply.")
     parser.add_argument("--al-ratio", type=float, default=0.5, help="How much active learning to apply vs. how much data to treat as labeled.")
+
+    # Arguments for pseudo-labeling
+    parser.add_argument("--pl_method", type=str, default='ot-image', help="Type of pseudo-labeling strategy to apply.")
     return parser
 
 

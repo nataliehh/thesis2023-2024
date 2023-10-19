@@ -9,6 +9,7 @@ has_distributed = False
 def create_loss(args):
     return SemiSupervisedClipLoss(
         args.method,
+        pseudo_label_type = args.pl_method,
         cache_labels=True,
         rank=args.rank,
         world_size=args.world_size,
@@ -111,8 +112,8 @@ def ot_plan(query, support, logit_scale):
     reg = 1 / logit_scale  # learned temperature
 
     dim_p, dim_q = C.shape
-    p = torch.ones(dim_p, device=C.device, dtype=torch.double) / dim_p
-    q = torch.ones(dim_q, device=C.device, dtype=torch.double) / dim_q
+    p = torch.ones(dim_p, device=C.device, dtype=torch.half) / dim_p
+    q = torch.ones(dim_q, device=C.device, dtype=torch.half) / dim_q
     P = ot.bregman.sinkhorn(p, q, C, reg=reg, numItermax=10)
 
     plan = P / P.sum(dim=1, keepdim=True)
