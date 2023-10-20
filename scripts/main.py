@@ -77,7 +77,8 @@ def main(args):
         args.name = '-'.join([date_str, f"data_{args.train_data}",
             f"ratio_{args.label_ratio}", f"model_{args.model}",
             f"method_{args.method}", f"keyword_{keyword_type}",
-            f"AL_method_{args.al_method}", f"AL_ratio_{args.al_ratio}",
+            f"AL_method_{args.al_method}", f"PL_method_{args.pl_method}",
+            f"vit_{args.use_vit}",            
             #f"seed_{args.seed}",
         ])
 

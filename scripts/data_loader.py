@@ -21,7 +21,7 @@ from torchvision.datasets import ImageFolder
 from datasets import load_dataset
 
 # Active learning imports
-from open_clip import create_model_and_transforms, get_cast_dtype
+from open_clip import create_model_and_transforms, get_cast_dtype, get_tokenizer
 import torch.nn.functional as F
 from .precision import get_autocast
 from scipy.spatial.distance import cdist
@@ -424,7 +424,7 @@ class TokenizedDataset(torch.utils.data.Dataset):
         return images, tokens, keyword_labels
 
 
-def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
+def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames = None, templates = None):
     gen = torch.Generator()
     gen.manual_seed(seed) # set random seed
 
@@ -435,14 +435,8 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
     print('Labeled size:', size)
 
     # Active learning
-    if args.active_learning and args.train_data and args.al_ratio > 0:
-        # Fix al_ratio to be at most as large as the requested split
-        args.al_ratio = min(args.al_ratio, split_ratio) 
-        num_al =  int(args.al_ratio*len(d))
-        labeled_size = size - num_al
-        print('Performing active learning.')
-        print('Number of AL selected images:', num_al)
-        print('Number of labeled images:', size)
+    if args.active_learning and args.train_data and templates is not None and classnames is not None:
+        texts = []
         # Load in the dataset with a dataloader
         data = DataLoader(d,batch_size=512,shuffle=False,num_workers=0, 
                           pin_memory=False,sampler=None,)
@@ -459,52 +453,36 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None):
         image_features = []
         text_features = []
         with torch.no_grad():
-            for images, texts in tqdm(data, unit_scale=args.batch_size):
-                texts = texts.to(device)
+            with autocast():
+                for classname in tqdm(classnames):
+                    texts = [template(classname) for template in templates]
+                    tokenizer = get_tokenizer(args.model)
+                    texts = tokenizer(texts).to(args.device)
+                    text_feature = clip_model.encode_text(texts)
+                    text_feature = F.normalize(text_feature, dim=-1)
+                    text_features += text_feature.to('cpu')
+            for images, _ in tqdm(data, unit_scale=args.batch_size):
                 images = images.to(device)
                 if cast_dtype is not None:
                     images = images.to(dtype=cast_dtype)
                 with autocast():
                     image_feature = clip_model.encode_image(images)
                     image_feature = F.normalize(image_feature, dim=-1)
-                    text_feature = clip_model.encode_text(texts)
-                    text_feature = F.normalize(text_feature, dim=-1)
                 image_features += image_feature.to('cpu')
-                text_features += text_feature.to('cpu')
+            
         image_features = np.array(image_features).astype(np.float64)
         text_features = np.array(text_features).astype(np.float64)
         t_start = time.time()
         # Compute similarity (1-cosine_distance = cosine_similarity)
-        if args.al_method == "image-text":
-            sim = 1 - cdist(image_features, text_features, metric = 'cosine')
-            sim = sim/sim.sum(axis=1)[:,None] # Normalize rows so each one sums to 1
-            sim_score = sim.diagonal() # We only care about the similarity of an image to its corresponding text
-        else:
-            scoring = {'max': np.max, 'min': np.min, 'mean': np.mean, 'median': np.median}
-            choice = args.al_method.split("-")[-1] # AL-method has the format 'image-...' where '...' is some scoring choice
-            assert choice in scoring
-            sim = 1 - cdist(image_features, image_features, metric = 'cosine')
-            print('sim shape', sim.shape)
-            print('img shape', image_features.shape)
-            #Mask diagonal as 0 for np.max() so it doesn't return an element's sim. with itself as the max similarity
-            if choice == 'max':
-                np.fill_diagonal(sim, 0)
-            if args.al_ratio < 1:
-                # We compute how much data should be regarded as labeled here
-                print('Using {} labeled images'.format(labeled_size))
-                labeled_data = perm_indices[:labeled_size]
-                sim = sim[:,labeled_data]
-            sim_score = scoring[choice](sim, axis = 0)
-        print('cosine time:', time.time() - t_start)
-        print(sim.shape)
+        sim = 1 - cdist(image_features, text_features, metric = 'cosine')
+        sim = sim/sim.sum(axis=1)[:,None] # Normalize rows so each one sums to 1
+        entropy = np.multiply(sim,np.log(sim)) # Compute the entropy for each similarity: sim*log(sim)
+        uncertainty = np.sum(-1*entropy, axis = 1) # The uncertainty is then the (negative) sum per row
 
-        # Get max similarity per element
-        sim_score_ind = sim_score.argsort()
+        # Sort the uncertainty from highest to lowest
+        sim_score_ind = uncertainty.argsort()
+        indices = sim_score_ind
         
-        if args.al_ratio < 1:
-            indices = np.append(perm_indices, sim_score_ind)
-        else:
-            indices = sim_score_ind
     else:
         indices = perm_indices
         
@@ -645,6 +623,22 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
 def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
     preprocess_train, preprocess_val = preprocess_fns
     data = {}
+    template, classnames = None, None
+
+    if args.val_data:
+        d_val = get_custom_data(args, args.val_data, preprocess_val, is_train=False, tokenizer=tokenizer)
+        data["val"] = create_datainfo(args, d_val, args.batch_size, is_train=False)
+
+    if args.imagenet_val is not None:
+        d = get_custom_data(args, args.imagenet_val, preprocess_val, is_train=False)
+        if len(d) == 3:
+            d_zeroshot, classnames, template = d
+        else: # Some datasets come in the format [(image, classname), (image, classname)], so we fix this
+            d_zeroshot, classnames = zip(*d)
+            template = [lambda c: f"an aerial photograph of {c}."]
+        data["zeroshot-val"] = create_datainfo(args, d_zeroshot, args.batch_size, is_train=False)
+        data["classnames"] = classnames
+        data["template"] = template
 
     if args.train_data:
         train_kwargs = {"is_train": True, "preprocess_fn": preprocess_train, "tokenizer": tokenizer}
@@ -663,7 +657,7 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
             d_query = get_custom_data(args, "Simpsons-Images", **train_kwargs)
         else:
             d_train = get_custom_data(args, args.train_data, **train_kwargs)
-            d_train, d_query = split_data(d_train, args.label_ratio, seed=args.seed, args = args)
+            d_train, d_query = split_data(d_train, args.label_ratio, seed=args.seed, args = args, templates = template, classnames = classnames)
 
         if args.method == "base":
             data["train"] = create_datainfo(args, d_train, args.batch_size, is_train=True)
@@ -671,20 +665,5 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
             # assume L:U = 1:1
             data["train"] = create_datainfo(args, d_train, args.batch_size // 2, is_train=True)
             data["query"] = create_datainfo(args, d_query, args.batch_size // 2, is_train=True)
-
-    if args.val_data:
-        d_val = get_custom_data(args, args.val_data, preprocess_val, is_train=False, tokenizer=tokenizer)
-        data["val"] = create_datainfo(args, d_val, args.batch_size, is_train=False)
-
-    if args.imagenet_val is not None:
-        d = get_custom_data(args, args.imagenet_val, preprocess_val, is_train=False)
-        if len(d) == 3:
-            d_zeroshot, classnames, template = d
-        else: # Some datasets come in the format [(image, classname), (image, classname)], so we fix this
-            d_zeroshot, classnames = zip(*d)
-            template = [lambda c: f"an aerial photograph of {c}."]
-        data["zeroshot-val"] = create_datainfo(args, d_zeroshot, args.batch_size, is_train=False)
-        data["classnames"] = classnames
-        data["template"] = template
 
     return data

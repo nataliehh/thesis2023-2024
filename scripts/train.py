@@ -19,11 +19,6 @@ from .distributed import is_master
 from .zero_shot import zero_shot_eval
 from .precision import get_autocast
 
-
-#################################################
-#################################################
-#################################################
-##### OTHER TRAIN.PY FILE FROM S-CLIP!!!
 class AverageMeter(object):
     """Computes and stores the average and current value"""
 

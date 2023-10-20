@@ -114,10 +114,10 @@ def add_base_args(parser):
     # Own arguments for active learning
     parser.add_argument("--active_learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
     parser.add_argument("--al_method", type=str, default='image-text', help="Type of active learning strategy to apply.")
-    parser.add_argument("--al-ratio", type=float, default=0.5, help="How much active learning to apply vs. how much data to treat as labeled.")
 
     # Arguments for pseudo-labeling
     parser.add_argument("--pl_method", type=str, default='ot-image', help="Type of pseudo-labeling strategy to apply.")
+    parser.add_argument("--use_vit", action='store_true', default=False, help="Whether to use ViT model to determine cosine sim. between images.")
     return parser
 
 

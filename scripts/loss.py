@@ -29,7 +29,7 @@ class SemiSupervisedClipLoss(ClipLoss):
     def supervised_loss(self, logits_per_image, logits_per_text, labels):
         return (F.cross_entropy(logits_per_image, labels) + F.cross_entropy(logits_per_text, labels))/2
     def forward(self, image_features, text_features, logit_scale, output_dict=False,
-                query_features=None, keyword_features=None, keyword_labels=None):
+                query_features=None, keyword_features=None, keyword_labels=None, vit_image_features = None, vit_query_features = None):
         device = image_features.device
         losses = dict()  # dict of losses
 
@@ -49,7 +49,9 @@ class SemiSupervisedClipLoss(ClipLoss):
             losses["contrastive_loss"] = self.supervised_loss(logits_per_image, logits_per_text, labels)
 
             # caption-level loss
-            plan = get_assignments(query_features, image_features, text_features, logit_scale, self.pseudo_label_type)
+            img = vit_image_features if vit_image_features is not None else image_features
+            query = vit_query_features if vit_query_features is not None else query_features
+            plan = get_assignments(query, img, text_features, logit_scale, self.pseudo_label_type)
             pseudo_labels = plan @ F.one_hot(labels).float()
 
             losses["caption_loss"] = (soft_cross_entropy(logits_per_query, pseudo_labels)) / 2
