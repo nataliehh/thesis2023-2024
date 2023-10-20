@@ -23,78 +23,41 @@ class ParseKwargs(argparse.Action):
 
 def add_base_args(parser):
     parser.add_argument(
-        "--train-data",
-        type=str,
-        default=None,
+        "--train-data",type=str, default=None,
         help="Path to file(s) with training data. When using webdataset, multiple datasources can be combined using the `::` separator.",
     )
-    parser.add_argument(
-        "--val-data",
-        type=str,
-        default=None,
-        help="Path to file(s) with validation data",
-    )
-    parser.add_argument(
-        "--imagenet-val",
-        type=str,
-        default=None,
-        help="Path to imagenet val set for conducting zero shot evaluation.",
-    )
-    parser.add_argument(
-        "--batch-size", type=int, default=64, help="Batch size per GPU."
-    )
-    parser.add_argument(
-        "--epochs", type=int, default=32, help="Number of epochs to train for."
-    )
-    parser.add_argument("--lr", type=float, default=None, help="Learning rate.")
+    parser.add_argument("--val-data", type=str, default=None, help="Path to file(s) with validation data",)
+    parser.add_argument("--imagenet-val", type=str, default=None, help="Path to imagenet val set for conducting zero shot evaluation.",)
+
+    parser.add_argument( "--batch-size", type=int, default=64, help="Batch size per GPU.")
+    parser.add_argument( "--epochs", type=int, default=32, help="Number of epochs to train for.")
+    parser.add_argument("--lr", type=float, default=5e-5, help="Learning rate.")
     parser.add_argument("--beta1", type=float, default=None, help="Adam beta 1.")
     parser.add_argument("--beta2", type=float, default=None, help="Adam beta 2.")
     parser.add_argument("--eps", type=float, default=None, help="Adam epsilon.")
     parser.add_argument("--wd", type=float, default=0.2, help="Weight decay.")
     parser.add_argument("--warmup", type=int, default=10, help="Number of steps to warmup for.")
     parser.add_argument("--zeroshot-frequency", type=int, default=1, help="How often to run zero shot.")
+    
     parser.add_argument("--resume", default=None, type=str, help="path to latest checkpoint (default: none)",)
     parser.add_argument("--precision", choices=["amp", "amp_bf16", "amp_bfloat16", "bf16", "fp16", "fp32"],
         default="amp", help="Floating point precision.")
+    
     parser.add_argument("--model", type=str, default="RN50", help="Name of the vision backbone to use.",)
-    parser.add_argument(
-        "--pretrained",
-        default='',
-        type=str,
+    parser.add_argument("--pretrained", default="openai", type=str,
         help="Use a pretrained CLIP model weights with the specified tag or file path.",
     )
-    parser.add_argument(
-        "--debug",
-        default=False,
-        action="store_true",
-        help="If true, more information is logged."
-    )
-    parser.add_argument(
-        "--seed", type=int, default=0, help="Default random seed."
-    )
+    parser.add_argument("--debug", default=False, action="store_true", help="If true, more information is logged.")
+    parser.add_argument("--seed", type=int, default=0, help="Default random seed.")
+    
     # Custom parsing arguments for S-CLIP
-    parser.add_argument(
-        "--label-ratio",
-        type=float,
-        default=0.1,
-        help="Subset ratio for paired data.",
-    )
-    parser.add_argument(
-        "--method",
-        type=str,
-        default="base",
-        help="Method for training (base, ours).",
-    )
-    parser.add_argument(
-        "--keyword-path",
-        type=str,
-        default=None,
-        help="Path for keyword candidate set",
-    )
-    parser.add_argument(
-        "--name", type=str, default=None,
+    parser.add_argument("--label-ratio", type=float, default=0.1, help="Subset ratio for paired data.",)
+    parser.add_argument( "--method", type=str, default="base", help="Method for training (base, ours).",)
+    parser.add_argument("--keyword-path", type=str, default=None, help="Path for keyword candidate set",)
+    parser.add_argument("--name", type=str, default=None,
         help="Optional identifier for the experiment when storing logs. Otherwise use current time.",
     )
+    
     # Had to re-add these after removing them
     parser.add_argument("--logs", type=str, default='./checkpoint', help="Where to store logs. Use None to avoid storing logs.",)
     parser.add_argument("--rank", type=int, default=0, help="Rank??")
