@@ -365,7 +365,7 @@ class TokenizedDataset(torch.utils.data.Dataset):
             keyword_tokens = []
             for k in self.keywords:
                 k = self.tokenize(k).flatten().tolist()
-                k = k[k.index(BOS) + 1: k.index(EOS)]
+                k = k[k.index(BOS) + 1: k.index(EOS)] # Remove BOS, EOS from tokens
                 keyword_tokens.append(k)
             return keyword_tokens
         else:
@@ -399,8 +399,10 @@ class TokenizedDataset(torch.utils.data.Dataset):
 
         # tokenize captions
         if isinstance(texts, list):
-            texts = str(random.choice(texts))
-        tokens = self.tokenize([str(texts)])[0]
+            texts = random.choice(texts)
+        if isinstance(texts, dict):
+            texts = texts['raw']
+        tokens = self.tokenize([texts])[0]
         # done if not using keywords
         if self.keywords is None:
             return images, tokens
@@ -413,10 +415,9 @@ class TokenizedDataset(torch.utils.data.Dataset):
                 # find index of the keyword
                 key = self.keyword_tokens[i]
                 idx = self._find_keyword(tokens.tolist(), key)
-                if idx is not None:
-                    assert all(tokens[idx+i] == key[i] for i in range(len(key)))
-                else:
-                    idx = -1
+
+                assert all(tokens[idx+i] == key[i] for i in range(len(key)))
+
                 keyword_labels[i][0] = 1
                 keyword_labels[i][1] = idx
                 keyword_labels[i][2] = len(key)

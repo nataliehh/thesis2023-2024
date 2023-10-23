@@ -35,7 +35,8 @@ class CustomCLIP(nn.Module):
         with torch.no_grad():
             image_norm = image - image.min(1, keepdim=True)[0]
             image_norm /= image_norm.max(1, keepdim=True)[0]
-            inputs = self.vit_processor(images=image_norm, return_tensors="pt")
+            # image_norm = T.Normalize(mean=self.vit_processor.image_mean, std=self.vit_processor.image_std)
+            inputs = self.vit_processor(images=image_norm, return_tensors="pt", do_rescale = False)
             vit_image_features = self.vit_model(**inputs).last_hidden_state[:, 0].to(self.device)
         return vit_image_features
     def forward(self, image, text, query=None, keyword=None):
