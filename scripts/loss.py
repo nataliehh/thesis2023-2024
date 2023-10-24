@@ -17,7 +17,7 @@ def create_loss(args):
 
 
 class SemiSupervisedClipLoss(ClipLoss):
-    def __init__(self, method, pseudo_label_type="ot-image", local_loss=False, gather_with_grad=False, cache_labels=False,
+    def __init__(self, method, pseudo_label_type="ot.image", local_loss=False, gather_with_grad=False, cache_labels=False,
             rank=0, world_size=1, use_horovod=False):
         super().__init__(local_loss=local_loss, gather_with_grad=gather_with_grad, cache_labels=cache_labels, rank=rank,
             world_size=world_size, use_horovod=use_horovod)
@@ -81,17 +81,17 @@ class SemiSupervisedClipLoss(ClipLoss):
 
 
 def get_assignments(query, image, text, logit_scale, pseudo_label_type):
-    if pseudo_label_type == "hard-image":
+    if pseudo_label_type == "hard.image":
         plan = hard_nn(query, image)
-    elif pseudo_label_type == "hard-text":
+    elif pseudo_label_type == "hard.text":
         plan = hard_nn(query, text)
-    elif pseudo_label_type == "soft-image":
+    elif pseudo_label_type == "soft.image":
         plan = soft_nn(query, image, logit_scale)
-    elif pseudo_label_type == "soft-text":
+    elif pseudo_label_type == "soft.text":
         plan = soft_nn(query, text, logit_scale)
-    elif pseudo_label_type == "ot-image":
+    elif pseudo_label_type == "ot.image":
         plan = ot_plan(query, image, logit_scale)
-    elif pseudo_label_type == "ot-text":
+    elif pseudo_label_type == "ot.text":
         plan = ot_plan(query, text, logit_scale)
     else:
         raise NotImplementedError
