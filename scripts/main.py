@@ -72,6 +72,7 @@ def main(args):
     if args.name is None: # get the name of the experiments
         keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
             if args.keyword_path is not None else 'none'
+        keyword_type = keyword_type.replace('-', '')
         date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
         args.name = '-'.join([date_str, f"data_{args.train_data}",
             f"ratio_{args.label_ratio}", f"model_{args.model}",

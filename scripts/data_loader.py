@@ -9,7 +9,6 @@ from typing import List, Dict
 from tqdm import tqdm
 import time
 import numpy as np
-import time
 
 from tools import read_json
 
@@ -26,8 +25,7 @@ import torch.nn.functional as F
 from .precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import UCMCaptions, SydneyCaptions
-from torchrs.datasets import UCM, WHURS19, RSSCN7, AID, RESISC45
+from torchrs.datasets import UCMCaptions, SydneyCaptions, UCM, WHURS19, RSSCN7, AID, RESISC45
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -56,7 +54,7 @@ class CustomDataLoader(torch.utils.data.Dataset):
     splits = ["train", "val", "test"]
     def __init__(self, root: str , split: str = 'train', transform: T.Compose = None, image_root: str = '', rawsent: bool = False, 
                  randomitem: bool = False, subclass: bool = False, cls: bool = False):
-        ''' Initialize data loader.
+        ''' Initialize custom data loader.
         root: path to the dataset folder with images + labels.
         split: which split to use (train, validation or test set).
         transform: type of image transformation to perform.
@@ -531,6 +529,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
     print(data)
     path = './data/'
     split = "train" if is_train else "val"
+    print('Split:', split)
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
@@ -601,19 +600,21 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
             d = ImageFolder("./data/kaggle_simpsons_characters/simpsons_dataset", transform=preprocess_fn)
 
         elif data =='Fashion-ALL':
-            d = ConcatDataset([
-                Polyvore("./data/polyvore_outfits", split=split, transform=preprocess_fn),
+            d = [Polyvore("./data/polyvore_outfits", split=split, transform=preprocess_fn),
                 Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
-                FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),
-            ])
+                FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),]
+            for sub_d in d:
+                print('Data size:', len(sub_d))
+            d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
         elif data == 'RS-ALL':
-            d = ConcatDataset([
-                RSICD("./data/RSICD", split=split, transform=preprocess_fn),
+            d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn),
                 UCMCaptions("./data/UCM", split=split, transform=preprocess_fn),
-                SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),
-            ])
+                SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),]
+            for sub_d in d:
+                print('Data size:', len(sub_d))
+            d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
         else:
             raise ValueError(f"Unknown dataset: {data}")

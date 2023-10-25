@@ -15,9 +15,9 @@ class CustomCLIP(nn.Module):
         super().__init__()
         self.clip = clip
         model_ckpt = 'google/vit-base-patch16-224-in21k'
-        self.vit_processor = AutoImageProcessor.from_pretrained(model_ckpt)
-        self.vit_model = AutoModel.from_pretrained(model_ckpt)
         self.device = device
+        self.vit_processor = AutoImageProcessor.from_pretrained(model_ckpt)
+        self.vit_model = AutoModel.from_pretrained(model_ckpt).to(self.device)
         self.use_vit = use_vit
 
     def __getattr__(self, name):
@@ -36,7 +36,7 @@ class CustomCLIP(nn.Module):
             image_norm = image - image.min(1, keepdim=True)[0]
             image_norm /= image_norm.max(1, keepdim=True)[0]
             # image_norm = T.Normalize(mean=self.vit_processor.image_mean, std=self.vit_processor.image_std)
-            inputs = self.vit_processor(images=image_norm, return_tensors="pt", do_rescale = False)
+            inputs = self.vit_processor(images=image_norm, return_tensors="pt", do_rescale = False).to(self.device)
             vit_image_features = self.vit_model(**inputs).last_hidden_state[:, 0].to(self.device)
         return vit_image_features
     def forward(self, image, text, query=None, keyword=None):
