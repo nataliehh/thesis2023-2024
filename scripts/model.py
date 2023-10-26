@@ -19,6 +19,7 @@ class CustomCLIP(nn.Module):
         self.vit_processor = AutoImageProcessor.from_pretrained(model_ckpt)
         self.vit_model = AutoModel.from_pretrained(model_ckpt).to(self.device)
         self.use_vit = use_vit
+        self.stored_vit = {}
 
     def __getattr__(self, name):
         if name in self.override:
@@ -31,14 +32,16 @@ class CustomCLIP(nn.Module):
         for param in self.clip.transformer.parameters():
             param.requires_grad = False
 
-    def vit_features(self, image):
+    def vit_features(self, images):
+        batch_size = len(images)
+        vit_images_features = torch.zeros(batch_size, 768, device = self.device) # 768 is the embedding size of ViT
+        known_idx = []
         with torch.no_grad():
-            image_norm = image - image.min(1, keepdim=True)[0]
-            image_norm /= image_norm.max(1, keepdim=True)[0]
-            # image_norm = T.Normalize(mean=self.vit_processor.image_mean, std=self.vit_processor.image_std)
-            inputs = self.vit_processor(images=image_norm, return_tensors="pt", do_rescale = False).to(self.device)
-            vit_image_features = self.vit_model(**inputs).last_hidden_state[:, 0].to(self.device)
-        return vit_image_features
+            images_norm = images - images.min(1, keepdim=True)[0]
+            images_norm /= images_norm.max(1, keepdim=True)[0]
+            inputs = self.vit_processor(images=images_norm, return_tensors="pt", do_rescale = False).to(self.device)
+            vit_images_features = self.vit_model(**inputs).last_hidden_state[:, 0].to(self.device)
+        return vit_images_features
     def forward(self, image, text, query=None, keyword=None):
         image_features = self.encode_image(image, normalize=True)
         text_features = self.encode_text(text, normalize=True)
