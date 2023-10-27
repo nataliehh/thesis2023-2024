@@ -6,11 +6,11 @@ import torch
 import torch.nn.functional as F
 
 from open_clip import get_cast_dtype
-from .precision import get_autocast
-from .distributed import is_master
-from .zero_shot import zero_shot_classifier
-from .zero_shot import run as run_zero_shot
-from .train import get_clip_metrics, maybe_compute_generative_loss
+from precision import get_autocast
+from distributed import is_master
+from zero_shot import zero_shot_classifier
+from zero_shot import run as run_zero_shot
+from train import get_clip_metrics, maybe_compute_generative_loss
 
 
 def evaluate(model, data, epoch, args, tb_writer=None):

@@ -5,24 +5,23 @@ import re
 import sys
 import random
 from datetime import datetime
-
 import numpy as np
 import torch
-from torch.cuda.amp import GradScaler
 
 from open_clip import create_model_and_transforms, get_tokenizer, create_loss
-from .scheduler import cosine_lr, const_lr, const_lr_cooldown
 
 import fsspec
 
-# use custom functions
-from .params import parse_args
-from .data_loader import get_data
-from .model import create_custom_model
-from .train import train_one_epoch
-from .evaluate import evaluate
-from .loss import create_loss
+sys.path.append('/vol/tensusers5/nhollain/s_clip_scripts')
 
+# use custom functions
+from scheduler import cosine_lr, const_lr, const_lr_cooldown
+from params import parse_args
+from data_loader import get_data
+from model import create_custom_model
+from train import train_one_epoch
+from evaluate import evaluate
+from loss import create_loss
 
 LATEST_CHECKPOINT_NAME = "epoch_latest.pt"
 
@@ -54,7 +53,10 @@ def get_latest_checkpoint(path: str):
 
 
 def main(args):
-    # args = parse_args(args)
+    try:
+        args = parse_args(args)
+    except:
+        print('Cannot parse args')
 
     args.device = 'cpu'
     if torch.cuda.is_available():
@@ -63,13 +65,14 @@ def main(args):
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False
-        args.device = 'cuda:0'   
+        args.device = 'cuda'   
         
-    # We don't specify any AL method if we are not active learning 
+    # We don't specify any PL method if we are using the base CLIP model
     if args.method == 'base':
         args.pl_method = None
     
     if args.name is None: # get the name of the experiments
+        # The keyword is the last part of the keyword filepath, except for its suffix
         keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
             if args.keyword_path is not None else 'none'
         keyword_type = keyword_type.replace('-', '')
@@ -78,8 +81,7 @@ def main(args):
             f"ratio_{args.label_ratio}", f"model_{args.model}",
             f"method_{args.method}", f"keyword_{keyword_type}",
             f"AL_{args.active_learning}", f"PL_method_{args.pl_method}",
-            f"vit_{args.use_vit}",            
-            #f"seed_{args.seed}",
+            f"vit_{args.use_vit}",            #f"seed_{args.seed}",
         ])
 
     resume_latest = args.resume == 'latest'
@@ -131,10 +133,11 @@ def main(args):
         aug_cfg = args.aug_cfg, )
 
     model = create_custom_model(args, model)  # use custom model
+    # model = torch.nn.DataParallel(model)
 
     random_seed(args.seed, args.rank)
 
-    if args.train_data:
+    if args.train_data: # Keep track of the parameters of the model using params.txt
         params_file = os.path.join(args.logs, args.name, "params.txt")
         with open(params_file, "w") as f:
             for name in sorted(vars(args)):
@@ -157,7 +160,7 @@ def main(args):
              {"params": rest_params, "weight_decay": args.wd},],
             lr=args.lr, betas=(args.beta1, args.beta2), eps=args.eps,
         )
-        scaler = GradScaler() if args.precision == "amp" else None
+        scaler = torch.cuda.amp.GradScaler() if args.precision == "amp" else None
 
     # optionally resume from a checkpoint
     start_epoch = 0
@@ -182,7 +185,7 @@ def main(args):
 
     # initialize datasets
     print('Getting data...')
-    data = get_data(args, (preprocess_train, preprocess_val), epoch=start_epoch, tokenizer=get_tokenizer(args.model))
+    data = get_data(args, (preprocess_train, preprocess_val), epoch=start_epoch, tokenizer=get_tokenizer(args.model), model = model)
     assert len(data), 'At least one train or eval dataset must be specified.'
     print('Data got.')
     # create scheduler if train
@@ -223,7 +226,7 @@ def main(args):
 
     for epoch in range(start_epoch, args.epochs):
         print(f'Start epoch {epoch}')
-
+            
         train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
         completed_epoch = epoch + 1
 
@@ -241,6 +244,9 @@ def main(args):
         # only save the last epoch to save server storage
         if completed_epoch == args.epochs:
             torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
+        if args.active_learning and epoch+1 < args.epochs: # If we are not at the last epoch, update the AL 
+            data = get_data(args, (preprocess_train, preprocess_val), epoch=epoch+1, tokenizer=get_tokenizer(args.model), model = model)
+            assert len(data), 'At least one train or eval dataset must be specified.'
     return log_base_path
 
 if __name__ == "__main__":

@@ -5,9 +5,9 @@ def get_default_params(model_name):
     # Params from paper (https://arxiv.org/pdf/2103.00020.pdf)
     model_name = model_name.lower()
     if "vit" in model_name:
-        return {"lr": 5.0e-4, "beta1": 0.9, "beta2": 0.98, "eps": 1.0e-6}
+        return {"beta2": 0.98, "eps": 1.0e-6}
     else:
-        return {"lr": 5.0e-4, "beta1": 0.9, "beta2": 0.999, "eps": 1.0e-8}
+        return {"beta2": 0.999, "eps": 1.0e-8}
 
 
 class ParseKwargs(argparse.Action):
@@ -31,8 +31,8 @@ def add_base_args(parser):
 
     parser.add_argument( "--batch-size", type=int, default=64, help="Batch size per GPU.")
     parser.add_argument( "--epochs", type=int, default=32, help="Number of epochs to train for.")
-    parser.add_argument("--lr", type=float, default=5e-5, help="Learning rate.")
-    parser.add_argument("--beta1", type=float, default=None, help="Adam beta 1.")
+    parser.add_argument("--lr", type=float, default=5e-4, help="Learning rate.")
+    parser.add_argument("--beta1", type=float, default=0.9, help="Adam beta 1.")
     parser.add_argument("--beta2", type=float, default=None, help="Adam beta 2.")
     parser.add_argument("--eps", type=float, default=None, help="Adam epsilon.")
     parser.add_argument("--wd", type=float, default=0.2, help="Weight decay.")
@@ -75,12 +75,13 @@ def add_base_args(parser):
     parser.add_argument('--aug-cfg', nargs='*', default={}, action=ParseKwargs)
 
     # Own arguments for active learning
-    parser.add_argument("--active_learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
-    # parser.add_argument("--al_method", type=str, default='image-text', help="Type of active learning strategy to apply.")
+    parser.add_argument("--active-learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
+    # parser.add_argument("--al-method", type=str, default='image-text', help="Type of active learning strategy to apply.")
 
     # Arguments for pseudo-labeling
-    parser.add_argument("--pl_method", type=str, default='ot.image', help="Type of pseudo-labeling strategy to apply.")
-    parser.add_argument("--use_vit", action='store_true', default=False, help="Whether to use ViT model to determine cosine sim. between images.")
+    parser.add_argument("--pl-method", type=str, default='ot.image', help="Type of pseudo-labeling strategy to apply.")
+    parser.add_argument("--use-vit", action='store_true', default=False, help="Whether to use ViT model to determine cosine sim. between images.")
+    
     return parser
 
 
