@@ -455,7 +455,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
         with torch.no_grad():
             # Load in the dataset with a dataloader
-            data = DataLoader(d,batch_size=128,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
+            data = DataLoader(d,batch_size=64,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
             # Set some params to make inference with CLIP fit into memory
             autocast = get_autocast(args.precision)
             cast_dtype = get_cast_dtype(args.precision)
@@ -465,7 +465,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
                     texts = [template(classname) for template in templates]
                     texts = tokenizer(texts).to(args.device, non_blocking=True)
                     text_feature = model.encode_text(texts)
-                    del texts
                     # text_feature = F.normalize(text_feature, dim=-1)
                     text_features += text_feature.cpu()
             for images, _ in tqdm(data, unit_scale=args.batch_size):
@@ -513,8 +512,9 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
     else:
         d1 = [d[int(i)] for i in indices[:size]]
         d2 = [d[int(i)] for i in indices[size:]]
-    print('D1 indices:', indices[:size])
+    # print('D1 indices:', indices[:size])
     # print('D2 indices:', indices[size:])
+    # Clean up memory
     torch.cuda.empty_cache()
     gc.collect()
     return d1, d2
