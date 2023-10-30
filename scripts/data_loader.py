@@ -27,7 +27,7 @@ import torch.nn.functional as F
 from precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 # UCM, UCMCaptions, 
+from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45, UCMCaptions, UCM 
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -141,34 +141,34 @@ class RSICD(CustomDataLoader):
         else:
             return super().__getitem__(idx)
 
-class UCM(CustomDataLoader):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)  
-        self.image_root = "images"
-        self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
+# class UCMCLS(CustomDataLoader):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)  
+#         self.image_root = "images"
+#         self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
         
-        if self.cls:
-            self.load_class_info()
+#         if self.cls:
+#             self.load_class_info()
 
-    def load_captions(self, path: str, split: str) -> List[Dict]:
-        captions = read_json(path)["images"]
-        return [c for c in captions if c["split"] == split]
+#     def load_captions(self, path: str, split: str) -> List[Dict]:
+#         captions = read_json(path)["images"]
+#         return [c for c in captions if c["split"] == split]
     
-    def load_class_info(self):
-        mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
-        classes = list(set(mapping.values()))
-        self.classes = classes
-        self.path2class = mapping
+#     def load_class_info(self):
+#         mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
+#         classes = list(set(mapping.values()))
+#         self.classes = classes
+#         self.path2class = mapping
     
-    def __getitem__(self, idx):
-        if self.cls:
-            item = self.data[idx]
-            x = self.get_x(item)
-            str_label = self.path2class[item['filename']]
-            y = self.classes.index(str_label)
-            return x, y
-        else:
-            return super().__getitem__(idx)
+#     def __getitem__(self, idx):
+#         if self.cls:
+#             item = self.data[idx]
+#             x = self.get_x(item)
+#             str_label = self.path2class[item['filename']]
+#             y = self.classes.index(str_label)
+#             return x, y
+#         else:
+#             return super().__getitem__(idx)
 
 
 # Data from: https://github.com/xthan/fashion-200k/tree/master
@@ -587,15 +587,15 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
-    # if data != 'UCM-CLS':
-    data = data.replace('-CLS', '')
-    data = data.replace('-SUBCLS', '')
+    if data != 'UCM-CLS':
+        data = data.replace('-CLS', '')
+        data = data.replace('-SUBCLS', '')
 
     config = { # config dictionary that contains the call function to the dataset creator and the (relative) path to its data
         "RSICD": (RSICD, "RSICD", True),
-        "UCM": (UCM, "UCM", True),
+        "UCM": (UCMCaptions, "UCM", False),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
-        # "UCM-CLS": (UCM, "UCMerced_LandUse", False),
+        "UCM-CLS": (UCM, "UCMerced_LandUse", False),
         "WHU-RS19": (WHURS19, "WHU-RS19", False),
         "RSSCN7": (RSSCN7, "RSSCN7", False),
         "AID": (AID, "AID", False),
@@ -665,7 +665,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
 
         elif data == 'RS-ALL':
             d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn),
-                UCM("./data/UCM", split=split, transform=preprocess_fn), # UCMCaption
+                UCMCaptions("./data/UCM", split=split, transform=preprocess_fn), # UCMCaption
                 SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),]
             for sub_d in d:
                 print('Data size:', len(sub_d))
