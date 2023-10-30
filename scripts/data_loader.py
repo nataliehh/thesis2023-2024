@@ -27,7 +27,7 @@ import torch.nn.functional as F
 from precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import UCMCaptions, SydneyCaptions, UCM, WHURS19, RSSCN7, AID, RESISC45
+from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 # UCM, UCMCaptions, 
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -140,6 +140,36 @@ class RSICD(CustomDataLoader):
             return x, y
         else:
             return super().__getitem__(idx)
+
+class UCM(CustomDataLoader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  
+        self.image_root = "images"
+        self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
+        
+        if self.cls:
+            self.load_class_info()
+
+    def load_captions(self, path: str, split: str) -> List[Dict]:
+        captions = read_json(path)["images"]
+        return [c for c in captions if c["split"] == split]
+    
+    def load_class_info(self):
+        mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
+        classes = list(set(mapping.values()))
+        self.classes = classes
+        self.path2class = mapping
+    
+    def __getitem__(self, idx):
+        if self.cls:
+            item = self.data[idx]
+            x = self.get_x(item)
+            str_label = self.path2class[item['filename']]
+            y = self.classes.index(str_label)
+            return x, y
+        else:
+            return super().__getitem__(idx)
+
 
 # Data from: https://github.com/xthan/fashion-200k/tree/master
 class Fashion200k(CustomDataLoader):
@@ -455,7 +485,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
         with torch.no_grad():
             # Load in the dataset with a dataloader
-            data = DataLoader(d,batch_size=64,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
+            data = DataLoader(d,batch_size=256,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
             # Set some params to make inference with CLIP fit into memory
             autocast = get_autocast(args.precision)
             cast_dtype = get_cast_dtype(args.precision)
@@ -549,7 +579,7 @@ def create_datainfo(args, dataset, batch_size, is_train):
     return DataInfo(dataloader, sampler)
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
-def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass = False, model = None, **data_kwargs):
+def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
     print(data)
     path = './data/'
     split = "train" if is_train else "val"
@@ -557,15 +587,15 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
-    if data != 'UCM-CLS':
-        data = data.replace('-CLS', '')
-        data = data.replace('-SUBCLS', '')
+    # if data != 'UCM-CLS':
+    data = data.replace('-CLS', '')
+    data = data.replace('-SUBCLS', '')
 
     config = { # config dictionary that contains the call function to the dataset creator and the (relative) path to its data
         "RSICD": (RSICD, "RSICD", True),
-        "UCM": (UCMCaptions, "UCM", False),
+        "UCM": (UCM, "UCM", True),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
-        "UCM-CLS": (UCM, "UCMerced_LandUse", False),
+        # "UCM-CLS": (UCM, "UCMerced_LandUse", False),
         "WHU-RS19": (WHURS19, "WHU-RS19", False),
         "RSSCN7": (RSSCN7, "RSSCN7", False),
         "AID": (AID, "AID", False),
@@ -594,6 +624,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {c}."]
             # print(d.classes)
+            print('CLS size:', len(d))
             return d, d.classes, template
         else:
             # We tokenize the caption datasets
@@ -634,7 +665,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, cls = False, subclass =
 
         elif data == 'RS-ALL':
             d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn),
-                UCMCaptions("./data/UCM", split=split, transform=preprocess_fn),
+                UCM("./data/UCM", split=split, transform=preprocess_fn), # UCMCaption
                 SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),]
             for sub_d in d:
                 print('Data size:', len(sub_d))
