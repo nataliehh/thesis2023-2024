@@ -27,7 +27,7 @@ import torch.nn.functional as F
 from precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45, UCMCaptions, UCM 
+from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45, UCMCaptions#, UCM 
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -141,34 +141,34 @@ class RSICD(CustomDataLoader):
         else:
             return super().__getitem__(idx)
 
-# class UCMCLS(CustomDataLoader):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)  
-#         self.image_root = "images"
-#         self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
+class UCMCLS(CustomDataLoader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  
+        self.image_root = "images"
+        self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
         
-#         if self.cls:
-#             self.load_class_info()
+        if self.cls:
+            self.load_class_info()
 
-#     def load_captions(self, path: str, split: str) -> List[Dict]:
-#         captions = read_json(path)["images"]
-#         return [c for c in captions if c["split"] == split]
+    def load_captions(self, path: str, split: str) -> List[Dict]:
+        captions = read_json(path)["images"]
+        return [c for c in captions if c["split"] == split]
     
-#     def load_class_info(self):
-#         mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
-#         classes = list(set(mapping.values()))
-#         self.classes = classes
-#         self.path2class = mapping
+    def load_class_info(self):
+        mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
+        classes = list(set(mapping.values()))
+        self.classes = classes
+        self.path2class = mapping
     
-#     def __getitem__(self, idx):
-#         if self.cls:
-#             item = self.data[idx]
-#             x = self.get_x(item)
-#             str_label = self.path2class[item['filename']]
-#             y = self.classes.index(str_label)
-#             return x, y
-#         else:
-#             return super().__getitem__(idx)
+    def __getitem__(self, idx):
+        if self.cls:
+            item = self.data[idx]
+            x = self.get_x(item)
+            str_label = self.path2class[item['filename']]
+            y = self.classes.index(str_label)
+            return x, y
+        else:
+            return super().__getitem__(idx)
 
 
 # Data from: https://github.com/xthan/fashion-200k/tree/master
@@ -466,12 +466,15 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
     perm_indices = torch.randperm(len(d), generator=gen)
     size = len(d) * split_ratio
     if perform_AL: # For AL, we request labels for label_ratio/total_epochs % of the data, each epoch
-        current_size = int(size/args.epochs)
-        size = size * (args.current_epoch+1)/args.epochs
+        current_size = int(size/args.al_iter)
+        size = size * (args.current_iter+1)/args.al_iter
     size = int(size)
-    print('Dataset size:', len(d))
+    if args.current_iter == 0: # Print the statistics of the labeled set and the full set of data
+        print('Dataset size:', len(d)) 
+        print('Labeled size:', size)
 
     if perform_AL: # Active learning
+        print('Active learning...')
         if model is None: # Load in base CLIP model if we don't have an existing model
             print('Loading base CLIP...')
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
@@ -479,7 +482,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         # Keep track of the image & text features
         image_features, text_features = [], []
         chosen_idx = np.array([]) # Keep track of indices which have already been selected
-        if args.current_epoch > 0:
+        if args.current_iter > 0:
             chosen_idx = args.chosen_idx
         # Only allow indices to be picked if they're not already in our selected set
         possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
@@ -491,7 +494,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
             cast_dtype = get_cast_dtype(args.precision)
             with autocast():
                 tokenizer = get_tokenizer(args.model)
-                for classname in tqdm(classnames):
+                for classname in classnames: # tqdm(classnames)
                     texts = [template(classname) for template in templates]
                     texts = tokenizer(texts).to(args.device, non_blocking=True)
                     text_feature = model.encode_text(texts)
@@ -507,35 +510,26 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
                 image_features += image_feature.cpu()
             image_features = np.array(image_features).astype(np.float64)
             text_features = np.array(text_features).astype(np.float64)
-        t_start = time.time()
+
         # Compute similarity (1-cosine_distance = cosine_similarity)
         sim = 1 - cdist(image_features, text_features, metric = 'cosine')
-        sim = softmax(sim)
-        # sim = np.exp(sim)
-        # sim = sim/sim.sum(axis=1)[:,None]
-        # print('sim negative:', set(np.where(sim<0)[0].tolist()))
-        del data
-        del image_features
-        del text_features
+        sim = softmax(sim) # We use softmax to get prediction probabilities
         entropy = np.multiply(sim,np.log(sim)) # Compute the entropy for each similarity: sim*log(sim)
         uncertainty = np.sum(-1*entropy, axis = 1) # The uncertainty is then the (negative) sum per row
 
         # Sort the uncertainty from highest to lowest
         sim_score_ind = uncertainty.argsort()[possible_idx]
-        del sim
-        del entropy
-        del uncertainty
+
+        # Delete objects that we don't need anymore
+        del data, image_features, text_features, sim, entropy, uncertainty
+
         # The indices are the labels with the highest uncertainty + already labeled indices
         indices = sim_score_ind
-        # print(indices[:current_size])
-        # print(chosen_idx)
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
     else:
         indices = perm_indices
-    print('Labeled size:', size)
     
-        
     if hf_data is False:
         d1 = Subset(d, indices[:size])
         d2 = Subset(d, indices[size:])
@@ -543,7 +537,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         d1 = [d[int(i)] for i in indices[:size]]
         d2 = [d[int(i)] for i in indices[size:]]
     # print('D1 indices:', indices[:size])
-    # print('D2 indices:', indices[size:])
+
     # Clean up memory
     torch.cuda.empty_cache()
     gc.collect()
@@ -580,10 +574,11 @@ def create_datainfo(args, dataset, batch_size, is_train):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
-    print(data)
     path = './data/'
     split = "train" if is_train else "val"
-    print('Split:', split)
+    if args.current_iter == 0:
+        print(data)
+        print('Split:', split)
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
@@ -595,7 +590,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
         "RSICD": (RSICD, "RSICD", True),
         "UCM": (UCMCaptions, "UCM", False),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
-        "UCM-CLS": (UCM, "UCMerced_LandUse", False),
+        "UCM-CLS": (UCMCLS, "UCM", True), # UCMerced_LandUse
         "WHU-RS19": (WHURS19, "WHU-RS19", False),
         "RSSCN7": (RSSCN7, "RSSCN7", False),
         "AID": (AID, "AID", False),
@@ -623,7 +618,6 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {c}."]
-            # print(d.classes)
             print('CLS size:', len(d))
             return d, d.classes, template
         else:
@@ -648,7 +642,6 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             train_ratio = 0.9  # use 90% for training data
             d_train, d_val = split_data(d["train"], train_ratio, seed=42, hf_data=True, args = args, model = model)
             d = d_train if is_train else d_val
-
             d = TokenizedDataset(d, image_key=image_key, text_key=text_key, **data_kwargs)
 
         elif data == "Simpsons-Images":
@@ -658,8 +651,9 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = [Polyvore("./data/polyvore_outfits", split=split, transform=preprocess_fn),
                 Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
                 FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),]
-            for sub_d in d:
-                print('Data size:', len(sub_d))
+            if args.current_iter == 0:
+                for sub_d in d:
+                    print('Data size:', len(sub_d))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
@@ -667,18 +661,18 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn),
                 UCMCaptions("./data/UCM", split=split, transform=preprocess_fn), # UCMCaption
                 SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),]
-            for sub_d in d:
-                print('Data size:', len(sub_d))
+            if args.current_iter == 0:
+                for sub_d in d:
+                    print('Data size:', len(sub_d))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
         else:
             raise ValueError(f"Unknown dataset: {data}")
-
         return d
 
 
-def get_data(args, preprocess_fns, epoch=0, tokenizer=None, model=None):
-    args.current_epoch = epoch
+def get_data(args, preprocess_fns, iter=0, tokenizer=None, model=None):
+    args.current_iter = iter
     preprocess_train, preprocess_val = preprocess_fns
     data = {}
     template, classnames = None, None

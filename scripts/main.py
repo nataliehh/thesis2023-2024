@@ -7,12 +7,12 @@ import random
 from datetime import datetime
 import numpy as np
 import torch
-
-from open_clip import create_model_and_transforms, get_tokenizer, create_loss
-
 import fsspec
+from open_clip import create_model_and_transforms, get_tokenizer, create_loss
+from tqdm import tqdm
+import gc
 
-sys.path.append('/vol/tensusers5/nhollain/s_clip_scripts')
+sys.path.append('/vol/tensusers5/nhollain/s_clip_scripts') # Add custom functions to PATH
 
 # use custom functions
 from scheduler import cosine_lr, const_lr, const_lr_cooldown
@@ -38,11 +38,9 @@ def random_seed(seed=42, rank=0):
     np.random.seed(seed + rank)
     random.seed(seed + rank)
 
-
 def natural_key(string_):
     """See http://www.codinghorror.com/blog/archives/001018.html"""
     return [int(s) if s.isdigit() else s for s in re.split(r'(\d+)', string_.lower())]
-
 
 def get_latest_checkpoint(path: str):
     checkpoints = glob.glob(path + '**/*.pt', recursive=True)
@@ -51,6 +49,23 @@ def get_latest_checkpoint(path: str):
         return checkpoints[-1]
     return None
 
+def get_optimizer_scaler(args, model):
+    optimizer, scaler = None, None
+    if args.train_data:
+        exclude = lambda n, p: p.ndim < 2 or "bn" in n or "ln" in n or "bias" in n or 'logit_scale' in n
+        include = lambda n, p: not exclude(n, p)
+
+        named_parameters = list(model.named_parameters())
+        gain_or_bias_params = [p for n, p in named_parameters if exclude(n, p) and p.requires_grad]
+        rest_params = [p for n, p in named_parameters if include(n, p) and p.requires_grad]
+
+        optimizer = torch.optim.AdamW(
+            [{"params": gain_or_bias_params, "weight_decay": 0.},
+             {"params": rest_params, "weight_decay": args.wd},],
+            lr=args.lr, betas=(args.beta1, args.beta2), eps=args.eps,
+        )
+        scaler = torch.cuda.amp.GradScaler() if args.precision == "amp" else None
+    return optimizer, scaler
 
 def main(args):
     try:
@@ -133,8 +148,7 @@ def main(args):
         aug_cfg = args.aug_cfg, )
 
     model = create_custom_model(args, model)  # use custom model
-    # model = torch.nn.DataParallel(model)
-
+    
     random_seed(args.seed, args.rank)
 
     if args.train_data: # Keep track of the parameters of the model using params.txt
@@ -145,22 +159,7 @@ def main(args):
                 f.write(f"{name}: {val}\n")
 
     # create optimizer and scaler
-    optimizer, scaler = None, None
-
-    if args.train_data:
-        exclude = lambda n, p: p.ndim < 2 or "bn" in n or "ln" in n or "bias" in n or 'logit_scale' in n
-        include = lambda n, p: not exclude(n, p)
-
-        named_parameters = list(model.named_parameters())
-        gain_or_bias_params = [p for n, p in named_parameters if exclude(n, p) and p.requires_grad]
-        rest_params = [p for n, p in named_parameters if include(n, p) and p.requires_grad]
-
-        optimizer = torch.optim.AdamW(
-            [{"params": gain_or_bias_params, "weight_decay": 0.},
-             {"params": rest_params, "weight_decay": args.wd},],
-            lr=args.lr, betas=(args.beta1, args.beta2), eps=args.eps,
-        )
-        scaler = torch.cuda.amp.GradScaler() if args.precision == "amp" else None
+    optimizer, scaler = get_optimizer_scaler(args, model)
 
     # optionally resume from a checkpoint
     start_epoch = 0
@@ -185,7 +184,7 @@ def main(args):
 
     # initialize datasets
     print('Getting data...')
-    data = get_data(args, (preprocess_train, preprocess_val), epoch=start_epoch, tokenizer=get_tokenizer(args.model), model = model)
+    data = get_data(args, (preprocess_train, preprocess_val), iter=0, tokenizer=get_tokenizer(args.model), model = model)
     assert len(data), 'At least one train or eval dataset must be specified.'
     print('Data got.')
     # create scheduler if train
@@ -223,30 +222,44 @@ def main(args):
         return
 
     loss = create_loss(args)
-
-    for epoch in range(start_epoch, args.epochs):
-        print(f'Start epoch {epoch}')
-            
-        train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
-        completed_epoch = epoch + 1
-
-        print('Done training.')
-
-        # if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
-        #     evaluate(model, data, completed_epoch, args, writer)
-
-        print('Done evaluating.')
-        # Saving checkpoints.
-        checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
-        if scaler is not None:
-            checkpoint_dict["scaler"] = scaler.state_dict()
-
-        # only save the last epoch to save server storage
-        if completed_epoch == args.epochs:
-            torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
-        if args.active_learning and epoch+1 < args.epochs: # If we are not at the last epoch, update the AL 
-            data = get_data(args, (preprocess_train, preprocess_val), epoch=epoch+1, tokenizer=get_tokenizer(args.model), model = model)
+    for iteration in range(args.al_iter):
+        if args.active_learning:
+            print('Active Learning iteration:', iteration)
+        for epoch in tqdm(range(start_epoch, args.epochs)):
+            # print(f'Start epoch {epoch}')
+                
+            train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
+            completed_epoch = epoch + 1
+    
+            # print('Done training.')
+    
+            # if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
+            #     evaluate(model, data, completed_epoch, args, writer)
+            #     print('Done evaluating.')
+            # Saving checkpoints.
+            checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+            if scaler is not None:
+                checkpoint_dict["scaler"] = scaler.state_dict()
+    
+            # only save the last epoch to save server storage
+            if completed_epoch == args.epochs:
+                torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
+        
+        # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
+        if args.active_learning and iteration + 1 < args.al_iter:
+            del data
+            data = get_data(args, (preprocess_train, preprocess_val), iter=iteration+1, tokenizer=get_tokenizer(args.model), model = model)
             assert len(data), 'At least one train or eval dataset must be specified.'
+            del model
+            model, preprocess_train, preprocess_val = create_model_and_transforms(
+            args.model, args.pretrained, precision=args.precision, device=args.device, output_dict=True,
+            aug_cfg = args.aug_cfg, )
+
+            model = create_custom_model(args, model)  # use custom model
+            optimizer, scaler = get_optimizer_scaler(args, model)
+        # Clean up memory
+        torch.cuda.empty_cache()
+        gc.collect()
     return log_base_path
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ def add_base_args(parser):
 
     parser.add_argument( "--batch-size", type=int, default=64, help="Batch size per GPU.")
     parser.add_argument( "--epochs", type=int, default=32, help="Number of epochs to train for.")
-    parser.add_argument("--lr", type=float, default=5e-4, help="Learning rate.")
+    parser.add_argument("--lr", type=float, default=5e-5, help="Learning rate.")
     parser.add_argument("--beta1", type=float, default=0.9, help="Adam beta 1.")
     parser.add_argument("--beta2", type=float, default=None, help="Adam beta 2.")
     parser.add_argument("--eps", type=float, default=None, help="Adam epsilon.")
@@ -76,6 +76,7 @@ def add_base_args(parser):
 
     # Own arguments for active learning
     parser.add_argument("--active-learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
+    parser.add_argument("--al-iter", type=int, default=1, help="How many times to apply active learning.")
     # parser.add_argument("--al-method", type=str, default='image-text', help="Type of active learning strategy to apply.")
 
     # Arguments for pseudo-labeling
