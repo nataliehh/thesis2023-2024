@@ -13,7 +13,7 @@ def zero_shot_classifier(model, classnames, templates, args):
     tokenizer = get_tokenizer(args.model)
     with torch.no_grad():
         zeroshot_weights = []
-        for classname in tqdm(classnames):
+        for classname in (classnames): # tqdm
             texts = [template(classname) for template in templates]  # format with class
             texts = tokenizer(texts).to(args.device)  # tokenize
             class_embeddings = model.encode_text(texts)
@@ -35,7 +35,7 @@ def run(model, classifier, dataloader, args):
     cast_dtype = get_cast_dtype(args.precision)
     with torch.no_grad():
         top1, top5, n = 0., 0., 0.
-        for d in tqdm(dataloader, unit_scale=args.batch_size):
+        for d in dataloader: #tqdm(dataloader, unit_scale=args.batch_size):
             if len(d) == 2:
                 images, target = d
             else:

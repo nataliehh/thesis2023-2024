@@ -13,7 +13,7 @@ from zero_shot import run as run_zero_shot
 from train import get_clip_metrics, maybe_compute_generative_loss
 
 
-def evaluate(model, data, epoch, args, tb_writer=None):
+def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
     metrics = {}
     if not is_master(args):
         return metrics
@@ -66,15 +66,18 @@ def evaluate(model, data, epoch, args, tb_writer=None):
 
                 cumulative_loss += total_loss * batch_size
                 num_samples += batch_size
-                if is_master(args) and (i % 100) == 0:
-                    logging.info(
-                        f"Eval Epoch: {epoch} [{num_samples} / {samples_per_val}]\t"
-                        f"Clip Loss: {cumulative_loss / num_samples:.6f}\t")
+                if is_master(args) and (i % 100) == 0 and len(eval_path) > 0:
+                    with open(eval_path, 'a') as f:
+                        f.write(f"Eval Epoch: {epoch} [{num_samples} / {samples_per_val}]\n")
+                        f.write(f"Clip Loss: {cumulative_loss / num_samples:.6f}\n")
+                    # logging.info(
+                    #     f"Eval Epoch: {epoch} [{num_samples} / {samples_per_val}]\t"
+                    #     f"Clip Loss: {cumulative_loss / num_samples:.6f}\t")
 
-                    if gen_loss is not None:
-                        cumulative_gen_loss += gen_loss * batch_size
-                        logging.info(
-                            f"Generative Loss: {cumulative_gen_loss / num_samples:.6f}\t")
+                    # if gen_loss is not None:
+                    #     cumulative_gen_loss += gen_loss * batch_size
+                    #     logging.info(
+                    #         f"Generative Loss: {cumulative_gen_loss / num_samples:.6f}\t")
 
             val_metrics = get_clip_metrics(
                 image_features=torch.cat(all_image_features),
@@ -91,20 +94,26 @@ def evaluate(model, data, epoch, args, tb_writer=None):
 
     if not metrics:
         return metrics
-
-    logging.info(
-        f"Eval Epoch: {epoch} "
-        + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()])
-    )
+    if len(eval_path) > 0:
+        with open(eval_path, 'a') as f:
+           f.write(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) + '\n') 
+    # logging.info(
+    #     f"Eval Epoch: {epoch} "
+    #     + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()])
+    # )
 
     if args.save_logs:
         for name, val in metrics.items():
             if tb_writer is not None:
                 tb_writer.add_scalar(f"val/{name}", val, epoch)
-
-        with open(os.path.join(args.checkpoint_path, "results.jsonl"), "a+") as f:
-            f.write(json.dumps(metrics))
-            f.write("\n")
+        if len(eval_path) > 0:
+            base_path = '/'.join(eval_path.split('/')[:-1])
+            with open(os.path.join(base_path, "results.txt"), "a+") as f:
+                f.write(str(metrics))
+                f.write('\n')
+        # with open(os.path.join(args.checkpoint_path, "results.jsonl"), "a+") as f:
+        #     f.write(json.dumps(metrics))
+        #     f.write("\n")
 
     return metrics
 

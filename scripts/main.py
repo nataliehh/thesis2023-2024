@@ -96,7 +96,7 @@ def main(args):
             f"ratio_{args.label_ratio}", f"model_{args.model}",
             f"method_{args.method}", f"keyword_{keyword_type}",
             f"AL_{args.active_learning}", f"PL_method_{args.pl_method}",
-            f"vit_{args.use_vit}",            #f"seed_{args.seed}",
+            f"vit_{args.use_vit}", f"epochs_{args.epochs}"           #f"seed_{args.seed}",
         ])
 
     resume_latest = args.resume == 'latest'
@@ -233,9 +233,10 @@ def main(args):
     
             # print('Done training.')
     
-            # if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
-            #     evaluate(model, data, completed_epoch, args, writer)
-            #     print('Done evaluating.')
+            if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
+                eval_path = os.path.join(args.logs, args.name, "val_performance.txt")
+                evaluate(model, data, completed_epoch, args, writer, eval_path = eval_path)
+                # print('Done evaluating.')
             # Saving checkpoints.
             checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
             if scaler is not None:
