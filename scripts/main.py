@@ -67,11 +67,34 @@ def get_optimizer_scaler(args, model):
         scaler = torch.cuda.amp.GradScaler() if args.precision == "amp" else None
     return optimizer, scaler
 
+# From: https://stackoverflow.com/questions/658763/how-to-suppress-scientific-notation-when-printing-float-values
+def format_float(num): 
+    return np.format_float_positional(num, trim='-')
+
+def format_checkpoint(args):
+    # We don't specify any PL method if we are using the base CLIP model
+    if args.method == 'base':
+        args.pl_method = None
+    keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
+        if args.keyword_path is not None else 'none'
+    keyword_type = keyword_type.replace('-', '')
+    date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+    args.name = '-'.join([date_str, f"data_{args.train_data}",
+        f"ratio_{args.label_ratio}", f"model_{args.model}",
+        f"method_{args.method}", f"kw_{keyword_type}",
+        f"AL_{args.active_learning}", f"PL_{args.pl_method}",
+        f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}"            
+        #f"seed_{args.seed}",
+        ])
+    return args.name
+    
 def main(args):
-    try:
+    try: # If the arguments are not parsed yet, do it here
         args = parse_args(args)
-    except:
-        print('Cannot parse args')
+        print('Parsed arguments.')
+    except: # Otherwise, continue
+        pass
+        #print('Cannot parse args')
 
     args.device = 'cpu'
     if torch.cuda.is_available():
@@ -80,30 +103,19 @@ def main(args):
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.benchmark = True
         torch.backends.cudnn.deterministic = False
-        args.device = 'cuda'   
-        
-    # We don't specify any PL method if we are using the base CLIP model
-    if args.method == 'base':
-        args.pl_method = None
+        args.device = 'cuda'
+    else:
+        print('Warning: model is running on cpu. This may be very slow!')
     
     if args.name is None: # get the name of the experiments
         # The keyword is the last part of the keyword filepath, except for its suffix
-        keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
-            if args.keyword_path is not None else 'none'
-        keyword_type = keyword_type.replace('-', '')
-        date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
-        args.name = '-'.join([date_str, f"data_{args.train_data}",
-            f"ratio_{args.label_ratio}", f"model_{args.model}",
-            f"method_{args.method}", f"keyword_{keyword_type}",
-            f"AL_{args.active_learning}", f"PL_method_{args.pl_method}",
-            f"vit_{args.use_vit}", f"epochs_{args.epochs}"           #f"seed_{args.seed}",
-        ])
+        args.name = format_checkpoint(args)
 
     resume_latest = args.resume == 'latest'
     log_base_path = os.path.join(args.logs, args.name)
     args.log_path = None
     if args.train_data:
-        print('Making log path:', log_base_path)
+        print('Log path:', log_base_path)
         os.makedirs(log_base_path, exist_ok=True)
         os.makedirs(os.path.join(log_base_path, 'checkpoints'), exist_ok=True)
         log_filename = 'out.log'
@@ -135,7 +147,7 @@ def main(args):
         logging.warning("It's recommended to use AMP mixed-precision instead of FP16. "
             "FP16 support needs further verification and tuning, especially for train.")
 
-    print(f'Running with a single process on device {args.device}.')
+    # print(f'Running with a single process on device {args.device}.')
 
     dist_model = None
 
@@ -186,7 +198,8 @@ def main(args):
     print('Getting data...')
     data = get_data(args, (preprocess_train, preprocess_val), iter=0, tokenizer=get_tokenizer(args.model), model = model)
     assert len(data), 'At least one train or eval dataset must be specified.'
-    print('Data got.')
+    # print('Data got.')
+    
     # create scheduler if train
     scheduler = None
     if args.train_data and optimizer is not None:
