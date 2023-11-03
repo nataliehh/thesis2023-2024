@@ -155,7 +155,7 @@ class UCMCLS(CustomDataLoader):
         return [c for c in captions if c["split"] == split]
     
     def load_class_info(self):
-        mapping = read_json('./data/UCMerced_LandUse/caption_to_cls_mapping.json')
+        mapping = read_json(os.path.join(self.root,'caption_to_cls_mapping.json'))
         classes = list(set(mapping.values()))
         self.classes = classes
         self.path2class = mapping
