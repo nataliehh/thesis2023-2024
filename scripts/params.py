@@ -29,6 +29,11 @@ def add_base_args(parser):
     parser.add_argument("--val-data", type=str, default=None, help="Path to file(s) with validation data",)
     parser.add_argument("--imagenet-val", type=str, default=None, help="Path to imagenet val set for conducting zero shot evaluation.",)
 
+    # Custom test data params
+    parser.add_argument("--test-data", type=str, default=None, help="Path to file(s) with test data",)
+    parser.add_argument("--imagenet-test", type=str, default=None, help="Path to imagenet test set for conducting zero shot evaluation.",)
+
+    # Standard parameters
     parser.add_argument( "--batch-size", type=int, default=64, help="Batch size per GPU.")
     parser.add_argument( "--epochs", type=int, default=32, help="Number of epochs to train for.")
     parser.add_argument("--lr", type=float, default=5e-5, help="Learning rate.")
@@ -37,6 +42,7 @@ def add_base_args(parser):
     parser.add_argument("--eps", type=float, default=None, help="Adam epsilon.")
     parser.add_argument("--wd", type=float, default=0.2, help="Weight decay.")
     parser.add_argument("--warmup", type=int, default=10, help="Number of steps to warmup for.")
+    
     parser.add_argument("--zeroshot-frequency", type=int, default=1, help="How often to run zero shot.")
     
     parser.add_argument("--resume", default=None, type=str, help="path to latest checkpoint (default: none)",)
