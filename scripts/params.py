@@ -82,7 +82,9 @@ def add_base_args(parser):
     # Arguments for pseudo-labeling
     parser.add_argument("--pl-method", type=str, default='ot.image', help="Type of pseudo-labeling strategy to apply.")
     parser.add_argument("--use-vit", action='store_true', default=False, help="Whether to use ViT model to determine cosine sim. between images.")
-    
+
+    # Arguments for K-fold cross-validation
+    parser.add_argument("--k-fold", type=int, default=-1, help="Which K-fold to use from the data splits.")
     return parser
 
 

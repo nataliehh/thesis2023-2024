@@ -27,7 +27,7 @@ import torch.nn.functional as F
 from precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45, UCMCaptions#, UCM 
+from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 #, UCMCaptions, UCM 
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -55,7 +55,7 @@ class DataInfo:
 class CustomDataLoader(torch.utils.data.Dataset):
     splits = ["train", "val", "test"]
     def __init__(self, root: str , split: str = 'train', transform: T.Compose = None, image_root: str = '', rawsent: bool = False, 
-                 randomitem: bool = False, subclass: bool = False, cls: bool = False):
+                 randomitem: bool = False, subclass: bool = False, cls: bool = False, kfold: int = -1, folds_folder: str = 'folds'):
         ''' Initialize custom data loader.
         root: path to the dataset folder with images + labels.
         split: which split to use (train, validation or test set).
@@ -65,6 +65,8 @@ class CustomDataLoader(torch.utils.data.Dataset):
         randomitem: whether we should pick a random item/image in get_item.
         subclass: whether to use the subclasses as opposed to the main classes of the dataset.
         cls: True if we want to use classification labels for y instead of captions.
+        kfold: given a k-fold split of the data, which fold ([0,...,k-1]) to select.
+        folds_folder: the location of the stored indices of the k-fold split of the data. 
         '''
         self.root = root 
         self.split = split
@@ -75,10 +77,24 @@ class CustomDataLoader(torch.utils.data.Dataset):
         self.subclass = subclass
         self.cls = cls
         self.data = [] # Initialize as empty in parent class
+        self.kfold = kfold
+        self.folds_folder = folds_folder
         
     def __len__(self) -> int:
         return len(self.data)
-    
+
+    def use_kfold(self) -> bool: # whether to use K-fold cross validation
+        folds_path = os.path.join(self.root, self.folds_folder)
+        # Check if any folds are specified for this dataset (in that case, it has a 'folds' folder)
+        if not os.path.exists(folds_path):
+            return False
+        folds = os.listdir(folds_path)
+        # The folds have the format: split_fold_x.npy, where x is some integer that we extract here
+        folds = [int(f.split('.')[0].split('_')[-1]) for f in folds]
+        if self.kfold in folds: # If the specified fold has a corresponding fold index file, we use K-fold CV
+            return True
+        return False
+        
     # Get the x value (= image) of an item, and transform it
     def get_x(self, item):
         key = 'image_path' if 'image_path' in item else 'filename'
@@ -107,17 +123,23 @@ class CustomDataLoader(torch.utils.data.Dataset):
 
 # Data from: https://github.com/201528014227051/RSICD_optimal
 class RSICD(CustomDataLoader):
-    """ Data from: https://arxiv.org/abs/1712.07835 """
+    """ Data from paper: https://arxiv.org/abs/1712.07835 """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = self.load_captions(os.path.join(self.root, "dataset_rsicd.json"), self.split)
+        data_anns = "dataset_rsicd.json" if 'RSICD' in self.root else "dataset.json"
+        self.data = self.load_captions(os.path.join(self.root, data_anns), self.split)
         self.image_root = "RSICD_images"
-        if self.cls:
+        if self.cls and 'RSICD' in self.root:
             self.load_class_info(os.path.join(self.root, "txtclasses_rsicd"))
 
-    @staticmethod
-    def load_captions(path: str, split: str) -> List[Dict]:
+    def load_captions(self, path: str, split: str) -> List[Dict]:
         captions = read_json(path)["images"]
+        if self.use_kfold():
+            print('Using kfold split {}'.format(self.kfold))
+            path = os.path.join(self.root, self.folds_folder, '{}_fold_{}.npy'.format(split, self.kfold))
+            filenames = np.load(path)
+            return [c for c in captions if c['filename'] in filenames]
+            
         return [c for c in captions if c["split"] == split]
     
     def load_class_info(self, class_dir):
@@ -141,18 +163,17 @@ class RSICD(CustomDataLoader):
         else:
             return super().__getitem__(idx)
 
-class UCMCLS(CustomDataLoader):
+class UCM(RSICD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  
         self.image_root = "images"
-        self.data = self.load_captions(os.path.join(self.root, "dataset.json"), self.split)
         
         if self.cls:
             self.load_class_info()
 
-    def load_captions(self, path: str, split: str) -> List[Dict]:
-        captions = read_json(path)["images"]
-        return [c for c in captions if c["split"] == split]
+    # def load_captions(self, path: str, split: str) -> List[Dict]:
+    #     captions = read_json(path)["images"]
+    #     return [c for c in captions if c["split"] == split]
     
     def load_class_info(self):
         mapping = read_json(os.path.join(self.root,'caption_to_cls_mapping.json'))
@@ -169,6 +190,11 @@ class UCMCLS(CustomDataLoader):
             return x, y
         else:
             return super().__getitem__(idx)
+
+class SydneyCaptions(RSICD):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  
+        self.image_root = "images"
 
 
 # Data from: https://github.com/xthan/fashion-200k/tree/master
@@ -470,7 +496,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         size = size * (args.current_iter+1)/args.al_iter
     size = int(size)
     if args.current_iter == 0: # Print the statistics of the labeled set and the full set of data
-        print('Dataset size:', len(d)) 
+        # print('Dataset size:', len(d)) 
         print('Labeled size:', size)
 
     if perform_AL: # Active learning
@@ -577,20 +603,19 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
     path = './data/'
     split = "train" if is_train else "val"
     if args.current_iter == 0:
-        print(data)
-        print('Split:', split)
+        print('{} (split: {})'.format(data, split))
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
-    if data != 'UCM-CLS':
-        data = data.replace('-CLS', '')
-        data = data.replace('-SUBCLS', '')
+    # if data != 'UCM-CLS':
+    data = data.replace('-CLS', '')
+    data = data.replace('-SUBCLS', '')
 
     config = { # config dictionary that contains the call function to the dataset creator and the (relative) path to its data
         "RSICD": (RSICD, "RSICD", True),
-        "UCM": (UCMCaptions, "UCM", False),
+        "UCM": (UCM, "UCM", True),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
-        "UCM-CLS": (UCMCLS, "UCM", True), # UCMerced_LandUse
+        # "UCM-CLS": (UCMCLS, "UCM", True), # UCMerced_LandUse
         "WHU-RS19": (WHURS19, "WHU-RS19", False),
         "RSSCN7": (RSSCN7, "RSSCN7", False),
         "AID": (AID, "AID", False),
@@ -610,7 +635,8 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
         dataset_class, dataset_path, custom = config.get(data) 
         
         if custom:
-            d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, subclass = subclass, randomitem = randomitem)
+            d = dataset_class(os.path.join(path, dataset_path), split = split, transform=preprocess_fn, cls = cls, 
+                              subclass = subclass, randomitem = randomitem, kfold = args.k_fold)
         else:
             d = dataset_class(os.path.join(path, dataset_path), transform=preprocess_fn)
         if cls:
@@ -652,18 +678,18 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
                 Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
                 FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),]
             if args.current_iter == 0:
-                for sub_d in d:
-                    print('Data size:', len(sub_d))
+                d_lengths = [len(sub_d) for sub_d in d]
+                print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
         elif data == 'RS-ALL':
-            d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn),
-                UCMCaptions("./data/UCM", split=split, transform=preprocess_fn), # UCMCaption
-                SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn),]
+            d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn, kfold = args.k_fold),
+                UCM("./data/UCM", split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
+                SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn, kfold = args.k_fold),]
             if args.current_iter == 0:
-                for sub_d in d:
-                    print('Data size:', len(sub_d))
+                d_lengths = [len(sub_d) for sub_d in d]
+                print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
         else:

@@ -79,14 +79,16 @@ def format_checkpoint(args):
         if args.keyword_path is not None else 'none'
     keyword_type = keyword_type.replace('-', '')
     date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
-    args.name = '-'.join([date_str, f"data_{args.train_data}",
+    name = '-'.join([date_str, f"data_{args.train_data}",
         f"ratio_{args.label_ratio}", f"model_{args.model}",
         f"method_{args.method}", f"kw_{keyword_type}",
         f"AL_{args.active_learning}", f"PL_{args.pl_method}",
-        f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}"            
-        #f"seed_{args.seed}",
+        f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
         ])
-    return args.name
+    if args.k_fold >= 0:
+        print('kfold:', args.k_fold)
+        name += f"-fold_{args.k_fold}"
+    return name
     
 def main(args):
     try: # If the arguments are not parsed yet, do it here
@@ -106,8 +108,9 @@ def main(args):
         args.device = 'cuda'
     else:
         print('Warning: model is running on cpu. This may be very slow!')
-    
+        
     if args.name is None: # get the name of the experiments
+        print('formatting...')
         # The keyword is the last part of the keyword filepath, except for its suffix
         args.name = format_checkpoint(args)
 
