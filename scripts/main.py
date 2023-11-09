@@ -108,13 +108,16 @@ def main(args):
         args.device = 'cuda'
     else:
         print('Warning: model is running on cpu. This may be very slow!')
-        
+
+    if args.save_freq == -1: # Default checkpoint-saving frequency means we only save checkpoints at the end
+        args.save_freq = args.epochs
     if args.name is None: # get the name of the experiments
         print('formatting...')
         # The keyword is the last part of the keyword filepath, except for its suffix
         args.name = format_checkpoint(args)
 
     resume_latest = args.resume == 'latest'
+    
     log_base_path = os.path.join(args.logs, args.name)
     args.log_path = None
     if args.train_data:
@@ -129,21 +132,20 @@ def main(args):
 
     if resume_latest:
         resume_from = None
-        checkpoint_path = args.checkpoint_path
 
         if args.save_most_recent:
             # if --save-most-recent flag is set, look for latest at a fixed filename
-            resume_from = os.path.join(checkpoint_path, LATEST_CHECKPOINT_NAME)
+            resume_from = os.path.join(args.checkpoint_path, LATEST_CHECKPOINT_NAME)
             if not os.path.exists(resume_from):
                 # If no latest checkpoint has been saved yet, don't try to resume
                 resume_from = None
         else:
             # otherwise, list checkpoint dir contents and pick the newest checkpoint
-            resume_from = get_latest_checkpoint(checkpoint_path, remote=args.remote_sync is not None)
+            resume_from = get_latest_checkpoint(args.checkpoint_path, remote=args.remote_sync is not None)
         if resume_from:
             logging.info(f'Found latest resume checkpoint at {resume_from}.')
         else:
-            logging.info(f'No latest resume checkpoint found in {checkpoint_path}.')
+            logging.info(f'No latest resume checkpoint found in {args.checkpoint_path}.')
         args.resume = resume_from
 
     if args.precision == 'fp16':
@@ -191,14 +193,14 @@ def main(args):
                 optimizer.load_state_dict(checkpoint["optimizer"])
             if scaler is not None and 'scaler' in checkpoint:
                 scaler.load_state_dict(checkpoint['scaler'])
-            print(f"=> resuming checkpoint '{args.resume}' (epoch {start_epoch})")
+            # print(f"=> resuming checkpoint '{args.resume}' (epoch {start_epoch})")
         else:
             # loading a bare (model only) checkpoint for fine-tune or evaluation
             model.load_state_dict(checkpoint)
             print(f"=> loaded checkpoint '{args.resume}' (epoch {start_epoch})")
 
     # initialize datasets
-    print('Getting data...')
+    # print('Getting data...')
     data = get_data(args, (preprocess_train, preprocess_val), iter=0, tokenizer=get_tokenizer(args.model), model = model)
     assert len(data), 'At least one train or eval dataset must be specified.'
     # print('Data got.')
@@ -227,13 +229,17 @@ def main(args):
     writer = None
     if not args.train_data:
         metrics = evaluate(model, data, start_epoch, args, writer)
+        # The checkpoint contains the total epochs the model trained for, replace it with the checkpoint we want to evaluate
+        # (Based on the epochs of that checkpoint)
+        total_epochs = re.search("epochs_[0-9]+", args.name)[0] 
+        model_name = args.name.replace(f"epochs_{total_epochs}", f"epochs_{start_epoch}")
         with open('eval.txt', 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(args.name, args.imagenet_val, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, args.imagenet_val, k, 100 * v))
                 elif k in ["image_to_text_R@1", "image_to_text_R@5", "image_to_text_R@10",
                            "text_to_image_R@1", "text_to_image_R@5", "text_to_image_R@10"]:
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(args.name, args.val_data, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, args.val_data, k, 100 * v))
             f.write('\n')
         return
 
@@ -259,8 +265,8 @@ def main(args):
                 checkpoint_dict["scaler"] = scaler.state_dict()
     
             # only save the last epoch to save server storage
-            if completed_epoch == args.epochs:
-                torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_latest.pt"))
+            if completed_epoch % args.save_freq == 0: # args.epochs:
+                torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_{completed_epoch}.pt"))
         
         # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
         if args.active_learning and iteration + 1 < args.al_iter:

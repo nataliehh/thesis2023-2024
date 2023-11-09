@@ -135,7 +135,6 @@ class RSICD(CustomDataLoader):
     def load_captions(self, path: str, split: str) -> List[Dict]:
         captions = read_json(path)["images"]
         if self.use_kfold():
-            print('Using kfold split {}'.format(self.kfold))
             path = os.path.join(self.root, self.folds_folder, '{}_fold_{}.npy'.format(split, self.kfold))
             filenames = np.load(path)
             return [c for c in captions if c['filename'] in filenames]
@@ -603,11 +602,11 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
     path = './data/'
     split = "train" if is_train else "val"
     if args.current_iter == 0:
-        print('{} (split: {})'.format(data, split))
+        print('{} (split: {})'.format(data, split), end = '\t')
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
-    # if data != 'UCM-CLS':
+
     data = data.replace('-CLS', '')
     data = data.replace('-SUBCLS', '')
 
@@ -644,7 +643,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             template = [lambda c: f"a photo of a {c}."]
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {c}."]
-            print('CLS size:', len(d))
+            print('CLS size:', len(d), end = '\t')
             return d, d.classes, template
         else:
             # We tokenize the caption datasets

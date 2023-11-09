@@ -91,6 +91,8 @@ def add_base_args(parser):
 
     # Arguments for K-fold cross-validation
     parser.add_argument("--k-fold", type=int, default=-1, help="Which K-fold to use from the data splits.")
+    parser.add_argument("--save-freq", type=int, default=-1, help="How often to save model checkpoints (after how many epochs).")
+    parser.add_argument("--resume-epoch", type=int, default=None, help="How often to save model checkpoints (after how many epochs).")
     return parser
 
 
@@ -110,7 +112,9 @@ def parse_args(args):
         args.keyword_path = None
 
     if args.train_data is None and args.name is not None:
-        args.resume = f"{args.name}/checkpoints/epoch_latest.pt"
+        if args.resume_epoch is None:
+            args.resume_epoch = "latest"
+        args.resume = f"{args.name}/checkpoints/epoch_{args.resume_epoch}.pt"
         for model in ["RN50", "ViT-B-32", "ViT-B-16"]:
             if model in args.resume:
                 args.model = model
