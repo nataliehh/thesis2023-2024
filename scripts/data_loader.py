@@ -18,6 +18,8 @@ import torchvision.transforms as T
 from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torch.utils.data.distributed import DistributedSampler
 from torchvision.datasets import ImageFolder
+from torchmetrics.functional import pairwise_cosine_similarity
+
 from datasets import load_dataset
 from sklearn.utils.extmath import softmax
 
@@ -28,6 +30,15 @@ from precision import get_autocast
 from scipy.spatial.distance import cdist
 
 from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 #, UCMCaptions, UCM 
+
+# Label parsing arguments
+from itertools import chain
+from textblob import TextBlob
+import nltk
+import re
+import copy
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -479,7 +490,7 @@ class TokenizedDataset(torch.utils.data.Dataset):
 
         return images, tokens, keyword_labels
 
-
+@torch.no_grad()
 def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames = None, templates = None, model = None):
     gen = torch.Generator()
     gen.manual_seed(seed) # set random seed
@@ -505,7 +516,9 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
                                                       device=args.device, output_dict=True, aug_cfg=args.aug_cfg,)
         # Keep track of the image & text features
-        image_features, text_features = [], []
+        embed_size = 1024 # This is the embedding size of the CLIP model
+        image_features = torch.empty((0,embed_size)).to(args.device)
+        text_features = torch.empty((0,embed_size)).to(args.device)
         chosen_idx = np.array([]) # Keep track of indices which have already been selected
         if args.current_iter > 0:
             chosen_idx = args.chosen_idx
@@ -513,7 +526,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
         with torch.no_grad():
             # Load in the dataset with a dataloader
-            data = DataLoader(d,batch_size=256,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
+            data = DataLoader(d,batch_size=128,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
             # Set some params to make inference with CLIP fit into memory
             autocast = get_autocast(args.precision)
             cast_dtype = get_cast_dtype(args.precision)
@@ -523,24 +536,24 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
                     texts = [template(classname) for template in templates]
                     texts = tokenizer(texts).to(args.device, non_blocking=True)
                     text_feature = model.encode_text(texts)
-                    # text_feature = F.normalize(text_feature, dim=-1)
-                    text_features += text_feature.cpu()
+                    text_features = torch.cat((text_features, text_feature), 0)
+                    
             for images, _ in tqdm(data, unit_scale=args.batch_size):
                 images = images.to(args.device, non_blocking=True)
                 if cast_dtype is not None:
                     images = images.to(dtype=cast_dtype, non_blocking=True)
                 with autocast():
                     image_feature = model.encode_image(images)
-                    # image_feature = F.normalize(image_feature, dim=-1)
-                image_features += image_feature.cpu()
-            image_features = np.array(image_features).astype(np.float64)
-            text_features = np.array(text_features).astype(np.float64)
 
-        # Compute similarity (1-cosine_distance = cosine_similarity)
-        sim = 1 - cdist(image_features, text_features, metric = 'cosine')
-        sim = softmax(sim) # We use softmax to get prediction probabilities
-        entropy = np.multiply(sim,np.log(sim)) # Compute the entropy for each similarity: sim*log(sim)
-        uncertainty = np.sum(-1*entropy, axis = 1) # The uncertainty is then the (negative) sum per row
+                image_features = torch.cat((image_features, image_feature), 0)
+
+        # Compute similarity
+        sim = pairwise_cosine_similarity(image_features, text_features) #1 - cdist(image_features, text_features, metric = 'cosine')
+        sim = torch.nn.functional.softmax(sim, -1) # We use softmax to get prediction probabilities
+        entropy = torch.mul(sim,torch.log(sim)) # Compute the entropy for each similarity: sim*log(sim)
+        
+        # uncertainty = np.sum(-1*entropy, axis = 1) 
+        uncertainty = torch.sum(-1*entropy, 1) # The uncertainty is then the (negative) sum per row
 
         # Sort the uncertainty from highest to lowest
         sim_score_ind = uncertainty.argsort()[possible_idx]
@@ -549,7 +562,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         del data, image_features, text_features, sim, entropy, uncertainty
 
         # The indices are the labels with the highest uncertainty + already labeled indices
-        indices = sim_score_ind
+        indices = sim_score_ind.cpu().numpy()
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
     else:
@@ -597,6 +610,49 @@ def create_datainfo(args, dataset, batch_size, is_train):
 
     return DataInfo(dataloader, sampler)
 
+def format_for_template(classname, dataset):
+    c = classname # Abbreviate for easier reading
+    
+    # For UCM, the labels are not with pascal case, we make it consistent with RSICD's pascal case here
+    replacements = {'residential': 'Residential', 'mobilehomepark': 'MobileHomePark', 'tenniscourt': 'TennisCourt', 
+                    'parkinglot': 'ParkingLot',  'baseballdiamond': 'BaseballDiamond', 'golfcourse': 'GolfCourse', 'storagetank': 'StorageTank'}
+    for old, new in replacements.items():
+        c = c.replace(old, new)
+    
+    # RS classes use pascal case (e.g. BareLand), here we split on the capitals (e.g. Bare Land)
+    # From: https://stackoverflow.com/questions/2277352/split-a-string-at-uppercase-letters
+    c = re.sub( r"([A-Z])", r" \1", c)
+    
+    # Check if this is necessary: replace '&' with 'and', then replace ' and ' with ' or '
+    c = c.replace('&', 'and')
+    c = c.replace(' and ', ' or ')
+    
+    c = TextBlob(c).words.singularize() # Make every word singular (e.g. fields -> field)
+    c = (' '.join(c)).lower() # Make a string of the list, with spaces, and remove capitalization
+    
+    # Replace faulty singularization, such as 'ties' -> 'ty', and keep spelling consistent (e.g. jewelry, not jewellery)
+    replacements = {'ty': 'tie', 'jean': 'jeans', 'glass': 'glasses', 'legging': 'leggings', 'pant': 'pants', 
+                    'bottom': 'bottoms', 'overpas': 'overpass', 'tenni': 'tennis', 'jewellery': 'jewelry'}
+    for old, new in replacements.items():
+        c = c.replace(old, new)
+
+    # Mass nouns are nouns which don't use an article
+    mass_nouns = set(['lingerie', 'jewelry', 'swimwear', 'underwear', 'outerwear', 'eyewear'])
+    contains_mass_noun = len(mass_nouns.intersection(c.split())) > 0 
+    
+    # For *remote-sensing* descriptors like 'agricultural', 'residential', (that end in 'al') we add 'area' after it
+    if c.endswith('al') or c == 'parking' and 'Fashion' not in dataset: 
+        c += ' area'
+        
+    # If the last word is not plural (check the tag) and not a mass noun, we add an article (a or an)
+    # .tags values have format (noun, tag), so we get the last index of the tuple
+    if TextBlob(c).tags[-1][-1] != 'NNS' and not contains_mass_noun: 
+        if c[0] in 'aeiou': # If the first word in the label starts with a vowel, we use 'an'
+            c = 'an ' + c
+        else: # Otherwise, use 'a' for the article
+            c = 'a ' + c
+    return c
+
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
     path = './data/'
@@ -640,9 +696,9 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = dataset_class(os.path.join(path, dataset_path), transform=preprocess_fn)
         if cls:
             # Classification datasets use a captioning template, either 'a photo of [CLASS]' or 'an aerial photograph of [CLASS]' (for remote sensing)
-            template = [lambda c: f"a photo of a {c}."]
+            template = [lambda c: f"a photo of {format_for_template(c, data)}."]
             if data in REMOTE_SENSING:
-                 template = [lambda c: f"an aerial photograph of {c}."]
+                 template = [lambda c: f"an aerial photograph of {format_for_template(c, data)}."]
             print('CLS size:', len(d), end = '\t')
             return d, d.classes, template
         else:

@@ -232,7 +232,7 @@ def main(args):
         # The checkpoint contains the total epochs the model trained for, replace it with the checkpoint we want to evaluate
         # (Based on the epochs of that checkpoint)
         total_epochs = re.search("epochs_[0-9]+", args.name)[0] 
-        model_name = args.name.replace(f"epochs_{total_epochs}", f"epochs_{start_epoch}")
+        model_name = args.name.replace(total_epochs, f"epochs_{start_epoch}")
         with open('eval.txt', 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
