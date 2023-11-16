@@ -72,9 +72,6 @@ def format_float(num):
     return np.format_float_positional(num, trim='-')
 
 def format_checkpoint(args):
-    # We don't specify any PL method if we are using the base CLIP model
-    if args.method == 'base':
-        args.pl_method = None
     keyword_type = args.keyword_path.split('/')[-1].split('.')[0]\
         if args.keyword_path is not None else 'none'
     keyword_type = keyword_type.replace('-', '')
@@ -82,7 +79,7 @@ def format_checkpoint(args):
     name = '-'.join([date_str, f"data_{args.train_data}",
         f"ratio_{args.label_ratio}", f"model_{args.model}",
         f"method_{args.method}", f"kw_{keyword_type}",
-        f"AL_{args.active_learning}", f"PL_{args.pl_method}",
+        f"AL.iter_{args.al_iter}", f"PL_{args.pl_method}",
         f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
         ])
     if args.k_fold >= 0:
@@ -96,30 +93,14 @@ def main(args):
         print('Parsed arguments.')
     except: # Otherwise, continue
         pass
-        #print('Cannot parse args')
 
-    args.device = 'cpu'
-    if torch.cuda.is_available():
-        # Enable tf32 on Ampere GPUs - only 8% slower than float16 & almost as accurate as float32
-        # This was a default in pytorch until 1.12
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.benchmark = True
-        torch.backends.cudnn.deterministic = False
-        args.device = 'cuda'
-    else:
-        print('Warning: model is running on cpu. This may be very slow!')
-
-    if args.save_freq == -1: # Default checkpoint-saving frequency means we only save checkpoints at the end
-        args.save_freq = args.epochs
     if args.name is None: # get the name of the experiments
-        print('formatting...')
         # The keyword is the last part of the keyword filepath, except for its suffix
         args.name = format_checkpoint(args)
 
     resume_latest = args.resume == 'latest'
     
     log_base_path = os.path.join(args.logs, args.name)
-    args.log_path = None
     if args.train_data:
         print('Log path:', log_base_path)
         os.makedirs(log_base_path, exist_ok=True)

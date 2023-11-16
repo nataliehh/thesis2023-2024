@@ -537,7 +537,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
                     texts = tokenizer(texts).to(args.device, non_blocking=True)
                     text_feature = model.encode_text(texts)
                     text_features = torch.cat((text_features, text_feature), 0)
-                    
+       
             for images, _ in tqdm(data, unit_scale=args.batch_size):
                 images = images.to(args.device, non_blocking=True)
                 if cast_dtype is not None:
@@ -655,7 +655,7 @@ def format_for_template(classname, dataset):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
-    path = './data/'
+    path = '/vol/tensusers5/nhollain/data/'
     split = "train" if is_train else "val"
     if args.current_iter == 0:
         print('{} (split: {})'.format(data, split), end = '\t')
@@ -729,9 +729,9 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = ImageFolder("./data/kaggle_simpsons_characters/simpsons_dataset", transform=preprocess_fn)
 
         elif data =='Fashion-ALL':
-            d = [Polyvore("./data/polyvore_outfits", split=split, transform=preprocess_fn),
-                Fashion200k("./data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
-                FashionGen("./data/fashiongen", split=split, transform=preprocess_fn),]
+            d = [Polyvore("/vol/tensusers5/nhollain/data/polyvore_outfits", split=split, transform=preprocess_fn),
+                Fashion200k("/vol/tensusers5/nhollain/data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
+                FashionGen("/vol/tensusers5/nhollain/data/fashiongen", split=split, transform=preprocess_fn),]
             if args.current_iter == 0:
                 d_lengths = [len(sub_d) for sub_d in d]
                 print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
@@ -739,9 +739,9 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
         elif data == 'RS-ALL':
-            d = [RSICD("./data/RSICD", split=split, transform=preprocess_fn, kfold = args.k_fold),
-                UCM("./data/UCM", split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
-                SydneyCaptions("./data/sydney_captions", split=split, transform=preprocess_fn, kfold = args.k_fold),]
+            d = [RSICD("/vol/tensusers5/nhollain/data/RSICD", split=split, transform=preprocess_fn, kfold = args.k_fold),
+                UCM("/vol/tensusers5/nhollain/data/UCM", split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
+                SydneyCaptions("/vol/tensusers5/nhollain/data/sydney_captions", split=split, transform=preprocess_fn, kfold = args.k_fold),]
             if args.current_iter == 0:
                 d_lengths = [len(sub_d) for sub_d in d]
                 print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))

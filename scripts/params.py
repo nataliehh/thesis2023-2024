@@ -1,5 +1,6 @@
 import argparse
 import ast
+from tools import select_cpu_or_gpu
 
 def get_default_params(model_name):
     # Params from paper (https://arxiv.org/pdf/2103.00020.pdf)
@@ -100,6 +101,18 @@ def parse_args(args):
     parser = argparse.ArgumentParser()
     parser = add_base_args(parser)
     args = parser.parse_args(args)
+
+    # Set some defaults 
+    args.device = select_cpu_or_gpu() # Choose whether to run on CPU or GPU, depending on what's available
+    if args.active_learning: # We don't store results at intermediate points for active learning(???)
+        args.save_freq = -1
+    else:
+        args.al_iter = None
+    if args.save_freq == -1: # Default checkpoint-saving frequency means we only save checkpoints at the end
+        args.save_freq = args.epochs
+    # We don't specify any PL method if we are using the base CLIP model
+    if args.method == 'base':
+        args.pl_method = None
 
     # If some params are not passed, we use the default values based on model name.
     default_params = get_default_params(args.model)
