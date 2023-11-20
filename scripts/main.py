@@ -12,7 +12,7 @@ from open_clip import create_model_and_transforms, get_tokenizer, create_loss
 from tqdm import tqdm
 import gc
 
-sys.path.append('/vol/tensusers5/nhollain/s_clip_scripts') # Add custom functions to PATH
+sys.path.append('/vol/tensusers4/nhollain/thesis2023-2024/s_clip_scripts') # Add custom functions to PATH
 
 # use custom functions
 from scheduler import cosine_lr, const_lr, const_lr_cooldown
@@ -77,22 +77,25 @@ def format_checkpoint(args):
     keyword_type = keyword_type.replace('-', '')
     date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
     name = '-'.join([date_str, f"data_{args.train_data}",
-        f"ratio_{args.label_ratio}", f"model_{args.model}",
-        f"method_{args.method}", f"kw_{keyword_type}",
-        f"AL.iter_{args.al_iter}", f"PL_{args.pl_method}",
-        f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
+        f"ratio_{args.label_ratio}", f"model_{args.model}", f"method_{args.method}", f"kw_{keyword_type}",
+        f"AL.iter_{args.al_iter}", f"AL.epochs_{args.al_epochs}",
+        f"PL_{args.pl_method}", f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
         ])
     if args.k_fold >= 0:
-        print('kfold:', args.k_fold)
+        # print('kfold:', args.k_fold)
         name += f"-fold_{args.k_fold}"
     return name
     
 def main(args):
+    logging.basicConfig(filename='training.log', encoding='utf-8', level=logging.INFO, force=True) # filemode='a', 
     try: # If the arguments are not parsed yet, do it here
         args = parse_args(args)
         print('Parsed arguments.')
     except: # Otherwise, continue
         pass
+
+    logging.info(datetime.now().strftime("%Y_%m_%d-%H_%M_%S"))
+    
 
     if args.name is None: # get the name of the experiments
         # The keyword is the last part of the keyword filepath, except for its suffix
@@ -102,7 +105,7 @@ def main(args):
     
     log_base_path = os.path.join(args.logs, args.name)
     if args.train_data:
-        print('Log path:', log_base_path)
+        logging.info('Log path: ' + log_base_path)
         os.makedirs(log_base_path, exist_ok=True)
         os.makedirs(os.path.join(log_base_path, 'checkpoints'), exist_ok=True)
         log_filename = 'out.log'
@@ -178,13 +181,11 @@ def main(args):
         else:
             # loading a bare (model only) checkpoint for fine-tune or evaluation
             model.load_state_dict(checkpoint)
-            print(f"=> loaded checkpoint '{args.resume}' (epoch {start_epoch})")
+            logger.info(f"=> loaded checkpoint '{args.resume}' (epoch {start_epoch})")
 
     # initialize datasets
-    # print('Getting data...')
     data = get_data(args, (preprocess_train, preprocess_val), iter=0, tokenizer=get_tokenizer(args.model), model = model)
     assert len(data), 'At least one train or eval dataset must be specified.'
-    # print('Data got.')
     
     # create scheduler if train
     scheduler = None
@@ -212,8 +213,8 @@ def main(args):
         metrics = evaluate(model, data, start_epoch, args, writer)
         # The checkpoint contains the total epochs the model trained for, replace it with the checkpoint we want to evaluate
         # (Based on the epochs of that checkpoint)
-        total_epochs = re.search("epochs_[0-9]+", args.name)[0] 
-        model_name = args.name.replace(total_epochs, f"epochs_{start_epoch}")
+        total_epochs = re.search("-epochs_[0-9]+", args.name)[0] 
+        model_name = args.name.replace(total_epochs, f"-epochs_{start_epoch}")
         with open('eval.txt', 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
@@ -225,21 +226,23 @@ def main(args):
         return
 
     loss = create_loss(args)
-    for iteration in range(args.al_iter):
+    iterations = args.al_iter if args.al_iter is not None else 1
+    for iteration in range(iterations):
         if args.active_learning:
-            print('Active Learning iteration:', iteration)
-        for epoch in tqdm(range(start_epoch, args.epochs)):
-            # print(f'Start epoch {epoch}')
+            logging.info('Active Learning iteration: ' + str(iteration))
+        if args.active_learning and iteration + 1 < args.al_iter:
+            epochs = args.al_epochs
+        else:
+            epochs = args.epochs
+        for epoch in tqdm(range(start_epoch, epochs)):
                 
             train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist_model, args, tb_writer=writer)
             completed_epoch = epoch + 1
     
-            # print('Done training.')
-    
             if any(v in data for v in ('val', 'imagenet-val', 'imagenet-v2')):
                 eval_path = os.path.join(args.logs, args.name, "val_performance.txt")
                 evaluate(model, data, completed_epoch, args, writer, eval_path = eval_path)
-                # print('Done evaluating.')
+                
             # Saving checkpoints.
             checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
             if scaler is not None:
@@ -261,6 +264,7 @@ def main(args):
 
             model = create_custom_model(args, model)  # use custom model
             optimizer, scaler = get_optimizer_scaler(args, model)
+            
         # Clean up memory
         torch.cuda.empty_cache()
         gc.collect()

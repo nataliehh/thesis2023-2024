@@ -1,5 +1,6 @@
 import json
 import torch
+import logging
 
 def read_json(path):
     with open(path, 'r') as f:
@@ -43,8 +44,8 @@ def select_cpu_or_gpu():
         # Get the index of the GPU with the most available memory, and use that one
         max_gpu = sorted(gpu_memory, key = lambda x: gpu_memory[x])[0]
         device = device.format(max_gpu)
-        print('Running on GPU:', device)
+        logging.info('Running on GPU:' + str(device))
     else:
-        print('Warning: model is running on cpu. This may be very slow!')
+        logging.info('Warning: model is running on cpu. This may be very slow!')
     return device
     

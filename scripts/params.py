@@ -84,6 +84,7 @@ def add_base_args(parser):
     # Own arguments for active learning
     parser.add_argument("--active-learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
     parser.add_argument("--al-iter", type=int, default=1, help="How many times to apply active learning.")
+    parser.add_argument("--al-epochs", type=int, default=5, help="How many epochs to train for during the AL phase.")
     # parser.add_argument("--al-method", type=str, default='image-text', help="Type of active learning strategy to apply.")
 
     # Arguments for pseudo-labeling
@@ -104,10 +105,11 @@ def parse_args(args):
 
     # Set some defaults 
     args.device = select_cpu_or_gpu() # Choose whether to run on CPU or GPU, depending on what's available
-    if args.active_learning: # We don't store results at intermediate points for active learning(???)
+    if args.active_learning and args.al_iter > 1: # We don't store results at intermediate points for active learning(???)
         args.save_freq = -1
     else:
         args.al_iter = None
+        args.al_epochs = None
     if args.save_freq == -1: # Default checkpoint-saving frequency means we only save checkpoints at the end
         args.save_freq = args.epochs
     # We don't specify any PL method if we are using the base CLIP model

@@ -24,15 +24,18 @@ git clone https://github.com/palewithout/RSSCN7.git RSSCN7
 rm -r ./RSSCN7/.git/
 
 AID
-pip install gdown
 gdown --id 1cvjfe_MZJI9HXwkRgoQbSCH55qQd6Esm
 unzip AID.zip
 rm AID.zip
 
 RESISC45
-pip install gdown
 gdown --id 1DnPSU5nVSN7xv95bpZ3XQ0JhKXZOKgIv
 unrar x NWPU-RESISC45.rar
 rm NWPU-RESISC45.rar
 
 RSICD & UCM Captions: https://github.com/201528014227051/RSICD_optimal 
+RSICD
+mkdir -p RSICD
+cd RSICD 
+wget https://github.com/201528014227051/RSICD_optimal/blob/master/txtclasses_rsicd.rar
+

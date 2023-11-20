@@ -10,6 +10,7 @@ from tqdm import tqdm
 import time
 import numpy as np
 import gc
+import logging
 
 from tools import read_json
 
@@ -507,12 +508,12 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
     size = int(size)
     if args.current_iter == 0: # Print the statistics of the labeled set and the full set of data
         # print('Dataset size:', len(d)) 
-        print('Labeled size:', size)
+        logging.info(f'Labeled size: {size}')
 
     if perform_AL: # Active learning
-        print('Active learning...')
+        # print('Active learning...')
         if model is None: # Load in base CLIP model if we don't have an existing model
-            print('Loading base CLIP...')
+            logging.info('Loading base CLIP...')
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
                                                       device=args.device, output_dict=True, aug_cfg=args.aug_cfg,)
         # Keep track of the image & text features
@@ -532,13 +533,13 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
             cast_dtype = get_cast_dtype(args.precision)
             with autocast():
                 tokenizer = get_tokenizer(args.model)
-                for classname in classnames: # tqdm(classnames)
+                for classname in classnames: 
                     texts = [template(classname) for template in templates]
                     texts = tokenizer(texts).to(args.device, non_blocking=True)
                     text_feature = model.encode_text(texts)
                     text_features = torch.cat((text_features, text_feature), 0)
        
-            for images, _ in tqdm(data, unit_scale=args.batch_size):
+            for images, _ in data:
                 images = images.to(args.device, non_blocking=True)
                 if cast_dtype is not None:
                     images = images.to(dtype=cast_dtype, non_blocking=True)
@@ -655,10 +656,10 @@ def format_for_template(classname, dataset):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
-    path = '/vol/tensusers5/nhollain/data/'
+    path = '/vol/tensusers4/nhollain/thesis2023-2024/data/'
     split = "train" if is_train else "val"
     if args.current_iter == 0:
-        print('{} (split: {})'.format(data, split), end = '\t')
+        logging.info(f'{data} (split: {split})')
     cls = 'CLS' in data
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
@@ -699,7 +700,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             template = [lambda c: f"a photo of {format_for_template(c, data)}."]
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {format_for_template(c, data)}."]
-            print('CLS size:', len(d), end = '\t')
+            logging.info(f'CLS size: {len(d)}')
             return d, d.classes, template
         else:
             # We tokenize the caption datasets
@@ -729,22 +730,22 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
             d = ImageFolder("./data/kaggle_simpsons_characters/simpsons_dataset", transform=preprocess_fn)
 
         elif data =='Fashion-ALL':
-            d = [Polyvore("/vol/tensusers5/nhollain/data/polyvore_outfits", split=split, transform=preprocess_fn),
-                Fashion200k("/vol/tensusers5/nhollain/data/fashion200k", split=split, transform=preprocess_fn, randomitem = True),
-                FashionGen("/vol/tensusers5/nhollain/data/fashiongen", split=split, transform=preprocess_fn),]
+            d = [Polyvore(os.path.join(path,"polyvore_outfits"), split=split, transform=preprocess_fn),
+                Fashion200k(os.path.join(path,"fashion200k"), split=split, transform=preprocess_fn, randomitem = True),
+                FashionGen(os.path.join(path,"fashiongen"), split=split, transform=preprocess_fn),]
             if args.current_iter == 0:
                 d_lengths = [len(sub_d) for sub_d in d]
-                print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
+                logging.info('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
         elif data == 'RS-ALL':
-            d = [RSICD("/vol/tensusers5/nhollain/data/RSICD", split=split, transform=preprocess_fn, kfold = args.k_fold),
-                UCM("/vol/tensusers5/nhollain/data/UCM", split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
-                SydneyCaptions("/vol/tensusers5/nhollain/data/sydney_captions", split=split, transform=preprocess_fn, kfold = args.k_fold),]
+            d = [RSICD(os.path.join(path,"RSICD"), split=split, transform=preprocess_fn, kfold = args.k_fold),
+                UCM(os.path.join(path,"UCM"), split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
+                SydneyCaptions(os.path.join(path,"sydney_captions"), split=split, transform=preprocess_fn, kfold = args.k_fold),]
             if args.current_iter == 0:
                 d_lengths = [len(sub_d) for sub_d in d]
-                print('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
+                logging.info('Sub-dataset sizes: {} (sum = {})'.format(d_lengths, sum(d_lengths)))
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
         else:
