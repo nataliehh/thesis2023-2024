@@ -8,7 +8,7 @@ from params import parse_args
 import copy
 import os
 from tqdm import tqdm
-import datetime
+from datetime import datetime
 
 def prep_str_args(str_args): # Code to parse the string style arguments, as shown below
     str_args = str_args.split('\n') # Split on newline
@@ -69,12 +69,13 @@ base_str_args = ''' --train-data RS-ALL
 
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {
-    '--epochs' : [15], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
-    '--lr' : [5e-5], # 5e-4, 5e-6
+    '--epochs' : [35], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
+    '--lr' : [5e-4, 5e-5, 5e-6], # 5e-4, 5e-6
     '--batch-size' : [64],
-    '--al-iter': [3],#list(range(3,17,2)), #list(range(1,6,2)),
-    '--al-epochs': [15],
-    '--label-ratio': [0.1, 0.3, 0.5, 0.7]
+    '--al-iter': [1], #list(range(3,17,2)), #list(range(1,6,2)),
+    '--al-epochs': [35],
+    '--label-ratio': [0.1],
+    '--pl-method': ["soft.image", "soft.text", "ot.image", "ot.text", "hard.image", "hard.text"],
 }
 
 # This number is very specifically chosen because we have 9 folds for the datasets!
