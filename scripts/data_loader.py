@@ -30,7 +30,7 @@ import torch.nn.functional as F
 from precision import get_autocast
 from scipy.spatial.distance import cdist
 
-from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 #, UCMCaptions, UCM 
+# from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 #, UCMCaptions, UCM 
 
 # Label parsing arguments
 from itertools import chain
@@ -133,6 +133,30 @@ class CustomDataLoader(torch.utils.data.Dataset):
         
         return dict(x=x, captions=sentences)
 
+class RS_CLS(CustomDataLoader): # For use with AID, WHU-RS19, NWPU-RESISC45, RSSCN7
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.load_class_info()
+        
+    def load_class_info(self):
+        classes = [c for c in os.listdir(self.root) if os.path.isdir(os.path.join(self.root,c))]
+        data = []
+        for class_ in classes:
+            img_folder = os.path.join(self.root, class_)
+            img_paths = os.listdir(img_folder)
+            for img_path in img_paths:
+                 data.append((img_path, class_))
+        self.data = data
+        self.classes = classes
+        
+    def __getitem__(self, idx):
+        img_path, class_ = self.data[idx]
+        x = Image.open(os.path.join(self.root, class_, img_path)).convert('RGB')
+        x = self.transform(x)
+        y = self.classes.index(class_)
+        return x, y
+            
+        
 # Data from: https://github.com/201528014227051/RSICD_optimal
 class RSICD(CustomDataLoader):
     """ Data from paper: https://arxiv.org/abs/1712.07835 """
@@ -507,7 +531,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         size = size * (args.current_iter+1)/args.al_iter
     size = int(size)
     if args.current_iter == 0: # Print the statistics of the labeled set and the full set of data
-        # print('Dataset size:', len(d)) 
+        # print('Dataset size:', len(d))
         logging.info(f'Labeled size: {size}')
 
     if perform_AL: # Active learning
@@ -660,7 +684,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
     split = "train" if is_train else "val"
     if args.current_iter == 0:
         logging.info(f'{data} (split: {split})')
-    cls = 'CLS' in data
+    cls = 'CLS' in data or data in ['AID', 'RESISC45', 'RSSCN7', 'WHU-RS19']
     subclass = 'SUBCLS' in data
     randomitem ='Fashion200k' in data
 
@@ -672,10 +696,10 @@ def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kw
         "UCM": (UCM, "UCM", True),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
         # "UCM-CLS": (UCMCLS, "UCM", True), # UCMerced_LandUse
-        "WHU-RS19": (WHURS19, "WHU-RS19", False),
-        "RSSCN7": (RSSCN7, "RSSCN7", False),
-        "AID": (AID, "AID", False),
-        "RESISC45": (RESISC45, "NWPU-RESISC45", False),
+        "WHU-RS19": (RS_CLS, "WHU-RS19", True),
+        "RSSCN7": (RS_CLS, "RSSCN7", True),
+        "AID": (RS_CLS, "AID", True),
+        "RESISC45": (RS_CLS, "NWPU-RESISC45", True),
         "Fashion200k": (Fashion200k, "fashion200k", True),
         "FashionGen": (FashionGen, "fashiongen", True), 
         "Polyvore": (Polyvore, "polyvore_outfits", True),
