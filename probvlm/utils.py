@@ -223,6 +223,7 @@ def get_features_uncer_ProbVLM(
     CLIP_Net,
     BayesCap_Net,
     t_loader,
+    device = 'cuda'
 ):
     r_dict= {
         'i_f': [],
@@ -239,13 +240,15 @@ def get_features_uncer_ProbVLM(
     }
     # extract all features
     with torch.no_grad():
-        for i_inputs, t_inputs, class_labels, _ in tqdm(t_loader):
-            r_dict['classes'].extend(class_labels.cpu().tolist())
+        # for i_inputs, t_inputs, class_labels, _ in tqdm(t_loader):
+        for i_inputs, t_inputs in tqdm(t_loader):
+            # r_dict['classes'].extend(class_labels.cpu().tolist())
             n_batch = i_inputs.shape[0]
             i_inputs, t_inputs = i_inputs.to(device), t_inputs.to(device)
             outputs = CLIP_Net(i_inputs, t_inputs)
             #recons
-            outs = multi_fwpass_BayesCap(BayesCap_Net, outputs[0], outputs[1])
+            outs = multi_fwpass_ProbVLM(BayesCap_Net, outputs[0], outputs[1])
+            # outs = multi_fwpass_BayesCap(BayesCap_Net, outputs[0], outputs[1])
             
             for j in range(n_batch):
                 r_dict['i_f'].append(outputs[0][j,:])

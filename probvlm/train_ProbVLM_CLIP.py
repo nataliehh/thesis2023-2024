@@ -40,16 +40,16 @@ args = parse_args(str_args)
 model, preprocess_train, preprocess_val = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
                                                                       device=args.device, output_dict=True, aug_cfg = args.aug_cfg, )
 
-probvlm_data = probvlm_get_data((preprocess_train, preprocess_val), tokenizer=get_tokenizer(args.model), model = model, batch_size = 1024)
+probvlm_data = probvlm_get_data((preprocess_train, preprocess_val), tokenizer=get_tokenizer(args.model), batch_size = 256)
 
 train_loader, valid_loader = probvlm_data['train'].dataloader, probvlm_data['val'].dataloader
 
 
 # Initialize models
-device = select_cpu_or_gpu()
+device = 'cuda' #select_cpu_or_gpu()
 CLIP_Net = load_model(device=device, model_path=None) # frozen clip model (?)
 ProbVLM_Net = BayesCap_for_CLIP(inp_dim=512, out_dim=512, hid_dim=256, num_layers=3, p_drop=0.05,) # ProbVLM
 
 # Train the model
-train_ProbVLM(CLIP_Net,ProbVLM_Net, train_loader, valid_loader, Cri = TempCombLoss(), device=device, init_lr=8e-5,
-              dtype=torch.cuda.FloatTensor, num_epochs=25, eval_every=2, ckpt_path='../ckpt/ProbVLM_Net', T1=1e0, T2=1e-4)
+train_ProbVLM(CLIP_Net,ProbVLM_Net, train_loader, valid_loader, Cri = TempCombLoss(), device=device, init_lr=8e-5, resume_path = '../ckpt/ProbVLM_Net_last.pth',
+              dtype=torch.cuda.FloatTensor, num_epochs=100, eval_every=2, ckpt_path='../ckpt/ProbVLM_Net', T1=1e0, T2=1e-4)

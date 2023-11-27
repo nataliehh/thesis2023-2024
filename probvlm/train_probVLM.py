@@ -17,29 +17,30 @@ def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Ne
         print("=> loading checkpoint '{}'".format(resume_path))
         checkpoint = torch.load(resume_path)
         start_epoch = checkpoint['epoch']
-        model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scheduler.load_state_dict(checkpoint['scheduler'])
         print("=> loaded checkpoint '{}' (epoch {})".format(resume_path, checkpoint['epoch']))
     else:
         print("=> no checkpoint found at '{}'".format(resume_path))
 
-    return model, optimizer, scheduler, start_epoch 
+    return model, optimizer, scheduler, start_epoch+1 
 
 def save_checkpoint(path, model, optimizer, scheduler, epoch, loss):
-    torch.save({'state_dict': model.state_dict(), 'epoch': epoch, 'optimizer': optimizer, 'scheduler': scheduler, 'loss': loss}, path)
+    torch.save({'model': model.state_dict(), 'epoch': epoch, 'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict(), 'loss': loss}, path)
 
-def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempCombLoss(), device='cuda', dtype=torch.cuda.FloatTensor(),
+def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempCombLoss(), device='cuda', dtype=torch.float,
      init_lr=1e-4, num_epochs=100, eval_every=1, ckpt_path='../ckpt/ProbVLM', cross_modal_lambda=1e-4, T1=1e0, T2=5e-2, resume_path = ''):
-
+    CLIP_Net.to(device)
+    BayesCap_Net.to(device)
+    
     optimizer = torch.optim.Adam(list(BayesCap_Net.img_BayesCap.parameters())+list(BayesCap_Net.txt_BayesCap.parameters()), lr=init_lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs)
     
     model, optimizer, scheduler, start_epoch = load_checkpoint(BayesCap_Net, optimizer, scheduler, resume_path = resume_path)
-    CLIP_Net.to(device)
+    
     CLIP_Net.eval()
     ##
-    BayesCap_Net.to(device)
     BayesCap_Net.img_BayesCap.train()
     BayesCap_Net.txt_BayesCap.train()
     ##
@@ -87,12 +88,12 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
             print('current score: {} | Last best score: {}'.format(curr_score, score))
             if curr_score <= score:
                 score = curr_score
-                ave_checkpoint(ckpt_path+'_best.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
+                save_checkpoint(ckpt_path+'_best.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
                 # torch.save(BayesCap_Net.state_dict(), ckpt_path+'_best.pth')
     scheduler.step()
     
     
-def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch.cuda.FloatTensor,):
+def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch.float,):
     CLIP_Net.to(device)
     CLIP_Net.eval()
     BayesCap_Net.to(device)

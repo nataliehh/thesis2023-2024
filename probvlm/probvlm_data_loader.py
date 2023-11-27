@@ -52,6 +52,7 @@ class Coco(torch.utils.data.Dataset):
         self.split = split
         self.transform = transform
         data_anns = "captions_{}2014.json".format(self.split)
+        self.train_ids = np.load(os.path.join(self.root,"train_img_ids.npy"))
         self.data = self.load_captions(os.path.join(self.root, data_anns))
         self.image_root = "images"
         
@@ -62,6 +63,9 @@ class Coco(torch.utils.data.Dataset):
         captions = {}
         for annotation in content:
             image_id, _, caption = annotation.values() 
+            # Skip train instances if they are not within our selection of image_ids
+            if self.split == "train" and image_id not in self.train_ids:
+                continue
             caption = caption.replace('\n', '.') # Some captions end in a newline, instead of a period
             if image_id in captions:
                 captions[image_id].append(caption)
@@ -188,9 +192,26 @@ def create_datainfo(dataset, batch_size, is_train):
 
     return DataInfo(dataloader, sampler)
 
+def split_data(d, split_ratio, seed=42, hf_data=False):
+    # set random seed
+    gen = torch.Generator()
+    gen.manual_seed(seed)
+
+    # split labeled and unlabeled data
+    indices = torch.randperm(len(d), generator=gen)
+    size = int(len(d) * split_ratio)
+
+    if hf_data is False:
+        d1 = Subset(d, indices[:size])
+        d2 = Subset(d, indices[size:])
+    else:
+        d1 = [d[int(i)] for i in indices[:size]]
+        d2 = [d[int(i)] for i in indices[size:]]
+
+    return d1, d2
 
 # Coco dataset: https://cocodataset.org/#download
-def get_custom_data(preprocess_fn, is_train, model = None, **data_kwargs):
+def get_custom_data(preprocess_fn, is_train, **data_kwargs):
     path = '/vol/tensusers4/nhollain/ProbVLM/'
     split = "train" if is_train else "val"
     print('Coco data (split: {})'.format(split), end = '\t')
@@ -203,7 +224,7 @@ def get_custom_data(preprocess_fn, is_train, model = None, **data_kwargs):
     return d
 
 
-def get_data(preprocess_fns, iter=0, tokenizer=None, model=None, train_data = True, val_data = True, batch_size = 64):
+def get_data(preprocess_fns, tokenizer=None, train_data = True, val_data = True, batch_size = 64, label_ratio = 0.1):
     preprocess_train, preprocess_val = preprocess_fns
     data = {}
 
@@ -213,6 +234,7 @@ def get_data(preprocess_fns, iter=0, tokenizer=None, model=None, train_data = Tr
 
     if train_data:
         d_train = get_custom_data(is_train = True, preprocess_fn = preprocess_train, tokenizer = tokenizer)
+        d_train, _ = split_data(d_train, label_ratio)
         data["train"] = create_datainfo(d_train, batch_size, is_train=True)
 
     return data
