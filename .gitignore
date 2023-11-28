@@ -3,3 +3,6 @@
 !/results
 !/how-to-download-datasets
 !/probvlm
+active_learning.py
+unzip_files.py
+zip_files.py
