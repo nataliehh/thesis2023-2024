@@ -10,34 +10,7 @@ import os
 from tqdm import tqdm
 from datetime import datetime
 
-def prep_str_args(str_args): # Code to parse the string style arguments, as shown below
-    str_args = str_args.split('\n') # Split on newline
-    str_args = [s.strip() for s in str_args] # Remove any whitespaces from the start and end of the strings
-    # Split on the space between the parameter name and the value, e.g. '--name x' becomes ['--name', 'x']
-    str_args = [s.split(' ') for s in str_args] 
-    str_args = list(itertools.chain(*str_args)) # Flatten the resulting list of lists
-    str_args = [s for s in str_args if len(s) > 0] # Remove arguments that are empty
-    return str_args
-    
-def evaluate(checkpoint, epoch = None, kfold = -1):
-    # print('=> Resuming checkpoint {} (epoch {})'.format(checkpoint, epoch))
-    checkpoint = checkpoint_path 
-    if 'Fashion' in checkpoint:
-        zeroshot_datasets = ["Fashion200k-SUBCLS", "Fashion200k-CLS", "FashionGen-CLS", "FashionGen-SUBCLS", "Polyvore-CLS", ]
-        retrieval_datasets = ["FashionGen", "Polyvore", "Fashion200k",]
-    else:
-        zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] # "WHU-RS19", "RSSCN7", "AID" -> NOT WORKING bc of different data-loading workings
-        retrieval_datasets = ["RSICD", "UCM", "Sydney"]
-    
-    for dataset in zeroshot_datasets:
-        str_args = ['--name', checkpoint, '--imagenet-val', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
-        args = parse_args(str_args)
-        main(args)
-    
-    for dataset in retrieval_datasets:
-        str_args = ['--name', checkpoint, '--val-data', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
-        args = parse_args(str_args)
-        main(args)
+from tuning_tools import prep_str_args, evaluate_checkpoint
 
 ########################
 # Count the models that have been trained and evaluated already, based on their parameters 
@@ -80,7 +53,7 @@ gridsearch_dict = {
 
 # This number is very specifically chosen because we have 9 folds for the datasets!
 num_repeats = 9
-num_evals = 20 # How many evaluations are done with evaluate(...) - KEEP THIS FIXED
+num_evals = 20 # How many evaluations are done with evaluate_checkpoint(...) - KEEP THIS FIXED
 
 gridsearch_values = list(gridsearch_dict.values())
 gridsearch_keys = list(gridsearch_dict.keys())
@@ -120,7 +93,7 @@ for c, config in enumerate(configs): # Gridsearch
         # print('Args k fold (outside):' , args.k_fold)
         checkpoint_path = main(args) # Calls the main.py function of S-CLIP
         for epoch in epochs:
-            evaluate(checkpoint_path, epoch = epoch, kfold = i)
+            evaluate_checkpoint(checkpoint_path, epoch = epoch, kfold = i)
         # Remove the checkpoint after evaluating, to save space
         os.system(f"rm -r {checkpoint_path}")  
 

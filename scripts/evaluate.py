@@ -26,8 +26,10 @@ def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
     autocast = get_autocast(args.precision)
     cast_dtype = get_cast_dtype(args.precision)
 
-    if 'val' in data and (args.val_frequency and ((epoch % args.val_frequency) == 0 or epoch == args.epochs)):
-        dataloader = data['val'].dataloader
+    if ('val' in data or 'test' in data) and (args.val_frequency and ((epoch % args.val_frequency) == 0 or epoch == args.epochs)):
+        # Pick the correct data loader
+        dataloader = data['val'].dataloader if 'val' in data else data['test'].dataloader
+
         num_samples = 0
         samples_per_val = dataloader.num_samples
 
@@ -97,10 +99,7 @@ def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
     if len(eval_path) > 0:
         with open(eval_path, 'a') as f:
            f.write(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) + '\n') 
-    # logging.info(
-    #     f"Eval Epoch: {epoch} "
-    #     + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()])
-    # )
+    # logging.info(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) )
 
     if args.save_logs:
         for name, val in metrics.items():

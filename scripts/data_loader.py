@@ -98,7 +98,7 @@ class CustomDataLoader(torch.utils.data.Dataset):
     def use_kfold(self) -> bool: # whether to use K-fold cross validation
         folds_path = os.path.join(self.root, self.folds_folder)
         # Check if any folds are specified for this dataset (in that case, it has a 'folds' folder)
-        if not os.path.exists(folds_path):
+        if not os.path.exists(folds_path) or self.split == 'test': # don't use kfold split for the test data!
             return False
         folds = os.listdir(folds_path)
         # The folds have the format: split_fold_x.npy, where x is some integer that we extract here
@@ -679,9 +679,9 @@ def format_for_template(classname, dataset):
     return c
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
-def get_custom_data(args, data, preprocess_fn, is_train, model = None, **data_kwargs):
+def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model = None, **data_kwargs):
     path = '/vol/tensusers4/nhollain/thesis2023-2024/data/'
-    split = "train" if is_train else "val"
+    split = "train" if is_train else "test" if is_test else "val"
     if args.current_iter == 0:
         logging.info(f'{data} (split: {split})')
     cls = 'CLS' in data or data in ['AID', 'RESISC45', 'RSSCN7', 'WHU-RS19']
@@ -798,6 +798,17 @@ def get_data(args, preprocess_fns, iter=0, tokenizer=None, model=None):
         data["classnames"] = classnames
         data["template"] = template
 
+    if args.imagenet_test is not None:
+        d = get_custom_data(args, args.imagenet_test, preprocess_val, is_train=False, is_test = True)
+        if len(d) == 3:
+            d_zeroshot, classnames, template = d
+        else: # Some datasets come in the format [(image, classname), (image, classname)], so we fix this
+            d_zeroshot, classnames = zip(*d)
+            template = [lambda c: f"an aerial photograph of {c}."]
+        data["zeroshot-val"] = create_datainfo(args, d_zeroshot, args.batch_size, is_train=False)
+        data["classnames"] = classnames
+        data["template"] = template
+
     if args.train_data:
         train_kwargs = {"is_train": True, "preprocess_fn": preprocess_train, "tokenizer": tokenizer}
 
@@ -825,4 +836,9 @@ def get_data(args, preprocess_fns, iter=0, tokenizer=None, model=None):
             data["train"] = create_datainfo(args, d_train, args.batch_size // 2, is_train=True)
             data["query"] = create_datainfo(args, d_query, args.batch_size // 2, is_train=True)
 
+    if args.test_data:
+        test_kwargs = {"is_train": False, "is_test": True, "preprocess_fn": preprocess_train, "tokenizer": tokenizer}
+        d_test = get_custom_data(args, args.test_data, **test_kwargs)
+        data["test"] = create_datainfo(args, d_test, args.batch_size, is_train=False)
+    
     return data

@@ -210,18 +210,21 @@ def main(args):
 
     writer = None
     if not args.train_data:
+        classif_split = args.imagenet_val if args.val_data else args.imagenet_test
+        retrieval_split = args.val_data if args.val_data else args.test_data
         metrics = evaluate(model, data, start_epoch, args, writer)
         # The checkpoint contains the total epochs the model trained for, replace it with the checkpoint we want to evaluate
         # (Based on the epochs of that checkpoint)
         total_epochs = re.search("-epochs_[0-9]+", args.name)[0] 
         model_name = args.name.replace(total_epochs, f"-epochs_{start_epoch}")
-        with open('eval.txt', 'a') as f:
+        eval_file = 'eval.txt' if args.val_data else 'test_eval.txt'
+        with open(eval_file, 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, args.imagenet_val, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, classif_split, k, 100 * v))
                 elif k in ["image_to_text_R@1", "image_to_text_R@5", "image_to_text_R@10",
                            "text_to_image_R@1", "text_to_image_R@5", "text_to_image_R@10"]:
-                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, args.val_data, k, 100 * v))
+                    f.write('{}\t{}\t{}\t{:.2f}\n'.format(model_name, retrieval_split, k, 100 * v))
             f.write('\n')
         return
 
