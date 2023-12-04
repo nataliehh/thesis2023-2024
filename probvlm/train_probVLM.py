@@ -16,7 +16,7 @@ def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Ne
     if os.path.isfile(resume_path):
         print("=> loading checkpoint '{}'".format(resume_path))
         checkpoint = torch.load(resume_path)
-        start_epoch = checkpoint['epoch']
+        start_epoch = checkpoint['epoch'] + 1
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scheduler.load_state_dict(checkpoint['scheduler'])
@@ -24,7 +24,7 @@ def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Ne
     else:
         print("=> no checkpoint found at '{}'".format(resume_path))
 
-    return model, optimizer, scheduler, start_epoch+1 
+    return model, optimizer, scheduler, start_epoch
 
 def save_checkpoint(path, model, optimizer, scheduler, epoch, loss):
     torch.save({'model': model.state_dict(), 'epoch': epoch, 'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict(), 'loss': loss}, path)
@@ -80,12 +80,18 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
             eph_loss /= len(train_loader)
             all_loss.append(eph_loss)
             print('Avg. loss: {}'.format(eph_loss))
+            with open('eval.txt', 'a') as f:
+                f.write(f'Epoch: {eph}\tavg. loss: {eph_loss}\n')
         # evaluate and save the models
         save_checkpoint(ckpt_path+'_last.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
         # torch.save(BayesCap_Net.state_dict(), ckpt_path+'_last.pth')
-        if eph % eval_every == 0:
+        if eph % eval_every == 0 or eph == num_epochs - 1:
             curr_score = eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device=device, dtype=dtype,)
             print('current score: {} | Last best score: {}'.format(curr_score, score))
+
+            with open('eval.txt', 'a') as f:
+                f.write(f'Epoch: {eph}\tcurrent score: {curr_score}\tbest score: {score}\n')
+                
             if curr_score <= score:
                 score = curr_score
                 save_checkpoint(ckpt_path+'_best.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
@@ -122,4 +128,6 @@ def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch
         mean_mse /= num_imgs
         mean_mae /= num_imgs
         print('Avg. MSE: {} | Avg. MAE: {}'.format(mean_mse, mean_mae))
+        with open('eval.txt', 'a') as f:
+                f.write(f'Avg. MSE: {mean_mse}\tAvg. MAE: {mean_mae}\n')
     return mean_mae

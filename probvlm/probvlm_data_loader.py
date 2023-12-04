@@ -230,11 +230,13 @@ def get_data(preprocess_fns, tokenizer=None, train_data = True, val_data = True,
 
     if val_data:
         d_val = get_custom_data(preprocess_fn = preprocess_val, is_train=False, tokenizer=tokenizer)
+        print('Val size:', len(d_val))
         data["val"] = create_datainfo(d_val, batch_size, is_train=False)
 
     if train_data:
         d_train = get_custom_data(is_train = True, preprocess_fn = preprocess_train, tokenizer = tokenizer)
-        d_train, _ = split_data(d_train, label_ratio)
+        print('Train size:', len(d_train))
+        # d_train, _ = split_data(d_train, label_ratio)
         data["train"] = create_datainfo(d_train, batch_size, is_train=True)
 
     return data

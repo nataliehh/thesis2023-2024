@@ -307,3 +307,17 @@ def create_uncer_bins_eq_samples(sort_idx, n_bins=10):
         else:
             z += n_len//n_bins
     return ret_bins
+
+# Custom function I added to return the most uncertain samples by index
+def get_uncertain_samples(CLIP_Net, ProbVLM_Net, data_loader, idx_ignore = []):
+    r_dict = get_features_uncer_ProbVLM(CLIP_Net, ProbVLM_Net, data_loader)
+
+    # Sorts the uncertainties separately per modality
+    sorted_uncertainty = sort_wrt_uncer(r_dict)
+
+    # Split by modality, and keep only the indices (not the uncertainties themselves)
+    uncertainty_images, uncertainty_texts = sorted_uncertainty
+    uncertainty_images_idx = [uc[0] for uc in uncertainty_images if uc[0] not in idx_ignore]
+    uncertainty_texts_idx = [uc[0] for uc in uncertainty_texts if uc[0] not in idx_ignore]
+
+    return uncertainty_images_idx, uncertainty_texts_idx 
