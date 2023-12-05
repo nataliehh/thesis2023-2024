@@ -1,37 +1,66 @@
-from scipy.spatial.distance import cdist
+import torch
+import numpy as np
+from torch.utils.data import DataLoader
+from torchmetrics.functional import pairwise_cosine_similarity
+from precision import get_autocast
+from open_clip import get_cast_dtype, get_tokenizer
 
-class ActiveLearning():
-    def __init__(self):
-        pass
-    def similarity(self, z_images, z_text):
-        '''
-        Return a N x M matrix of cosine similarities between N image and M text embeddings
-        z_images: a list of N embeddings of images
-        z_text: a list of M embeddings of text
-        return: the cosine similarity for the N x M pairs of image-text embeddings
-        '''
-        # Sklearn cosine distance computation is faster than cosine similarity
-        cosine_dist = cdist(z_images, z_text, metric = 'cosine') 
-        return 1 - cosine_dist # cosine similarity = 1 - cosine_distance
-    def get_s_score(self, z_images, z_text):
-        '''
-        Get the S-Score (Paper: https://ieeexplore.ieee.org/abstract/document/8629116) of a set of images and text embeddings.
-        z_images: a list of N embeddings of images
-        z_text: a list of M embeddings of text
-        return: the N (image,text) similarities which indicate the most similar an image is to any of the texts
-        '''
-        # Compute the N x M cosine similarity between N image and M text embeddings
-        sim = similarity(z_images, z_text)
-        # Get the N highest similarities of the M x N text-image similarities, that indicates how similar (at most) the image is to any of the texts
-        return  np.max(sim, axis = 1)
-    def request_labels(self, z_images, z_text, bottom_N):
-        '''
-        Based on the S-Score, return the indices of the images which are least similar to any of the text embeddings.
-        z_images: a list of N embeddings of images
-        z_text: a list of M embeddings of text
-        return: the indices of the images which are least similar to any of the text embeddings
-        '''
-        s_score = get_s_score(z_images, z_text)
-        # Return the indices of the bottom N (= most dissimilar to the text embeddings) image embeddings
-        return s_score.argsort()[:bottom_N]
-        
+import sys
+sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
+
+from utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+from networks import BayesCap_for_CLIP
+
+def basic_AL(args, data, model, classnames = None, templates = None):
+   # Keep track of the image & text features
+    embed_size = 1024 # This is the embedding size of the CLIP model
+    image_features = torch.empty((0,embed_size)).to(args.device)
+    text_features = torch.empty((0,embed_size)).to(args.device)
+    
+    # Set some params to make inference with CLIP fit into memory
+    autocast = get_autocast(args.precision)
+    cast_dtype = get_cast_dtype(args.precision)
+    with autocast():
+        tokenizer = get_tokenizer(args.model)
+        for classname in classnames: 
+            texts = [template(classname) for template in templates]
+            texts = tokenizer(texts).to(args.device, non_blocking=True)
+            text_feature = model.encode_text(texts)
+            text_features = torch.cat((text_features, text_feature), 0)
+
+    for images, _ in data:
+        images = images.to(args.device, non_blocking=True)
+        if cast_dtype is not None:
+            images = images.to(dtype=cast_dtype, non_blocking=True)
+        with autocast():
+            image_feature = model.encode_image(images)
+
+        image_features = torch.cat((image_features, image_feature), 0)
+
+    # Compute similarity
+    sim = pairwise_cosine_similarity(image_features, text_features) #1 - cdist(image_features, text_features, metric = 'cosine')
+    sim = torch.nn.functional.softmax(sim, -1) # We use softmax to get prediction probabilities
+
+    # Compute the entropy for each similarity: sim*log(sim), we add a small constant to avoid log(0)
+    entropy = torch.mul(sim,torch.log(sim+0.000001)) 
+     
+    # The uncertainty is the (negative) sum per row of the entropy
+    uncertainty = torch.sum(-1*entropy, 1) 
+    idx_by_uncertainty = uncertainty.argsort(descending = True) # Provides the indices in order of uncertainty (from high to low)
+    return idx_by_uncertainty
+
+def probvlm_AL(data, model, resume_path = ''):
+    CLIP_Net = model 
+    # Load the pre-trained ProbVLM adapter 
+    ProbVLM_Net = BayesCap_for_CLIP(inp_dim=512, out_dim=512, hid_dim=256, num_layers=3, p_drop=0.05,)
+    checkpoint = torch.load(resume_path)
+    ProbVLM_Net.load_state_dict(checkpoint['model'])
+
+    # Get a dictionary of the probabilistic parameters 
+    r_dict = get_features_uncer_ProbVLM(CLIP_Net, ProbVLM_Net, data)
+    
+    # Get the (sorted) uncertainties for the images (discard text uncertainty)
+    uncertainty_images, _ = sort_wrt_uncer(r_dict)
+    # The uncertainties are given as (idx, uncertainty), we extract only the idx
+    idx_by_uncertainty = [u[0] for u in uncertainty_images]
+    return idx_by_uncertainty

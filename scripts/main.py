@@ -13,6 +13,7 @@ from tqdm import tqdm
 import gc
 
 sys.path.append('/vol/tensusers4/nhollain/thesis2023-2024/s_clip_scripts') # Add custom functions to PATH
+sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
 
 # use custom functions
 from scheduler import cosine_lr, const_lr, const_lr_cooldown
@@ -22,6 +23,11 @@ from model import create_custom_model
 from train import train_one_epoch
 from evaluate import evaluate
 from loss import create_loss
+
+# ProbVLM imports
+from networks import BayesCap_for_CLIP
+from losses import TempCombLoss
+from train_probVLM import train_ProbVLM
 
 LATEST_CHECKPOINT_NAME = "epoch_latest.pt"
 
@@ -257,6 +263,15 @@ def main(args):
         
         # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
         if args.active_learning and iteration + 1 < args.al_iter:
+            # Fine-tune the ProbVLM model with the current CLIP model
+            if args.probvlm: 
+                # Load the pre-trained ProbVLM adapter 
+                resume_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs.pth'
+                save_ckpt_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned.pth'
+                ProbVLM_Net = BayesCap_for_CLIP(inp_dim=512, out_dim=512, hid_dim=256, num_layers=3, p_drop=0.05,)
+                train_ProbVLM(model, ProbVLM_Net, data['train'].dataloader, data['val'].dataloader, Cri = TempCombLoss(), device='cuda', dtype=torch.float, init_lr=8e-5,
+                        num_epochs=10, eval_every=100, ckpt_path=save_ckpt_path, T1=1e0, T2=1e-4, resume_path = resume_path) 
+                
             del data
             data = get_data(args, (preprocess_train, preprocess_val), iter=iteration+1, tokenizer=get_tokenizer(args.model), model = model)
             assert len(data), 'At least one train or eval dataset must be specified.'

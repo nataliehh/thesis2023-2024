@@ -6,8 +6,6 @@ import random
 from PIL import Image
 from multiprocessing import Value
 from typing import List, Dict
-from tqdm import tqdm
-import time
 import numpy as np
 import gc
 import logging
@@ -18,26 +16,16 @@ import torch
 import torchvision.transforms as T
 from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torch.utils.data.distributed import DistributedSampler
-from torchvision.datasets import ImageFolder
-from torchmetrics.functional import pairwise_cosine_similarity
 
-from datasets import load_dataset
-from sklearn.utils.extmath import softmax
 
 # Active learning imports
-from open_clip import create_model_and_transforms, get_cast_dtype, get_tokenizer
-import torch.nn.functional as F
-from precision import get_autocast
-from scipy.spatial.distance import cdist
-
-# from torchrs.datasets import SydneyCaptions, WHURS19, RSSCN7, AID, RESISC45 #, UCMCaptions, UCM 
+from open_clip import create_model_and_transforms
+from active_learning import basic_AL, probvlm_AL
 
 # Label parsing arguments
-from itertools import chain
 from textblob import TextBlob
 import nltk
 import re
-import copy
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
 
@@ -202,13 +190,9 @@ class UCM(RSICD):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  
         self.image_root = "images"
-        
+
         if self.cls:
             self.load_class_info()
-
-    # def load_captions(self, path: str, split: str) -> List[Dict]:
-    #     captions = read_json(path)["images"]
-    #     return [c for c in captions if c["split"] == split]
     
     def load_class_info(self):
         mapping = read_json(os.path.join(self.root,'caption_to_cls_mapping.json'))
@@ -254,7 +238,7 @@ class Fashion200k(CustomDataLoader):
 
         path = './data/fashion200k/labels'
         full_txt = []
-        
+
         # Go over all text files
         # We concat all label files in the split to allow us to easily get all image paths and classes
         for txt in os.listdir(path):
@@ -262,7 +246,7 @@ class Fashion200k(CustomDataLoader):
                 with open(os.path.join(path, txt), 'r') as f:
                     data = f.readlines()
                     full_txt += data
-                    
+
         image_paths = []
         descriptions = []
         # Extract the image paths from the labeling information files
@@ -274,7 +258,7 @@ class Fashion200k(CustomDataLoader):
             image_path = '/'.join(image_path) # Restore image path 
             image_paths.append(image_path)
             descriptions.append(description)
-            
+
         if self.cls:
             class_index = 2 if self.subclass else 1
 
@@ -540,54 +524,32 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
             logging.info('Loading base CLIP...')
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
                                                       device=args.device, output_dict=True, aug_cfg=args.aug_cfg,)
-        # Keep track of the image & text features
-        embed_size = 1024 # This is the embedding size of the CLIP model
-        image_features = torch.empty((0,embed_size)).to(args.device)
-        text_features = torch.empty((0,embed_size)).to(args.device)
         chosen_idx = np.array([]) # Keep track of indices which have already been selected
         if args.current_iter > 0:
             chosen_idx = args.chosen_idx
         # Only allow indices to be picked if they're not already in our selected set
         possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
-        with torch.no_grad():
-            # Load in the dataset with a dataloader
-            data = DataLoader(d,batch_size=128,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
-            # Set some params to make inference with CLIP fit into memory
-            autocast = get_autocast(args.precision)
-            cast_dtype = get_cast_dtype(args.precision)
-            with autocast():
-                tokenizer = get_tokenizer(args.model)
-                for classname in classnames: 
-                    texts = [template(classname) for template in templates]
-                    texts = tokenizer(texts).to(args.device, non_blocking=True)
-                    text_feature = model.encode_text(texts)
-                    text_features = torch.cat((text_features, text_feature), 0)
-       
-            for images, _ in data:
-                images = images.to(args.device, non_blocking=True)
-                if cast_dtype is not None:
-                    images = images.to(dtype=cast_dtype, non_blocking=True)
-                with autocast():
-                    image_feature = model.encode_image(images)
-
-                image_features = torch.cat((image_features, image_feature), 0)
-
-        # Compute similarity
-        sim = pairwise_cosine_similarity(image_features, text_features) #1 - cdist(image_features, text_features, metric = 'cosine')
-        sim = torch.nn.functional.softmax(sim, -1) # We use softmax to get prediction probabilities
-        entropy = torch.mul(sim,torch.log(sim)) # Compute the entropy for each similarity: sim*log(sim)
+        possible_idx = np.sort(possible_idx) # Ensure the indices are sorted
         
-        # uncertainty = np.sum(-1*entropy, axis = 1) 
-        uncertainty = torch.sum(-1*entropy, 1) # The uncertainty is then the (negative) sum per row
+        # Get the indices of the data in order of most uncertain to least uncertain
+        # Either use ProbVLM or basic AL to get these indices
+        if args.probvlm: 
+            probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs.pth'
+            if args.current_iter != 0: # Only use the pre-trained ProbVLM model if a fine-tuned variant isn't available yet
+                probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned.pth' # The fine-tuned variant
+            uncertainty_idx = probvlm_AL(data, model, resume_path = probvlm_path)
+        else: # Use basic active learning if we're not using ProbVLM
+            uncertainty_idx = basic_AL(args, data, model, classnames, templates)
 
-        # Sort the uncertainty from highest to lowest
-        sim_score_ind = uncertainty.argsort()[possible_idx]
+        # Keep only those indices for which the data is not labeled yet
+        filter_for_possible_idx = np.where(np.isin(uncertainty_idx, possible_idx)) # Find where the indices overlap
+        sorted_possible_idx = uncertainty_idx[filter_for_possible_idx] # Filter for the possible_idx indices
 
         # Delete objects that we don't need anymore
         del data, image_features, text_features, sim, entropy, uncertainty
 
         # The indices are the labels with the highest uncertainty + already labeled indices
-        indices = sim_score_ind.cpu().numpy()
+        indices = sorted_possible_idx.cpu().numpy()
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
     else:
@@ -599,7 +561,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
     else:
         d1 = [d[int(i)] for i in indices[:size]]
         d2 = [d[int(i)] for i in indices[size:]]
-    # print('D1 indices:', indices[:size])
 
     # Clean up memory
     torch.cuda.empty_cache()
@@ -638,24 +599,24 @@ def create_datainfo(args, dataset, batch_size, is_train):
 def format_for_template(classname, dataset):
     c = classname # Abbreviate for easier reading
     
-    # For UCM, the labels are not with pascal case, we make it consistent with RSICD's pascal case here
+    # Make UCM's labels consistent w/ RSICD's pascal case
     replacements = {'residential': 'Residential', 'mobilehomepark': 'MobileHomePark', 'tenniscourt': 'TennisCourt', 
                     'parkinglot': 'ParkingLot',  'baseballdiamond': 'BaseballDiamond', 'golfcourse': 'GolfCourse', 'storagetank': 'StorageTank'}
     for old, new in replacements.items():
         c = c.replace(old, new)
     
-    # RS classes use pascal case (e.g. BareLand), here we split on the capitals (e.g. Bare Land)
-    # From: https://stackoverflow.com/questions/2277352/split-a-string-at-uppercase-letters
+    # RS classes use pascal case, split on the capitals (e.g. BareLand -> Bare Land)
+    # From: https://stackoverflow.com/q/2277352/14467157
     c = re.sub( r"([A-Z])", r" \1", c)
     
-    # Check if this is necessary: replace '&' with 'and', then replace ' and ' with ' or '
-    c = c.replace('&', 'and')
-    c = c.replace(' and ', ' or ')
+    c = c.replace('&', 'and') # Replace '&' with 'and'
+    c = c.replace(' and ', ' or ') # Replace ' and ' with ' or '
     
-    c = TextBlob(c).words.singularize() # Make every word singular (e.g. fields -> field)
-    c = (' '.join(c)).lower() # Make a string of the list, with spaces, and remove capitalization
+    c = TextBlob(c).words.singularize() # Make words singular (e.g. fields -> field)
+    c = (' '.join(c)).lower() # Convert list to spaced string & make lowercase
     
-    # Replace faulty singularization, such as 'ties' -> 'ty', and keep spelling consistent (e.g. jewelry, not jewellery)
+    # Replace faulty singularization (e.g. 'ties' -> 'ty')
+    # And keep spelling consistent (e.g. jewelry, not jewellery)
     replacements = {'ty': 'tie', 'jean': 'jeans', 'glass': 'glasses', 'legging': 'leggings', 'pant': 'pants', 
                     'bottom': 'bottoms', 'overpas': 'overpass', 'tenni': 'tennis', 'jewellery': 'jewelry'}
     for old, new in replacements.items():
@@ -665,14 +626,14 @@ def format_for_template(classname, dataset):
     mass_nouns = set(['lingerie', 'jewelry', 'swimwear', 'underwear', 'outerwear', 'eyewear'])
     contains_mass_noun = len(mass_nouns.intersection(c.split())) > 0 
     
-    # For *remote-sensing* descriptors like 'agricultural', 'residential', (that end in 'al') we add 'area' after it
+    # For RS labels like 'agricultural', 'residential', (i.e. not nouns) append 'area'
     if c.endswith('al') or c == 'parking' and 'Fashion' not in dataset: 
         c += ' area'
         
-    # If the last word is not plural (check the tag) and not a mass noun, we add an article (a or an)
+    # If the last word isn't plural (check the tag) nor a mass noun, add an article
     # .tags values have format (noun, tag), so we get the last index of the tuple
     if TextBlob(c).tags[-1][-1] != 'NNS' and not contains_mass_noun: 
-        if c[0] in 'aeiou': # If the first word in the label starts with a vowel, we use 'an'
+        if c[0] in 'aeiou': # If a label's first word starts with a vowel, use 'an'
             c = 'an ' + c
         else: # Otherwise, use 'a' for the article
             c = 'a ' + c
@@ -731,29 +692,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
             return d
     else:
-        if data == "SciCap":
-            d = SciCap(os.path.join(path, "scicap"), split=split, transform=preprocess_fn)
-            d = TokenizedDataset(d, **data_kwargs)
-
-        elif data in ["Simpsons", "Simpsons-Captions"]:
-            d = load_dataset("Norod78/simpsons-blip-captions", keep_in_memory=True)
-            image_key, text_key = "image", "text"
-
-            def transform(batch, MAXLEN=77):
-                batch[image_key] = [preprocess_fn(image) for image in batch[image_key]]
-                batch[text_key] = [text[:MAXLEN] for text in batch[text_key]]
-                return batch
-            d.set_transform(transform)
-
-            train_ratio = 0.9  # use 90% for training data
-            d_train, d_val = split_data(d["train"], train_ratio, seed=42, hf_data=True, args = args, model = model)
-            d = d_train if is_train else d_val
-            d = TokenizedDataset(d, image_key=image_key, text_key=text_key, **data_kwargs)
-
-        elif data == "Simpsons-Images":
-            d = ImageFolder("./data/kaggle_simpsons_characters/simpsons_dataset", transform=preprocess_fn)
-
-        elif data =='Fashion-ALL':
+        if data =='Fashion-ALL':
             d = [Polyvore(os.path.join(path,"polyvore_outfits"), split=split, transform=preprocess_fn),
                 Fashion200k(os.path.join(path,"fashion200k"), split=split, transform=preprocess_fn, randomitem = True),
                 FashionGen(os.path.join(path,"fashiongen"), split=split, transform=preprocess_fn),]

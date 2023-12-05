@@ -2,7 +2,6 @@ import logging
 
 import torch
 import torch.nn.functional as F
-from tqdm import tqdm
 
 from open_clip import get_cast_dtype, get_tokenizer
 from precision import get_autocast
@@ -13,7 +12,7 @@ def zero_shot_classifier(model, classnames, templates, args):
     tokenizer = get_tokenizer(args.model)
     with torch.no_grad():
         zeroshot_weights = []
-        for classname in (classnames): # tqdm
+        for classname in (classnames): 
             texts = [template(classname) for template in templates]  # format with class
             texts = tokenizer(texts).to(args.device)  # tokenize
             class_embeddings = model.encode_text(texts)

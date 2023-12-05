@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 from transformers import AutoImageProcessor, AutoModel
-import torchvision.transforms as T
-from PIL import Image
 
 def create_custom_model(args, model):
     return CustomCLIP(model, args.device, args.use_vit)
