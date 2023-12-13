@@ -59,7 +59,10 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
                 ##
                 xI, xT  = batch[0].to(device), batch[1].to(device)
                 with torch.no_grad():
-                    xfI, xfT = CLIP_Net(xI, xT)
+                    outputs = CLIP_Net(xI, xT)
+                    if type(outputs) == dict:
+                        outputs = (outputs['image_features'], outputs['text_features'])
+                    xfI, xfT = outputs
 
                 # pass them through the network
                 (img_mu, img_1alpha, img_beta), (txt_mu, txt_1alpha, txt_beta) = BayesCap_Net(xfI, xfT)
@@ -83,7 +86,9 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
             with open('eval.txt', 'a') as f:
                 f.write(f'Epoch: {eph}\tavg. loss: {eph_loss}\n')
         # evaluate and save the models
-        save_checkpoint(ckpt_path+'_last.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
+        if eph % 5 == 0:
+            save_checkpoint(ckpt_path+f'_epoch_{eph}.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
+        save_checkpoint(ckpt_path+f'_last.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)   
         # torch.save(BayesCap_Net.state_dict(), ckpt_path+'_last.pth')
         if eph % eval_every == 0 or eph == num_epochs - 1:
             curr_score = eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device=device, dtype=dtype,)
@@ -116,8 +121,11 @@ def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch
             
             # pass them through the network
             with torch.no_grad():
-                xfI, xfT = CLIP_Net(xI, xT)
-                (img_mu, img_1alpha, img_beta), (txt_mu, txt_1alpha, txt_beta) = BayesCap_Net(xfI, xfT)
+                outputs = CLIP_Net(xI, xT)
+                if type(outputs) is dict:
+                    outputs = (outputs['image_features'], outputs['text_features'])
+            xfI, xfT = outputs
+            (img_mu, img_1alpha, img_beta), (txt_mu, txt_1alpha, txt_beta) = BayesCap_Net(xfI, xfT)
                 
             n_batch = img_mu.shape[0]
             for j in range(n_batch):

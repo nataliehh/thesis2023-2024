@@ -199,6 +199,8 @@ class BayesCap_for_CLIP(nn.Module):
 
         return (img_mu, img_1alpha, img_beta), (txt_mu, txt_1alpha, txt_beta)
 
+def get_default_BayesCap_for_CLIP():
+    return BayesCap_for_CLIP(inp_dim=1024, out_dim=1024, hid_dim=512, num_layers=3, p_drop=0.05,)
 
 class BayesCap_for_HF_CLIP(nn.Module):
     def __init__(

@@ -67,13 +67,15 @@ for label_ratio in label_ratios:
     
     # Initialize models
     device = 'cuda' #select_cpu_or_gpu()
-    CLIP_Net = load_model(device=device, model_path=None) # frozen clip model (?)
-    ProbVLM_Net = BayesCap_for_CLIP(inp_dim=512, out_dim=512, hid_dim=256, num_layers=3, p_drop=0.05,) # ProbVLM
+    CLIP_Net = model #load_model(device=device, model_path=None) # frozen clip model (?)
+    ProbVLM_Net = get_default_BayesCap_for_CLIP() # ProbVLM
     
     # Train the model
     #resume_path = '../ckpt/ProbVLM_Net_last.pth',
-    train_ProbVLM(CLIP_Net,ProbVLM_Net, train_loader, valid_loader, Cri = TempCombLoss(), device=device, resume_path = f'../ckpt/ProbVLM_Net_label_ratio_{label_ratio}_last.pth',
-                  dtype=torch.cuda.FloatTensor, num_epochs=100, eval_every=5, ckpt_path=f'../ckpt/ProbVLM_Net_label_ratio_{label_ratio}', init_lr=8e-5, T1=1e0, T2=1e-4)
+    train_ProbVLM(CLIP_Net,ProbVLM_Net, train_loader, valid_loader, Cri = TempCombLoss(), device=device, 
+                  resume_path = f'../ckpt/ProbVLM_Net_label_ratio_{label_ratio}_last.pth',
+                  dtype=torch.cuda.FloatTensor, num_epochs=100, eval_every=5, init_lr=8e-5, T1=1e0, T2=1e-4
+                  ckpt_path=f'../ckpt/ProbVLM_Net_label_ratio_{label_ratio}',)
     t_delta = datetime.now() - t_start
     print(f'Elapsed time: {t_delta}')
 
