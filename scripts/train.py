@@ -94,11 +94,17 @@ def train_one_epoch(model, data, loss, epoch, optimizer, scaler, scheduler, dist
         inputs = {'image': images, 'text': texts}
         model_out_extra = {}
         
-        if args.method != "base":
-            # unlabeled images
-            queries = next(dataloader_query)[0]
-            queries = queries.to(device=device, dtype=cast_dtype, non_blocking=True)
-            inputs.update({'query': queries})
+        if args.method != "base": # use unlabeled images
+            # Check if we have queries left while iteration over the training batches
+            # We do this because the num(queries) < num(batches)
+            try: 
+                queries = next(dataloader_query)[0]
+                queries = queries.to(device=device, dtype=cast_dtype, non_blocking=True)
+                inputs.update({'query': queries})
+                queries_available = True
+            except StopIteration:
+                queries_available = False
+            
 
             # keyword labels and prompts
             if 'keyword' in data:

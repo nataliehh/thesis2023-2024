@@ -18,9 +18,8 @@ from torch.utils.data import DataLoader, ConcatDataset, Subset
 from torch.utils.data.distributed import DistributedSampler
 
 
-# Active learning imports
+# Active learning import
 from open_clip import create_model_and_transforms
-from active_learning import basic_AL, probvlm_AL
 
 # Label parsing arguments
 from textblob import TextBlob
@@ -127,7 +126,7 @@ class RS_CLS(CustomDataLoader): # For use with AID, WHU-RS19, NWPU-RESISC45, RSS
         self.load_class_info()
         
     def load_class_info(self):
-        classes = [c for c in os.listdir(self.root) if os.path.isdir(os.path.join(self.root,c))]
+        classes = [c for c in os.listdir(self.root) if os.path.isdir(os.path.join(self.root,c)) and 'numpy' not in c]
         data = []
         for class_ in classes:
             img_folder = os.path.join(self.root, class_)
@@ -519,7 +518,7 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         logging.info(f'Labeled size: {size}')
 
     if perform_AL: # Active learning
-        # print('Active learning...')
+        data = DataLoader(d,batch_size=128,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
         if model is None: # Load in base CLIP model if we don't have an existing model
             logging.info('Loading base CLIP...')
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
@@ -534,24 +533,29 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         # Get the indices of the data in order of most uncertain to least uncertain
         # Either use ProbVLM or basic AL to get these indices
         if args.probvlm: 
-            probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs.pth'
+            probvlm_path = '../ProbVLM/ckpt/ProbVLM_Net_label_ratio_1.0_epoch_60.pth'
             if args.current_iter != 0: # Only use the pre-trained ProbVLM model if a fine-tuned variant isn't available yet
-                probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned.pth' # The fine-tuned variant
-            uncertainty_idx = probvlm_AL(data, model, resume_path = probvlm_path)
+                probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned_last.pth' # The fine-tuned variant
+            uncertainty_idx = probvlm_AL(args, data, model, resume_path = probvlm_path)
         else: # Use basic active learning if we're not using ProbVLM
-            uncertainty_idx = basic_AL(args, data, model, classnames, templates)
+            uncertainty_idx = basic_active_learning(args, data, model, classnames, templates)
 
-        # Keep only those indices for which the data is not labeled yet
-        filter_for_possible_idx = np.where(np.isin(uncertainty_idx, possible_idx)) # Find where the indices overlap
+        # Keep only indices of images that are not labeled yet -> find overlap between the unlabeled idx and the uncertainty idx
+        filter_for_possible_idx = torch.where(torch.isin(uncertainty_idx, torch.from_numpy(possible_idx).to(args.device))) 
         sorted_possible_idx = uncertainty_idx[filter_for_possible_idx] # Filter for the possible_idx indices
 
         # Delete objects that we don't need anymore
-        del data, image_features, text_features, sim, entropy, uncertainty
+        # del data, image_features, text_features, sim, entropy, uncertainty
 
         # The indices are the labels with the highest uncertainty + already labeled indices
         indices = sorted_possible_idx.cpu().numpy()
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
+        del data
+        del uncertainty_idx
+        del possible_idx
+        del filter_for_possible_idx
+        del sorted_possible_idx
     else:
         indices = perm_indices
     
@@ -563,6 +567,8 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         d2 = [d[int(i)] for i in indices[size:]]
 
     # Clean up memory
+    del indices
+    
     torch.cuda.empty_cache()
     gc.collect()
     return d1, d2
@@ -781,3 +787,77 @@ def get_data(args, preprocess_fns, iter=0, tokenizer=None, model=None):
         data["test"] = create_datainfo(args, d_test, args.batch_size, is_train=False)
     
     return data
+
+############################### ACTIVE LEARNING
+import torch
+import numpy as np
+from torch.utils.data import DataLoader
+from torchmetrics.functional import pairwise_cosine_similarity
+from precision import get_autocast
+from open_clip import get_cast_dtype, get_tokenizer
+
+import sys
+sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
+sys.path.append('/vol/tensusers4/nhollain/ProbVLM/') # Allow probvlm imports
+
+from utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+from networks import get_default_BayesCap_for_CLIP
+
+@torch.no_grad()
+def basic_active_learning(args, data, model, classnames = None, templates = None):
+   # Keep track of the image & text features
+    embed_size = 1024 # This is the embedding size of the CLIP model
+    image_features = torch.empty((0,embed_size)).to(args.device)
+    text_features = torch.empty((0,embed_size)).to(args.device)
+    
+    # Set some params to make inference with CLIP fit into memory
+    autocast = get_autocast(args.precision)
+    cast_dtype = get_cast_dtype(args.precision)
+    with autocast():
+        tokenizer = get_tokenizer(args.model)
+        for classname in classnames: 
+            texts = [template(classname) for template in templates]
+            texts = tokenizer(texts).to(args.device, non_blocking=True)
+            text_feature = model.encode_text(texts)
+            text_features = torch.cat((text_features, text_feature), 0)
+
+    for images, _ in data:
+        images = images.to(args.device, non_blocking=True)
+        if cast_dtype is not None:
+            images = images.to(dtype=cast_dtype, non_blocking=True)
+        with autocast():
+            image_feature = model.encode_image(images)
+
+        image_features = torch.cat((image_features, image_feature), 0)
+
+    # Compute similarity
+    sim = pairwise_cosine_similarity(image_features, text_features) #1 - cdist(image_features, text_features, metric = 'cosine')
+    sim = torch.nn.functional.softmax(sim, -1) # We use softmax to get prediction probabilities
+
+    # Compute the entropy for each similarity: sim*log(sim), we add a small constant to avoid log(0)
+    entropy = torch.mul(sim,torch.log(sim+0.000001)) 
+     
+    # The uncertainty is the (negative) sum per row of the entropy
+    uncertainty = torch.sum(-1*entropy, 1) 
+    idx_by_uncertainty = uncertainty.argsort(descending = True) # Provides the indices in order of uncertainty (from high to low)
+    return idx_by_uncertainty
+
+@torch.no_grad()
+def probvlm_AL(args, data, model, resume_path = ''):
+    CLIP_Net = model 
+    # Load the pre-trained ProbVLM adapter 
+    ProbVLM_Net = get_default_BayesCap_for_CLIP()
+    checkpoint = torch.load(resume_path)
+    ProbVLM_Net.load_state_dict(checkpoint['model'])
+
+    # Get a dictionary of the probabilistic parameters 
+    r_dict = get_features_uncer_ProbVLM(CLIP_Net, ProbVLM_Net, data, dictionary = True)
+    
+    # Get the (sorted) uncertainties for the images (discard text uncertainty)
+    uncertainty_images, _ = sort_wrt_uncer(r_dict)
+    # The uncertainties are given as (idx, uncertainty), we extract only the idx
+    idx_by_uncertainty = torch.Tensor([u[0] for u in uncertainty_images]).to(args.device)
+    del ProbVLM_Net
+    torch.cuda.empty_cache()
+    gc.collect()
+    return idx_by_uncertainty

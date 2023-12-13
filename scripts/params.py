@@ -56,6 +56,7 @@ def add_base_args(parser):
     )
     parser.add_argument("--debug", default=False, action="store_true", help="If true, more information is logged.")
     parser.add_argument("--seed", type=int, default=0, help="Default random seed.")
+    parser.add_argument('--device', default=None, type=str, help="The device (CPU or GPU) to run on")
     
     # Custom parsing arguments for S-CLIP
     parser.add_argument("--label-ratio", type=float, default=0.1, help="Subset ratio for paired data.",)
@@ -104,7 +105,8 @@ def parse_args(args):
     args = parser.parse_args(args)
 
     # Set some defaults 
-    args.device = select_cpu_or_gpu() # Choose whether to run on CPU or GPU, depending on what's available
+    if args.device is None:
+        args.device = select_cpu_or_gpu() # Choose whether to run on CPU or GPU, depending on what's available
     if args.active_learning and args.al_iter > 1: 
         args.save_freq = -1 # Don't store results at intermediate points when using active learning
     else:

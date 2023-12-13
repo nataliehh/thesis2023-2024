@@ -49,12 +49,3 @@ def select_cpu_or_gpu():
     else:
         logging.info('Warning: model is running on cpu. This may be very slow!')
     return device
-
-def prep_str_args(str_args): # Code to parse the string style arguments, as shown below
-    str_args = str_args.split('\n') # Split on newline
-    str_args = [s.strip() for s in str_args] # Remove any whitespaces from the start and end of the strings
-    # Split on the space between the parameter name and the value, e.g. '--name x' becomes ['--name', 'x']
-    str_args = [s.split(' ') for s in str_args] 
-    str_args = list(itertools.chain(*str_args)) # Flatten the resulting list of lists
-    str_args = [s for s in str_args if len(s) > 0] # Remove arguments that are empty
-    return str_args

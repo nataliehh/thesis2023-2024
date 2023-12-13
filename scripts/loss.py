@@ -37,7 +37,7 @@ class SemiSupervisedClipLoss(ClipLoss):
         labels = self.get_ground_truth(device, image_features.shape[0])
 
         # compute loss
-        if self.method == "base": # Supervised CLIP loss
+        if self.method == "base" or query_features is None: # Supervised CLIP loss
             logits_per_text = logits_per_image.T
             losses["contrastive_loss"] = self.supervised_loss(logits_per_image, logits_per_text, labels)
 

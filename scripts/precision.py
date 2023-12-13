@@ -1,7 +1,6 @@
 import torch
 from contextlib import suppress
 
-
 def get_autocast(precision):
     if precision == 'amp':
         return torch.cuda.amp.autocast

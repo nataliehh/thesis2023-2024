@@ -25,7 +25,7 @@ from evaluate import evaluate
 from loss import create_loss
 
 # ProbVLM imports
-from networks import BayesCap_for_CLIP
+from networks import get_default_BayesCap_for_CLIP
 from losses import TempCombLoss
 from train_probVLM import train_ProbVLM
 
@@ -84,7 +84,7 @@ def format_checkpoint(args):
     date_str = datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
     name = '-'.join([date_str, f"data_{args.train_data}",
         f"ratio_{args.label_ratio}", f"model_{args.model}", f"method_{args.method}", f"kw_{keyword_type}",
-        f"AL.iter_{args.al_iter}", f"AL.epochs_{args.al_epochs}",
+        f"ProbVLM_{args.probvlm}", f"AL.iter_{args.al_iter}", f"AL.epochs_{args.al_epochs}",
         f"PL_{args.pl_method}", f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
         ])
     if args.k_fold >= 0:
@@ -216,14 +216,14 @@ def main(args):
 
     writer = None
     if not args.train_data:
-        classif_split = args.imagenet_val if args.val_data else args.imagenet_test
+        classif_split = args.imagenet_val if args.imagenet_val else args.imagenet_test
         retrieval_split = args.val_data if args.val_data else args.test_data
         metrics = evaluate(model, data, start_epoch, args, writer)
         # The checkpoint contains the total epochs the model trained for, replace it with the checkpoint we want to evaluate
         # (Based on the epochs of that checkpoint)
         total_epochs = re.search("-epochs_[0-9]+", args.name)[0] 
         model_name = args.name.replace(total_epochs, f"-epochs_{start_epoch}")
-        eval_file = 'eval.txt' if args.val_data else 'test_eval.txt'
+        eval_file = 'eval.txt' if (args.val_data or args.imagenet_val) else 'test_eval.txt'
         with open(eval_file, 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
@@ -260,20 +260,26 @@ def main(args):
             # only save the last epoch to save server storage
             if completed_epoch % args.save_freq == 0: # args.epochs:
                 torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_{completed_epoch}.pt"))
-        
+
         # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
         if args.active_learning and iteration + 1 < args.al_iter:
             # Fine-tune the ProbVLM model with the current CLIP model
             if args.probvlm: 
+                print('ProbVLM tuning...')
                 # Load the pre-trained ProbVLM adapter 
-                resume_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs.pth'
-                save_ckpt_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned.pth'
-                ProbVLM_Net = BayesCap_for_CLIP(inp_dim=512, out_dim=512, hid_dim=256, num_layers=3, p_drop=0.05,)
-                train_ProbVLM(model, ProbVLM_Net, data['train'].dataloader, data['val'].dataloader, Cri = TempCombLoss(), device='cuda', dtype=torch.float, init_lr=8e-5,
-                        num_epochs=10, eval_every=100, ckpt_path=save_ckpt_path, T1=1e0, T2=1e-4, resume_path = resume_path) 
-                
+                resume_path = '../ProbVLM/ckpt/ProbVLM_Net_label_ratio_1.0_epoch_60.pth'
+                save_ckpt_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned'
+                ProbVLM_Net = get_default_BayesCap_for_CLIP()
+                # We specify num_epochs = 50 + 10 to make ProbVLM get fine-tuned for 10 more epochs.
+                # The 50 + is needed because we resume the model at 50 epochs.
+                train_ProbVLM(model, ProbVLM_Net, data['train'].dataloader, data['val'].dataloader, Cri = TempCombLoss(),
+                              device='cuda', dtype=torch.float, init_lr=8e-5, num_epochs=60+10, eval_every=100, 
+                              ckpt_path=save_ckpt_path, T1=1e0, T2=1e-4, resume_path = resume_path) 
+                del ProbVLM_Net
+
             del data
-            data = get_data(args, (preprocess_train, preprocess_val), iter=iteration+1, tokenizer=get_tokenizer(args.model), model = model)
+            data = get_data(args,(preprocess_train, preprocess_val),iter=iteration+1,
+                            tokenizer=get_tokenizer(args.model),model = model)
             assert len(data), 'At least one train or eval dataset must be specified.'
             del model
             model, preprocess_train, preprocess_val = create_model_and_transforms(
