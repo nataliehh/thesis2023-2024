@@ -27,7 +27,7 @@ model_names = results
 # Remove the timestamp from the model names, as well as the specific fold - rest of the name contains params
 model_names = ['-'.join(m.split('-')[2:]).split('-fold')[0] for m in model_names]
 model_names = dict(Counter(model_names))
-print('Model_names', model_names)
+# print('Model_names', model_names)
 
 # Do a grid search on the parameters
 # NOTE: for active learning, save-freq should be set to 1
@@ -44,15 +44,15 @@ base_str_args = ''' --train-data RS-ALL
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {
     '--epochs' : [25], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
-    '--batch-size' : [64],
-    '--al-iter': [1], #list(range(3,17,2)), #list(range(1,6,2)),
-    '--al-epochs': [35],
-    '--label-ratio': [0.05, 0.1, 0.2, 0.4, 0.8, 1.0],
-    '--pl-method': ['hard.text'],
+    '--batch-size' : [128],
+    #'--al-iter': [1], #list(range(3,17,2)), #list(range(1,6,2)),
+    #'--al-epochs': [35],
+    '--label-ratio': [0.8, 0.4, 0.2, 0.1, 0.05], #0.05, 0.1, 0.2, 0.4, 0.8, 1.0],
+    '--pl-method': ['ot.image'],
 }
 
 # How many times to re-evaluate the model on the test set (to get an average and std of the results)
-num_repeats = 5
+num_repeats = 1 #5
 num_evals = 20 # How many evaluations are done with evaluate_checkpoint(...) - KEEP THIS FIXED
 
 gridsearch_values = list(gridsearch_dict.values())

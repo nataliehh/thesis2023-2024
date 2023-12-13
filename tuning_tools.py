@@ -13,10 +13,10 @@ def prep_str_args(str_args): # Code to parse the string style arguments, as show
     str_args = [s for s in str_args if len(s) > 0] # Remove arguments that are empty
     return str_args
     
-def evaluate_checkpoint(checkpoint_path, epoch = None, kfold = -1, split = 'val'):
+def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', dataset = 'RS'):
     # print('=> Resuming checkpoint {} (epoch {})'.format(checkpoint, epoch))
     checkpoint = checkpoint_path 
-    if 'Fashion' in checkpoint:
+    if 'Fashion' in dataset or 'Fashion' in str(checkpoint):
         zeroshot_datasets = ["Fashion200k-SUBCLS", "Fashion200k-CLS", "FashionGen-CLS", "FashionGen-SUBCLS", "Polyvore-CLS", ]
         retrieval_datasets = ["FashionGen", "Polyvore", "Fashion200k",]
     else:
@@ -26,11 +26,15 @@ def evaluate_checkpoint(checkpoint_path, epoch = None, kfold = -1, split = 'val'
         retrieval_datasets = ["RSICD", "UCM", "Sydney"]
     
     for dataset in zeroshot_datasets:
-        str_args = ['--name', checkpoint, f'--imagenet-{split}', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
-        args = parse_args(str_args)
+        lst_args = [f'--imagenet-{split}', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
+        if checkpoint is not None:
+            lst_args += ['--name', checkpoint]
+        args = parse_args(lst_args)
         main(args)
     
     for dataset in retrieval_datasets:
-        str_args = ['--name', checkpoint, f'--{split}-data', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
-        args = parse_args(str_args)
+        lst_args = [f'--{split}-data', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
+        if checkpoint is not None:
+            lst_args += ['--name', checkpoint]
+        args = parse_args(lst_args)
         main(args)

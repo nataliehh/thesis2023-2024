@@ -34,25 +34,26 @@ base_str_args = ''' --train-data RS-ALL
 --imagenet-val RSICD-CLS 
 --keyword-path keywords/RS/class-name.txt
 --zeroshot-frequency 5  
---method ours
---save-freq 5
+--method base
+--save-freq 1
+--active-learning
 '''
 # --label-ratio 0.1
 # --active-learning
 
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {
-    '--epochs' : [35], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
-    '--lr' : [5e-4, 5e-5, 5e-6], # 5e-4, 5e-6
-    '--batch-size' : [128],
-    '--al-iter': [1], #list(range(3,17,2)), #list(range(1,6,2)),
-    '--al-epochs': [35],
+    '--epochs' : [15, 20, 25], # list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
+    '--lr' : [5e-5], # 5e-4, 5e-6
+    '--batch-size' : [64],
+    '--al-iter': [20, 30], #list(range(5,21,5)), #list(range(3,17,2)), #list(range(1,6,2)),
+    '--al-epochs': [10, 20, 30, 40],
     '--label-ratio': [0.1],
-    '--pl-method': ["soft.image", "soft.text", "ot.image", "ot.text", "hard.image", "hard.text"],
+    #'--pl-method': ["soft.image", "soft.text", "ot.image", "ot.text", "hard.image", "hard.text"],
 }
 
 # This number is very specifically chosen because we have 9 folds for the datasets!
-num_repeats = 9
+num_repeats = 3
 num_evals = 20 # How many evaluations are done with evaluate_checkpoint(...) - KEEP THIS FIXED
 
 gridsearch_values = list(gridsearch_dict.values())
@@ -93,7 +94,7 @@ for c, config in enumerate(configs): # Gridsearch
         # print('Args k fold (outside):' , args.k_fold)
         checkpoint_path = main(args) # Calls the main.py function of S-CLIP
         for epoch in epochs:
-            evaluate_checkpoint(checkpoint_path, epoch = epoch, kfold = i)
+            evaluate_checkpoint(checkpoint_path, epoch = epoch, kfold = i, split = 'val')
         # Remove the checkpoint after evaluating, to save space
         os.system(f"rm -r {checkpoint_path}")  
 
