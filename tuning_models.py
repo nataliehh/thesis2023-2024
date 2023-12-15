@@ -29,8 +29,8 @@ model_names = dict(Counter(model_names))
 
 # Do a grid search on the parameters
 # NOTE: for active learning, save-freq should be set to 1
-base_str_args = ''' --train-data RS-ALL
---val-data RS-ALL
+base_str_args = ''' --train-data RS.ALL
+--val-data RS.ALL
 --imagenet-val RSICD-CLS 
 --keyword-path keywords/RS/class-name.txt
 --zeroshot-frequency 5  

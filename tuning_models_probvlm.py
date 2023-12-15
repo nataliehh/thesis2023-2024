@@ -29,8 +29,8 @@ model_names = dict(Counter(model_names))
 
 # Do a grid search on the parameters
 # NOTE: for active learning, save-freq should be set to 1
-base_str_args = ''' --train-data RS-ALL
---val-data RS-ALL
+base_str_args = ''' --train-data RS.ALL
+--val-data RS.ALL
 --imagenet-val RSICD-CLS 
 --keyword-path keywords/RS/class-name.txt
 --zeroshot-frequency 5  
@@ -38,7 +38,6 @@ base_str_args = ''' --train-data RS-ALL
 --save-freq 1
 --active-learning
 --probvlm
---device cuda
 '''
 # --label-ratio 0.1
 # --active-learning
@@ -47,7 +46,7 @@ base_str_args = ''' --train-data RS-ALL
 gridsearch_dict = {
     '--epochs' : [5, 10, 15, 25], # list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
     '--lr' : [5e-5], # 5e-4, 5e-6
-    '--batch-size' : [64],
+    '--batch-size' : [32],
     '--al-iter': [5, 10, 20], #list(range(5,21,5)), #list(range(3,17,2)), #list(range(1,6,2)),
     '--al-epochs': [5, 10, 20],
     '--label-ratio': [0.1],
