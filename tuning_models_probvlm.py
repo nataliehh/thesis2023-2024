@@ -38,6 +38,7 @@ base_str_args = ''' --train-data RS.ALL
 --save-freq 1
 --active-learning
 --probvlm
+--device cuda
 '''
 # --label-ratio 0.1
 # --active-learning

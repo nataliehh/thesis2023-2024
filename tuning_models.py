@@ -38,22 +38,20 @@ base_str_args = ''' --train-data RS.ALL
 --save-freq 1
 --active-learning
 '''
-# --label-ratio 0.1
-# --active-learning
 
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {
-    '--epochs' : [15, 20, 25], # list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
+    '--epochs' : [10], # list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
     '--lr' : [5e-5], # 5e-4, 5e-6
     '--batch-size' : [64],
-    '--al-iter': [20, 30], #list(range(5,21,5)), #list(range(3,17,2)), #list(range(1,6,2)),
-    '--al-epochs': [10, 20, 30, 40],
+    '--al-iter': [5], #list(range(5,21,5)), #list(range(3,17,2)), #list(range(1,6,2)),
+    '--al-epochs': [10],
     '--label-ratio': [0.1],
     #'--pl-method': ["soft.image", "soft.text", "ot.image", "ot.text", "hard.image", "hard.text"],
 }
 
 # This number is very specifically chosen because we have 9 folds for the datasets!
-num_repeats = 3
+num_repeats = 9
 num_evals = 20 # How many evaluations are done with evaluate_checkpoint(...) - KEEP THIS FIXED
 
 gridsearch_values = list(gridsearch_dict.values())
