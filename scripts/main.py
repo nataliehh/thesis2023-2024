@@ -253,7 +253,8 @@ def main(args):
                 evaluate(model, data, completed_epoch, args, writer, eval_path = eval_path)
                 
             # Saving checkpoints.
-            checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
+            checkpoint_dict = {"epoch": completed_epoch, "name": args.name, "state_dict": model.state_dict(), 
+                               "optimizer": optimizer.state_dict()}
             if scaler is not None:
                 checkpoint_dict["scaler"] = scaler.state_dict()
     
@@ -267,14 +268,11 @@ def main(args):
             if args.probvlm: 
                 print('ProbVLM tuning...')
                 # Load the pre-trained ProbVLM adapter 
-                resume_path = '../ProbVLM/ckpt/ProbVLM_Net_label_ratio_1.0_epoch_60.pth'
-                save_ckpt_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned'
                 ProbVLM_Net = get_default_BayesCap_for_CLIP()
-                # We specify num_epochs = 50 + 10 to make ProbVLM get fine-tuned for 10 more epochs.
-                # The 50 + is needed because we resume the model at 50 epochs.
+                # Using coco_epochs + 10 to make ProbVLM get fine-tuned for 10 more epochs (resuming model at coco_epochs)
                 train_ProbVLM(model, ProbVLM_Net, data['train'].dataloader, data['val'].dataloader, Cri = TempCombLoss(),
-                              device='cuda', dtype=torch.float, init_lr=8e-5, num_epochs=60+10, eval_every=100, 
-                              ckpt_path=save_ckpt_path, T1=1e0, T2=1e-4, resume_path = resume_path) 
+                              device='cuda', dtype=torch.float, init_lr=8e-5, num_epochs=args.coco_epochs+10, eval_every=100, 
+                              ckpt_path=args.coco_save_ckpt, T1=1e0, T2=1e-4, resume_path = args.coco_resume_ckpt, log = False) 
                 del ProbVLM_Net
 
             del data

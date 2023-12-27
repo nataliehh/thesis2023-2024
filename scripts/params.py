@@ -87,6 +87,7 @@ def add_base_args(parser):
     parser.add_argument("--al-iter", type=int, default=1, help="How many times to apply active learning.")
     parser.add_argument("--al-epochs", type=int, default=5, help="How many epochs to train for during the AL phase.")
     parser.add_argument("--probvlm", action='store_true', default=False, help="Whether to use ProbVLM for active learning.")
+    parser.add_argument("--coco-epochs", type=int, default=60, help="How many epochs ProbVLM should've been pre-trained on with COCO.")
 
     # Arguments for pseudo-labeling
     parser.add_argument("--pl-method", type=str, default='ot.image', help="Type of pseudo-labeling strategy to apply.")
@@ -107,9 +108,24 @@ def parse_args(args):
     # Set some defaults 
     if args.device is None:
         args.device = select_cpu_or_gpu() # Choose whether to run on CPU or GPU, depending on what's available
-    if args.active_learning and args.al_iter > 1: 
+        
+    if args.active_learning and args.al_iter > 1: # If true, we're active learning
         args.save_freq = -1 # Don't store results at intermediate points when using active learning
-    else:
+        model_name = f"./probvlm_model/ProbVLM_Net_label_ratio_1.0_epoch_{args.coco_epochs}"
+        # The path to the pre-trained (but not fine-tuned) ProbVLM model (pre-trained on COCO)
+        args.coco_resume_ckpt = model_name + '.pth'
+        # The path where we save the fine-tuned ProbVLM model
+        # (does not end in .pth because we add extra parameters to the name later, e.g. '_last.pth')
+        args.coco_save_ckpt = model_name + 'finetuned'
+        
+        # Here, we fix an issue with the AL-iter parameter - it should change depending on the label ratio
+        # So we check how much larger the label_ratio is than the base (=0.1) and multiply the AL-iter with that factor
+        base_label_ratio = 0.1
+        if args.label_ratio != base_label_ratio:
+            label_ratio_factor = args.label_ratio/base_label_ratio
+            args.al_iter = round(args.al_iter * label_ratio_factor)
+            print('Args.al-iter updated to:', args.al_iter)
+    else: # If we're not active learning, set the AL parameters to None/False
         args.al_iter = None
         args.al_epochs = None
         args.probvlm = False
@@ -129,7 +145,7 @@ def parse_args(args):
     if args.method != "ours":
         args.keyword_path = None
 
-    if args.train_data is None and args.name is not None:
+    if args.train_data is None and args.name is not None: # = We are resuming a checkpoint
         if args.resume_epoch is None:
             args.resume_epoch = "latest"
         args.resume = f"{args.name}/checkpoints/epoch_{args.resume_epoch}.pt"

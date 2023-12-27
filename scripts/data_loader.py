@@ -500,6 +500,8 @@ class TokenizedDataset(torch.utils.data.Dataset):
 
 @torch.no_grad()
 def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames = None, templates = None, model = None):
+    if split_ratio == 1.0:
+        return d, None
     gen = torch.Generator()
     gen.manual_seed(seed) # set random seed
 
@@ -533,9 +535,10 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         # Get the indices of the data in order of most uncertain to least uncertain
         # Either use ProbVLM or basic AL to get these indices
         if args.probvlm: 
-            probvlm_path = '../ProbVLM/ckpt/ProbVLM_Net_label_ratio_1.0_epoch_60.pth'
-            if args.current_iter != 0: # Only use the pre-trained ProbVLM model if a fine-tuned variant isn't available yet
-                probvlm_path = 'ProbVLM_Net_label_ratio_1.0_50_epochs_finetuned_last.pth' # The fine-tuned variant
+            # Use the ProbVLM model only pre-trained on COCO if a fine-tuned variant isn't available yet
+            probvlm_path = args.coco_resume_ckpt
+            if args.current_iter != 0: # Otherwise, use the fine-tuned ProbVLM variant 
+                probvlm_path = args.coco_save_ckpt  + '_last.pth' # The most recently saved fine-tuned variant
             uncertainty_idx = probvlm_AL(args, data, model, resume_path = probvlm_path)
         else: # Use basic active learning if we're not using ProbVLM
             uncertainty_idx = basic_active_learning(args, data, model, classnames, templates)
@@ -544,18 +547,16 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         filter_for_possible_idx = torch.where(torch.isin(uncertainty_idx, torch.from_numpy(possible_idx).to(args.device))) 
         sorted_possible_idx = uncertainty_idx[filter_for_possible_idx] # Filter for the possible_idx indices
 
-        # Delete objects that we don't need anymore
-        # del data, image_features, text_features, sim, entropy, uncertainty
-
         # The indices are the labels with the highest uncertainty + already labeled indices
         indices = sorted_possible_idx.cpu().numpy()
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
-        del data
-        del uncertainty_idx
-        del possible_idx
-        del filter_for_possible_idx
-        del sorted_possible_idx
+        
+        # Clean up memory 
+        del data, uncertainty_idx, possible_idx, filter_for_possible_idx, sorted_possible_idx, chosen_idx
+        torch.cuda.empty_cache()
+        gc.collect()
+        
     else:
         indices = perm_indices
     
@@ -568,7 +569,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
 
     # Clean up memory
     del indices
-    
     torch.cuda.empty_cache()
     gc.collect()
     return d1, d2
@@ -607,7 +607,8 @@ def format_for_template(classname, dataset):
     
     # Make UCM's labels consistent w/ RSICD's pascal case
     replacements = {'residential': 'Residential', 'mobilehomepark': 'MobileHomePark', 'tenniscourt': 'TennisCourt', 
-                    'parkinglot': 'ParkingLot',  'baseballdiamond': 'BaseballDiamond', 'golfcourse': 'GolfCourse', 'storagetank': 'StorageTank'}
+                    'parkinglot': 'ParkingLot',  'baseballdiamond': 'BaseballDiamond', 'golfcourse': 'GolfCourse', 
+                    'storagetank': 'StorageTank'}
     for old, new in replacements.items():
         c = c.replace(old, new)
     
@@ -662,7 +663,6 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
         "RSICD": (RSICD, "RSICD", True),
         "UCM": (UCM, "UCM", True),
         "Sydney": (SydneyCaptions, "sydney_captions", False),
-        # "UCM-CLS": (UCMCLS, "UCM", True), # UCMerced_LandUse
         "WHU-RS19": (RS_CLS, "WHU-RS19", True),
         "RSSCN7": (RS_CLS, "RSSCN7", True),
         "AID": (RS_CLS, "AID", True),
@@ -670,10 +670,8 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
         "Fashion200k": (Fashion200k, "fashion200k", True),
         "FashionGen": (FashionGen, "fashiongen", True), 
         "Polyvore": (Polyvore, "polyvore_outfits", True),
-        # "Simpsons-Captions": (None, "simpsons-blip-captions", False),
-        # "Simpsons-Images": (None, "simpsons_dataset", False)
     }
-    REMOTE_SENSING = ["RSICD", "UCM", "Sydney", "RS-ALL", "WHU-RS19", "RSSCN7", "AID", "RESISC45"]
+    REMOTE_SENSING = ["RSICD", "UCM", "Sydney", "RS.ALL", "WHU-RS19", "RSSCN7", "AID", "RESISC45"]
 
     # We use a dictionary for the configuration of each dataset loader
     if data in config:
@@ -687,7 +685,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
         else:
             d = dataset_class(os.path.join(path, dataset_path), transform=preprocess_fn)
         if cls:
-            # Classification datasets use a captioning template, either 'a photo of [CLASS]' or 'an aerial photograph of [CLASS]' (for remote sensing)
+            # Classif datasets use a captioning template, either 'a photo of [CLASS]' or 'an aerial photograph of [CLASS]' (RS data)
             template = [lambda c: f"a photo of {format_for_template(c, data)}."]
             if data in REMOTE_SENSING:
                  template = [lambda c: f"an aerial photograph of {format_for_template(c, data)}."]
@@ -698,7 +696,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
             return d
     else:
-        if data =='Fashion-ALL':
+        if data =='Fashion.ALL':
             d = [Polyvore(os.path.join(path,"polyvore_outfits"), split=split, transform=preprocess_fn),
                 Fashion200k(os.path.join(path,"fashion200k"), split=split, transform=preprocess_fn, randomitem = True),
                 FashionGen(os.path.join(path,"fashiongen"), split=split, transform=preprocess_fn),]
@@ -708,7 +706,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
             d = ConcatDataset(d)    
             d = TokenizedDataset(d, image_key="x", text_key="captions", **data_kwargs)
 
-        elif data == 'RS-ALL':
+        elif data == 'RS.ALL':
             d = [RSICD(os.path.join(path,"RSICD"), split=split, transform=preprocess_fn, kfold = args.k_fold),
                 UCM(os.path.join(path,"UCM"), split=split, transform=preprocess_fn, kfold = args.k_fold), # UCMCaption
                 SydneyCaptions(os.path.join(path,"sydney_captions"), split=split, transform=preprocess_fn, kfold = args.k_fold),]
@@ -840,11 +838,16 @@ def basic_active_learning(args, data, model, classnames = None, templates = None
     # The uncertainty is the (negative) sum per row of the entropy
     uncertainty = torch.sum(-1*entropy, 1) 
     idx_by_uncertainty = uncertainty.argsort(descending = True) # Provides the indices in order of uncertainty (from high to low)
+    
+    # Clean memory
+    del sim, entropy, uncertainty, image_features, text_features, data
+    torch.cuda.empty_cache()
+    gc.collect()
     return idx_by_uncertainty
 
 @torch.no_grad()
 def probvlm_AL(args, data, model, resume_path = ''):
-    CLIP_Net = model 
+    CLIP_Net = model.to('cuda') 
     # Load the pre-trained ProbVLM adapter 
     ProbVLM_Net = get_default_BayesCap_for_CLIP()
     checkpoint = torch.load(resume_path)
@@ -857,7 +860,9 @@ def probvlm_AL(args, data, model, resume_path = ''):
     uncertainty_images, _ = sort_wrt_uncer(r_dict)
     # The uncertainties are given as (idx, uncertainty), we extract only the idx
     idx_by_uncertainty = torch.Tensor([u[0] for u in uncertainty_images]).to(args.device)
-    del ProbVLM_Net
+    
+    # Clean memory
+    del checkpoint, r_dict, ProbVLM_Net, data
     torch.cuda.empty_cache()
     gc.collect()
     return idx_by_uncertainty
