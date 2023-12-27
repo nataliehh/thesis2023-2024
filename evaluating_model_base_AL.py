@@ -40,14 +40,12 @@ base_str_args = ''' --train-data RS.ALL
 --lr 5e-5
 --save-freq 1
 --active-learning
---probvlm
---device cuda
 '''
 
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {
-    '--epochs' : [25], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
-    '--batch-size' : [32],
+    '--epochs' : [20], #list(range(15,36,5)) if 'active-learning' in base_str_args else [35], #[10,15,20,25,30,35],
+    '--batch-size' : [64],
     '--al-iter': [5], #list(range(3,17,2)), #list(range(1,6,2)),
     '--al-epochs': [10],
     '--label-ratio': [0.05, 0.1, 0.2, 0.4, 0.8],
