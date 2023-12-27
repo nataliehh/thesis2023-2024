@@ -165,7 +165,8 @@ def get_GGuncer(x_alpha, x_beta, c1=3, c2=2.8):
     b = torch.clip(b, min=0.1, max=5)
     u = (a**2)*torch.exp(torch.lgamma(3/b))/torch.exp(torch.lgamma(2.8/b))
     return u
-    
+
+@torch.no_grad()
 def multi_fwpass_ProbVLM(
     BayesCap_Net,
     xfI, xfT,
@@ -218,7 +219,8 @@ def multi_fwpass_ProbVLM(
     t_v = (t_uncer_v * t_mu_v)**(1/2)
     
     return (i_mu_m, i_alpha_m, i_beta_m, i_v), (t_mu_m, t_alpha_m, t_beta_m, t_v)
- 
+
+@torch.no_grad()
 def get_features_uncer_ProbVLM(
     CLIP_Net,
     BayesCap_Net,
@@ -251,8 +253,6 @@ def get_features_uncer_ProbVLM(
             if dictionary:
                 outputs = (outputs['image_features'], outputs['text_features'])
             #recons
-#             print(outputs[0].shape, outputs[1].shape)
-#             print(BayesCap_Net.device)
             outs = multi_fwpass_ProbVLM(BayesCap_Net, outputs[0], outputs[1])
             # outs = multi_fwpass_BayesCap(BayesCap_Net, outputs[0], outputs[1])
             
@@ -272,7 +272,7 @@ def get_features_uncer_ProbVLM(
     
     return r_dict
 
-
+@torch.no_grad()
 def sort_wrt_uncer(r_dict):
     orig_v_idx = {}
     for i in range(len(r_dict['i_u'])):
@@ -286,6 +286,7 @@ def sort_wrt_uncer(r_dict):
     
     return sort_v_idx, sort_t_idx
 
+@torch.no_grad()
 def create_uncer_bins_eq_spacing(sort_idx, n_bins=10):
     max_uncer = sort_idx[0][1]
     min_uncer = sort_idx[-1][1]
@@ -302,6 +303,7 @@ def create_uncer_bins_eq_spacing(sort_idx, n_bins=10):
                 ret_bins['bin{}'.format(j)].append(val)
     return ret_bins
 
+@torch.no_grad()
 def create_uncer_bins_eq_samples(sort_idx, n_bins=10):
     sort_idx = sort_idx[::-1]
     ret_bins = {'bin{}'.format(i):[] for i in range(n_bins)}
@@ -315,6 +317,7 @@ def create_uncer_bins_eq_samples(sort_idx, n_bins=10):
     return ret_bins
 
 # Custom function I added to return the most uncertain samples by index
+@torch.no_grad()
 def get_uncertain_samples(CLIP_Net, ProbVLM_Net, data_loader, idx_ignore = []):
     r_dict = get_features_uncer_ProbVLM(CLIP_Net, ProbVLM_Net, data_loader)
 

@@ -60,7 +60,8 @@ for label_ratio in label_ratios:
         print('Label ratio:', label_ratio)
         f.write(f'label_ratio: {label_ratio}\n')
 
-    probvlm_data = probvlm_get_data((preprocess_train, preprocess_val), tokenizer=get_tokenizer(args.model), batch_size = 256, label_ratio = 1)
+    probvlm_data = probvlm_get_data((preprocess_train, preprocess_val), tokenizer=get_tokenizer(args.model), 
+                                    batch_size = 256, label_ratio = 1)
     
     train_loader, valid_loader = probvlm_data['train'].dataloader, probvlm_data['val'].dataloader
     

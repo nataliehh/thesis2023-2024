@@ -27,10 +27,12 @@ def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Ne
     return model, optimizer, scheduler, start_epoch
 
 def save_checkpoint(path, model, optimizer, scheduler, epoch, loss):
-    torch.save({'model': model.state_dict(), 'epoch': epoch, 'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict(), 'loss': loss}, path)
+    torch.save({'model': model.state_dict(), 'epoch': epoch, 'optimizer': optimizer.state_dict(), 
+                'scheduler': scheduler.state_dict(), 'loss': loss}, path)
 
 def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempCombLoss(), device='cuda', dtype=torch.float,
-     init_lr=1e-4, num_epochs=100, eval_every=1, ckpt_path='../ckpt/ProbVLM', cross_modal_lambda=1e-4, T1=1e0, T2=5e-2, resume_path = ''):
+                  init_lr=1e-4, num_epochs=100, eval_every=1, ckpt_path='../ckpt/ProbVLM', cross_modal_lambda=1e-4,
+                  T1=1e0, T2=5e-2, resume_path = '', log = True):
     CLIP_Net.to(device)
     BayesCap_Net.to(device)
     
@@ -45,8 +47,7 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
     BayesCap_Net.txt_BayesCap.train()
     ##
     
-
-    score = 1e8
+    score = 1e8 # worst score 'so far'
     all_loss = []
     for eph in range(start_epoch, num_epochs):
         eph_loss = 0
@@ -82,20 +83,22 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
                 tepoch.set_postfix(loss=loss.item())
             eph_loss /= len(train_loader)
             all_loss.append(eph_loss)
-            print('Avg. loss: {}'.format(eph_loss))
-            with open('eval.txt', 'a') as f:
-                f.write(f'Epoch: {eph}\tavg. loss: {eph_loss}\n')
+            if log:
+                print('Avg. loss: {}'.format(eph_loss))
+                with open('eval.txt', 'a') as f:
+                    f.write(f'Epoch: {eph}\tavg. loss: {eph_loss}\n')
         # evaluate and save the models
         if eph % 5 == 0:
             save_checkpoint(ckpt_path+f'_epoch_{eph}.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)
         save_checkpoint(ckpt_path+f'_last.pth', BayesCap_Net, optimizer, scheduler, eph, eph_loss)   
         # torch.save(BayesCap_Net.state_dict(), ckpt_path+'_last.pth')
         if eph % eval_every == 0 or eph == num_epochs - 1:
-            curr_score = eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device=device, dtype=dtype,)
-            print('current score: {} | Last best score: {}'.format(curr_score, score))
-
-            with open('eval.txt', 'a') as f:
-                f.write(f'Epoch: {eph}\tcurrent score: {curr_score}\tbest score: {score}\n')
+            curr_score = eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device=device, dtype=dtype, log = log)
+            
+            if log:
+                print('current score: {} | Last best score: {}'.format(curr_score, score))
+                with open('eval.txt', 'a') as f:
+                    f.write(f'Epoch: {eph}\tcurrent score: {curr_score}\tbest score: {score}\n')
                 
             if curr_score <= score:
                 score = curr_score
@@ -103,8 +106,8 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
                 # torch.save(BayesCap_Net.state_dict(), ckpt_path+'_best.pth')
     scheduler.step()
     
-    
-def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch.float,):
+@torch.no_grad()    
+def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch.float, log = True):
     CLIP_Net.to(device)
     CLIP_Net.eval()
     BayesCap_Net.to(device)
@@ -135,7 +138,8 @@ def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch
             ##
         mean_mse /= num_imgs
         mean_mae /= num_imgs
-        print('Avg. MSE: {} | Avg. MAE: {}'.format(mean_mse, mean_mae))
-        with open('eval.txt', 'a') as f:
-                f.write(f'Avg. MSE: {mean_mse}\tAvg. MAE: {mean_mae}\n')
+        if log:
+            print('Avg. MSE: {} | Avg. MAE: {}'.format(mean_mse, mean_mae))
+            with open('eval.txt', 'a') as f:
+                    f.write(f'Avg. MSE: {mean_mse}\tAvg. MAE: {mean_mae}\n')
     return mean_mae
