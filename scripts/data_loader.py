@@ -214,6 +214,30 @@ class SydneyCaptions(RSICD):
         super().__init__(*args, **kwargs)  
         self.image_root = "images"
 
+# Custom data collected by ILT's IDLab      
+class ILT(CustomDataLoader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        data_anns = "dataset.json"
+        # Load all data
+        self.data_all = read_json(os.path.join(self.root, data_anns))["images"]
+        # Get the classes from all the data
+        self.classes = sorted(set([c['label'] for c in self.data_all]))
+        # Get the data for the specified split
+        self.data = [c for c in self.data_all if c["split"] == split]
+        
+    def __getitem__(self, idx: int) -> Dict:
+        item = self.data[idx]
+        x = self.get_x(item) # Get the x value (= image)
+        # If we want to do classification, we use the class names as labels for the images
+        if self.cls:
+            cls_name = item['label']
+            y = self.classes.index(cls_name)
+            return x, y
+        sentences = item["captions"] # y labels are the sentences of an image x
+        
+        return dict(x=x, captions=sentences)
+
 
 # Data from: https://github.com/xthan/fashion-200k/tree/master
 class Fashion200k(CustomDataLoader):
@@ -670,6 +694,7 @@ def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model 
         "Fashion200k": (Fashion200k, "fashion200k", True),
         "FashionGen": (FashionGen, "fashiongen", True), 
         "Polyvore": (Polyvore, "polyvore_outfits", True),
+        "ILT": (ILT, "ILT_data", True),
     }
     REMOTE_SENSING = ["RSICD", "UCM", "Sydney", "RS.ALL", "WHU-RS19", "RSSCN7", "AID", "RESISC45"]
 
@@ -795,10 +820,18 @@ from precision import get_autocast
 from open_clip import get_cast_dtype, get_tokenizer
 
 import sys
-sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
-sys.path.append('/vol/tensusers4/nhollain/ProbVLM/') # Allow probvlm imports
 
-from utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+cwd = os.getcwd() # get current working directory
+if 'tensusers' in cwd:
+    sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
+    sys.path.append('/vol/tensusers4/nhollain/ProbVLM/') # Allow probvlm imports
+
+    from utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+else:
+    from probvlm.utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+    sys.path.append('./probvlm/')
+    sys.path.append('./probvlm/src')
+    
 from networks import get_default_BayesCap_for_CLIP
 
 @torch.no_grad()
