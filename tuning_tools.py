@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/vol/tensusers4/nhollain/thesis2023-2024/s_clip_scripts')
+sys.path.append('./scripts')
 import itertools
 from params import parse_args
 from main import main
@@ -13,12 +13,15 @@ def prep_str_args(str_args): # Code to parse the string style arguments, as show
     str_args = [s for s in str_args if len(s) > 0] # Remove arguments that are empty
     return str_args
     
-def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', dataset = 'RS'):
+def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', dataset = 'RS', eval_file = ''):
     # print('=> Resuming checkpoint {} (epoch {})'.format(checkpoint, epoch))
     checkpoint = checkpoint_path 
     if 'Fashion' in dataset or 'Fashion' in str(checkpoint):
         zeroshot_datasets = ["Fashion200k-SUBCLS", "Fashion200k-CLS", "FashionGen-CLS", "FashionGen-SUBCLS", "Polyvore-CLS", ]
         retrieval_datasets = ["FashionGen", "Polyvore", "Fashion200k",]
+    elif 'ILT' in dataset or 'ILT' in str(checkpoint):
+        zeroshot_datasets = ['ILT-CLS']
+        retrieval_datasets = ['ILT']
     else:
         zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] # "WHU-RS19", "RSSCN7", "AID" -> NOT WORKING bc of different data-loading workings
         if split == 'test': # Test split includes other remote sensing dataset
@@ -29,6 +32,8 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
         lst_args = [f'--imagenet-{split}', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
         if checkpoint is not None:
             lst_args += ['--name', checkpoint]
+        if len(eval_file) > 0:
+            lst_args += ['--eval-file', eval_file]
         args = parse_args(lst_args)
         main(args)
     
@@ -36,5 +41,7 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
         lst_args = [f'--{split}-data', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
         if checkpoint is not None:
             lst_args += ['--name', checkpoint]
+        if len(eval_file) > 0:
+            lst_args += ['--eval-file', eval_file]
         args = parse_args(lst_args)
         main(args)

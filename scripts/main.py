@@ -12,7 +12,7 @@ from open_clip import create_model_and_transforms, get_tokenizer, create_loss
 from tqdm import tqdm
 import gc
 
-sys.path.append('/vol/tensusers4/nhollain/thesis2023-2024/s_clip_scripts') # Add custom functions to PATH
+sys.path.append('./scripts') # Add custom functions to PATH
 sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
 
 # use custom functions
@@ -223,7 +223,7 @@ def main(args):
         # (Based on the epochs of that checkpoint)
         total_epochs = re.search("-epochs_[0-9]+", args.name)[0] 
         model_name = args.name.replace(total_epochs, f"-epochs_{start_epoch}")
-        eval_file = args.eval_file if (args.val_data or args.imagenet_val) else 'test_' + args.eval_file
+        eval_file = args.eval_file if (args.val_data or args.imagenet_val) else args.test_eval_file
         with open(eval_file, 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":

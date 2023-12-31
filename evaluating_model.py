@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/vol/tensusers4/nhollain/thesis2023-2024/s_clip_scripts')
+sys.path.append('./scripts')
 
 import itertools
 from collections import Counter
@@ -12,22 +12,6 @@ from datetime import datetime
 
 from tuning_tools import prep_str_args, evaluate_checkpoint
 
-
-########################
-# Count the models that have been trained and evaluated already, based on their parameters 
-results = []
-if os.path.exists('./test_eval.txt'):   
-    with open('./test_eval.txt', 'r') as f:
-        results = f.readlines()
-
-# Remove any non-result lines from the eval file, and split the lines on the tab character
-# (results have format: model_name\tdataset_name\tmetric_name\tmetric_value)
-results = [r.replace('\n','').split('\t')[0] for r in results if '\t' in r]
-model_names = results
-# Remove the timestamp from the model names, as well as the specific fold - rest of the name contains params
-model_names = ['-'.join(m.split('-')[2:]).split('-fold')[0] for m in model_names]
-model_names = dict(Counter(model_names))
-# print('Model_names', model_names)
 
 # Do a grid search on the parameters
 # NOTE: for active learning, save-freq should be set to 1
@@ -43,6 +27,24 @@ base_str_args = ''' --train-data RS.ALL
 --probvlm
 --device cuda
 '''
+
+base_args = parse_args(prep_str_args(base_str_args))
+
+########################
+# Count the models that have been trained and evaluated already, based on their parameters 
+results = []
+if os.path.exists(base_args.test_eval_file):   
+    with open(base_args.test_eval_file, 'r') as f:
+        results = f.readlines()
+
+# Remove any non-result lines from the eval file, and split the lines on the tab character
+# (results have format: model_name\tdataset_name\tmetric_name\tmetric_value)
+results = [r.replace('\n','').split('\t')[0] for r in results if '\t' in r]
+model_names = results
+# Remove the timestamp from the model names, as well as the specific fold - rest of the name contains params
+model_names = ['-'.join(m.split('-')[2:]).split('-fold')[0] for m in model_names]
+model_names = dict(Counter(model_names))
+# print('Model_names', model_names)
 
 # Dictionary of values to gridsearch for hyperparam tuning
 gridsearch_dict = {

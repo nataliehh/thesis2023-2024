@@ -58,8 +58,9 @@ def add_base_args(parser):
     parser.add_argument("--seed", type=int, default=0, help="Default random seed.")
     parser.add_argument('--device', default=None, type=str, help="The device (CPU or GPU) to run on")
     
-    # Evaluation file path
-    parser.add_argument("--eval-file", type=str, default='eval.txt', help="Where to store evaluation file.",)
+    # Evaluation file paths
+    parser.add_argument("--eval-file", type=str, default='./results/eval.txt', help="Where to store (validation set) evaluation file.",)
+    parser.add_argument("--test-eval-file", type=str, default='', help="Where to store (test set) evaluation file.",)
     
     # Custom parsing arguments for S-CLIP
     parser.add_argument("--label-ratio", type=float, default=0.1, help="Subset ratio for paired data.",)
@@ -137,6 +138,10 @@ def parse_args(args):
     # We don't specify any PL method if we are using the base CLIP model
     if args.method == 'base':
         args.pl_method = None
+        
+    # If the test set eval path is empty, use the val set eval path to create a path
+    if len(args.test_eval_file) == 0:
+        args.test_eval_file = args.eval_file.replace('eval', 'test_eval')
 
     # If some params are not passed, we use the default values based on model name.
     default_params = get_default_params(args.model)

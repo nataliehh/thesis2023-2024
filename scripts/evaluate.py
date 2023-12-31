@@ -12,6 +12,7 @@ from zero_shot import zero_shot_classifier
 from zero_shot import run as run_zero_shot
 from train import get_clip_metrics, maybe_compute_generative_loss
 
+from tqdm import tqdm 
 
 def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
     metrics = {}
@@ -98,8 +99,7 @@ def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
         return metrics
     if len(eval_path) > 0:
         with open(eval_path, 'a') as f:
-           f.write(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) + '\n') 
-    # logging.info(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) )
+           f.write(f"Eval Epoch: {epoch} " + "\t".join([f"{k}: {round(v, 4):.4f}" for k, v in metrics.items()]) + '\n')
 
     if args.save_logs:
         for name, val in metrics.items():
@@ -110,10 +110,6 @@ def evaluate(model, data, epoch, args, tb_writer=None, eval_path = ""):
             with open(os.path.join(base_path, "results.txt"), "a+") as f:
                 f.write(str(metrics))
                 f.write('\n')
-        # with open(os.path.join(args.checkpoint_path, "results.jsonl"), "a+") as f:
-        #     f.write(json.dumps(metrics))
-        #     f.write("\n")
-
     return metrics
 
 

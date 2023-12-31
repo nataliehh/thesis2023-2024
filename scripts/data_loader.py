@@ -134,13 +134,14 @@ class RS_CLS(CustomDataLoader): # For use with AID, WHU-RS19, NWPU-RESISC45, RSS
             for img_path in img_paths:
                  data.append((img_path, class_))
         self.data = data
-        self.classes = classes
+        self.classes = sorted(classes)
+        self.classes_idx = {c:i for i, c in enumerate(self.classes)}
         
     def __getitem__(self, idx):
         img_path, class_ = self.data[idx]
         x = Image.open(os.path.join(self.root, class_, img_path)).convert('RGB')
         x = self.transform(x)
-        y = self.classes.index(class_)
+        y = self.classes_idx[class_]
         return x, y
             
         
@@ -195,8 +196,9 @@ class UCM(RSICD):
     
     def load_class_info(self):
         mapping = read_json(os.path.join(self.root,'caption_to_cls_mapping.json'))
-        classes = list(set(mapping.values()))
+        classes = sorted(set(mapping.values()))
         self.classes = classes
+        self.classes_idx = {c:i for i, c in enumerate(self.classes)}
         self.path2class = mapping
     
     def __getitem__(self, idx):
@@ -204,7 +206,7 @@ class UCM(RSICD):
             item = self.data[idx]
             x = self.get_x(item)
             str_label = self.path2class[item['filename']]
-            y = self.classes.index(str_label)
+            y = self.classes_idx[str_label]
             return x, y
         else:
             return super().__getitem__(idx)
@@ -225,6 +227,8 @@ class ILT(CustomDataLoader):
         self.data_all = read_json(os.path.join(self.root, data_anns))["images"]
         # Get the classes from all the data
         self.classes = sorted(set([c['label'] for c in self.data_all]))
+        # Get the index of each class
+        self.classes_idx = {c:i for i, c in enumerate(self.classes)}
         # Get the data for the specified split
         self.data = [c for c in self.data_all if c["split"] == self.split]
         
@@ -234,7 +238,7 @@ class ILT(CustomDataLoader):
         # If we want to do classification, we use the class names as labels for the images
         if self.cls:
             cls_name = item['label']
-            y = self.classes.index(cls_name)
+            y = self.classes_idx[cls_name]
             print(x, y)
             return x, y
         sentences = item["captions"] # y labels are the sentences of an image x
@@ -675,7 +679,7 @@ def format_for_template(classname, dataset):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model = None, **data_kwargs):
-    path = './data/' #/vol/tensusers4/nhollain/thesis2023-2024
+    path = './data/'
     split = "train" if is_train else "test" if is_test else "val"
     if args.current_iter == 0:
         logging.info(f'{data} (split: {split})')
