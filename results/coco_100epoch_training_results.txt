@@ -1,0 +1,153 @@
+label_ratio: 1.0
+Epoch: 0        avg. loss: 4.0938913770020005
+Avg. MSE: 4.443839073181152     Avg. MAE: 1.598012924194336
+Epoch: 0        current score: 1.598012924194336        best score: 100000000.0
+Epoch: 1        avg. loss: 2.2691324561834336
+Epoch: 2        avg. loss: 1.9231348626315594
+Epoch: 3        avg. loss: 1.6911976136267186
+Epoch: 4        avg. loss: 1.5335947133600711
+Epoch: 5        avg. loss: 1.415200251713395
+Avg. MSE: 0.7334177494049072    Avg. MAE: 0.6590404510498047
+Epoch: 5        current score: 0.6590404510498047       best score: 1.598012924194336
+Epoch: 6        avg. loss: 1.3376974176615477
+Epoch: 7        avg. loss: 1.2724439047276974
+Epoch: 8        avg. loss: 1.1998135026544332
+Epoch: 9        avg. loss: 1.1054995112121104
+Epoch: 10       avg. loss: 1.0487620584666728
+Avg. MSE: 0.2870044410228729    Avg. MAE: 0.3947676122188568
+Epoch: 10       current score: 0.3947676122188568       best score: 0.6590404510498047
+Epoch: 11       avg. loss: 0.9982831662520766
+Epoch: 12       avg. loss: 0.9666283318772912
+Epoch: 13       avg. loss: 0.905657697096467
+Epoch: 14       avg. loss: 0.8363127490505576
+Epoch: 15       avg. loss: 0.8155338512733579
+Avg. MSE: 0.14809070527553558   Avg. MAE: 0.2662030756473541
+Epoch: 15       current score: 0.2662030756473541       best score: 0.3947676122188568
+Epoch: 16       avg. loss: 0.7970573266968131
+Epoch: 17       avg. loss: 0.7807258574292064
+Epoch: 18       avg. loss: 0.7662579137831926
+Epoch: 19       avg. loss: 0.753195658698678
+Epoch: 20       avg. loss: 0.7415192905813456
+Avg. MSE: 0.09169959276914597   Avg. MAE: 0.19564929604530334
+Epoch: 20       current score: 0.19564929604530334      best score: 0.2662030756473541
+Epoch: 21       avg. loss: 0.7313006069511175
+Epoch: 22       avg. loss: 0.7225631633773446
+Epoch: 23       avg. loss: 0.7134805670008063
+Epoch: 24       avg. loss: 0.7057874534279108
+Epoch: 25       avg. loss: 0.6987600240856409
+Avg. MSE: 0.06405524164438248   Avg. MAE: 0.15443244576454163
+Epoch: 25       current score: 0.15443244576454163      best score: 0.19564929604530334
+Epoch: 26       avg. loss: 0.6922778595238924
+Epoch: 27       avg. loss: 0.6861752795055509
+Epoch: 28       avg. loss: 0.6803737126290799
+Epoch: 29       avg. loss: 0.6751927876845002
+Epoch: 30       avg. loss: 0.6706257926300168
+Avg. MSE: 0.047202371060848236  Avg. MAE: 0.1260903924703598
+Epoch: 30       current score: 0.1260903924703598       best score: 0.15443244576454163
+Epoch: 31       avg. loss: 0.6661648424342275
+Epoch: 32       avg. loss: 0.6610486898571253
+Epoch: 33       avg. loss: 0.6570374147966505
+Epoch: 34       avg. loss: 0.6532029410824179
+Epoch: 35       avg. loss: 0.6495048463344574
+Avg. MSE: 0.035556256771087646  Avg. MAE: 0.10497213900089264
+Epoch: 35       current score: 0.10497213900089264      best score: 0.1260903924703598
+Epoch: 36       avg. loss: 0.647179283760488
+Epoch: 37       avg. loss: 0.6425027439370752
+Epoch: 38       avg. loss: 0.6399967601522804
+Epoch: 39       avg. loss: 0.6364691466093063
+Epoch: 40       avg. loss: 0.6054661069065332
+Avg. MSE: 0.027854740619659424  Avg. MAE: 0.09155543148517609
+Epoch: 40       current score: 0.09155543148517609      best score: 0.10497213900089264
+Epoch: 41       avg. loss: 0.598950026743114
+Epoch: 42       avg. loss: 0.5961869332939387
+Epoch: 43       avg. loss: 0.5939152635633945
+Epoch: 44       avg. loss: 0.5927192701026798
+Epoch: 45       avg. loss: 0.5573563882149756
+Avg. MSE: 0.02098383568227291   Avg. MAE: 0.07627460360527039
+Epoch: 45       current score: 0.07627460360527039      best score: 0.09155543148517609
+Epoch: 46       avg. loss: 0.4422124524600804
+Epoch: 47       avg. loss: 0.44169823443517087
+Epoch: 48       avg. loss: 0.4388069753535092
+Epoch: 49       avg. loss: 0.4369085354730487
+Avg. MSE: 0.0170343816280365    Avg. MAE: 0.06751484423875809
+Epoch: 49       current score: 0.06751484423875809      best score: 0.07627460360527039
+Elapsed time: 18:49:56.897833
+label_ratio: 1.0
+Epoch: 50       avg. loss: 0.43481436260044576
+Avg. MSE: 0.01616201177239418   Avg. MAE: 0.06639623641967773
+Epoch: 50       current score: 0.06639623641967773      best score: 100000000.0
+Epoch: 51       avg. loss: 0.4343762189149857
+Epoch: 52       avg. loss: 0.43171295467764137
+Epoch: 53       avg. loss: 0.42981181042268873
+Epoch: 54       avg. loss: 0.42808064483106134
+Epoch: 55       avg. loss: 0.4270467051304877
+Avg. MSE: 0.012515868991613388  Avg. MAE: 0.058350857347249985
+Epoch: 55       current score: 0.058350857347249985     best score: 0.06639623641967773
+Epoch: 56       avg. loss: 0.425167144369334
+Epoch: 57       avg. loss: 0.4247209021821618
+Epoch: 58       avg. loss: 0.3942252865061164
+Epoch: 59       avg. loss: 0.35732307089492676
+Epoch: 60       avg. loss: 0.3605187634006143
+Avg. MSE: 0.012524674646556377  Avg. MAE: 0.061623379588127136
+Epoch: 60       current score: 0.061623379588127136     best score: 0.058350857347249985
+Epoch: 61       avg. loss: 0.35655826013535263
+Epoch: 62       avg. loss: 0.3539521156810224
+Epoch: 63       avg. loss: 0.35302454261109234
+Epoch: 64       avg. loss: 0.33755381451919675
+Epoch: 65       avg. loss: 0.335237873531878
+Avg. MSE: 0.0072675528936088085 Avg. MAE: 0.04593247175216675
+Epoch: 65       current score: 0.04593247175216675      best score: 0.058350857347249985
+Epoch: 66       avg. loss: 0.33464994160458444
+Epoch: 67       avg. loss: 0.3337318589910865
+Epoch: 68       avg. loss: 0.3266565201804042
+label_ratio: 1.0
+Epoch: 69       avg. loss: 0.31650553941726683
+Epoch: 70       avg. loss: 0.31549983378499746
+Avg. MSE: 0.005630102474242449  Avg. MAE: 0.042491305619478226
+Epoch: 70       current score: 0.042491305619478226     best score: 100000000.0
+Epoch: 71       avg. loss: 0.31626887861639263
+Epoch: 72       avg. loss: 0.3139362103305757
+Epoch: 73       avg. loss: 0.3135074095800519
+Epoch: 74       avg. loss: 0.3031365177594125
+Avg. MSE: 0.004626502748578787  Avg. MAE: 0.03894336149096489
+Epoch: 74       current score: 0.03894336149096489      best score: 0.042491305619478226
+Elapsed time: 1:37:38.748545
+label_ratio: 1.0
+Epoch: 75       avg. loss: 0.2972278218716383
+Avg. MSE: 0.004413957707583904  Avg. MAE: 0.03850746154785156
+Epoch: 75       current score: 0.03850746154785156      best score: 100000000.0
+Epoch: 76       avg. loss: 0.2962587712332606
+Epoch: 77       avg. loss: 0.2955246325582266
+Epoch: 78       avg. loss: 0.298045839369297
+Epoch: 79       avg. loss: 0.2943669077940285
+Epoch: 80       avg. loss: 0.2944200659170747
+Avg. MSE: 0.0037388221826404333 Avg. MAE: 0.0378403514623642
+Epoch: 80       current score: 0.0378403514623642       best score: 0.03850746154785156
+Epoch: 81       avg. loss: 0.2941328125074506
+Epoch: 82       avg. loss: 0.29645154932513834
+Epoch: 83       avg. loss: 0.29455575803294776
+Epoch: 84       avg. loss: 0.2930536326952279
+Epoch: 85       avg. loss: 0.2933738668449223
+Avg. MSE: 0.003166619222611189  Avg. MAE: 0.036423370242118835
+Epoch: 85       current score: 0.036423370242118835     best score: 0.0378403514623642
+Epoch: 86       avg. loss: 0.29286769665777684
+Epoch: 87       avg. loss: 0.29251460628584025
+Epoch: 88       avg. loss: 0.2982984465546906
+Epoch: 89       avg. loss: 0.2919559204019606
+Epoch: 90       avg. loss: 0.2955410684458911
+Avg. MSE: 0.0029200478456914425 Avg. MAE: 0.035437729209661484
+Epoch: 90       current score: 0.035437729209661484     best score: 0.036423370242118835
+Epoch: 91       avg. loss: 0.29177169809117914
+Epoch: 92       avg. loss: 0.2915677891112864
+Epoch: 93       avg. loss: 0.28513746056705713
+Epoch: 94       avg. loss: 0.2757980410009623
+Epoch: 95       avg. loss: 0.2757791546173394
+Avg. MSE: 0.0025961853098124266 Avg. MAE: 0.03434179350733757
+Epoch: 95       current score: 0.03434179350733757      best score: 0.035437729209661484
+Epoch: 96       avg. loss: 0.27546105850487945
+Epoch: 97       avg. loss: 0.2752125504426658
+Epoch: 98       avg. loss: 0.27631344366818666
+Epoch: 99       avg. loss: 0.2760925327427685
+Avg. MSE: 0.0023775254376232624 Avg. MAE: 0.03392387926578522
+Epoch: 99       current score: 0.03392387926578522      best score: 0.03434179350733757
+Elapsed time: 6:26:53.499433
