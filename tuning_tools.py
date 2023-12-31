@@ -19,6 +19,9 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
     if 'Fashion' in dataset or 'Fashion' in str(checkpoint):
         zeroshot_datasets = ["Fashion200k-SUBCLS", "Fashion200k-CLS", "FashionGen-CLS", "FashionGen-SUBCLS", "Polyvore-CLS", ]
         retrieval_datasets = ["FashionGen", "Polyvore", "Fashion200k",]
+    elif 'ILT' in dataset or 'ILT' in str(checkpoint):
+        zeroshot_datasets = ['ILT-CLS']
+        retrieval_datasets = ['ILT']     
     else:
         zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] # "WHU-RS19", "RSSCN7", "AID" -> NOT WORKING bc of different data-loading workings
         if split == 'test': # Test split includes other remote sensing dataset

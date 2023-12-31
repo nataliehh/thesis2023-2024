@@ -218,13 +218,15 @@ class SydneyCaptions(RSICD):
 class ILT(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.image_root = "images"
+        
         data_anns = "dataset.json"
         # Load all data
         self.data_all = read_json(os.path.join(self.root, data_anns))["images"]
         # Get the classes from all the data
         self.classes = sorted(set([c['label'] for c in self.data_all]))
         # Get the data for the specified split
-        self.data = [c for c in self.data_all if c["split"] == split]
+        self.data = [c for c in self.data_all if c["split"] == self.split]
         
     def __getitem__(self, idx: int) -> Dict:
         item = self.data[idx]
@@ -233,6 +235,7 @@ class ILT(CustomDataLoader):
         if self.cls:
             cls_name = item['label']
             y = self.classes.index(cls_name)
+            print(x, y)
             return x, y
         sentences = item["captions"] # y labels are the sentences of an image x
         
@@ -672,7 +675,7 @@ def format_for_template(classname, dataset):
 
 # The links to most datasets were listed above, other datasets may be available via these scripts: https://github.com/isaaccorley/torchrs/tree/main/scripts
 def get_custom_data(args, data, preprocess_fn, is_train, is_test = False, model = None, **data_kwargs):
-    path = '/vol/tensusers4/nhollain/thesis2023-2024/data/'
+    path = './data/' #/vol/tensusers4/nhollain/thesis2023-2024
     split = "train" if is_train else "test" if is_test else "val"
     if args.current_iter == 0:
         logging.info(f'{data} (split: {split})')
