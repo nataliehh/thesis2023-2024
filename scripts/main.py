@@ -223,7 +223,7 @@ def main(args):
         # (Based on the epochs of that checkpoint)
         total_epochs = re.search("-epochs_[0-9]+", args.name)[0] 
         model_name = args.name.replace(total_epochs, f"-epochs_{start_epoch}")
-        eval_file = 'eval.txt' if (args.val_data or args.imagenet_val) else 'test_eval.txt'
+        eval_file = args.eval_file if (args.val_data or args.imagenet_val) else 'test_' + args.eval_file
         with open(eval_file, 'a') as f:
             for k, v in metrics.items():
                 if k == "zeroshot-val-top1":
