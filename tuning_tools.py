@@ -2,7 +2,16 @@ import sys
 sys.path.append('./scripts')
 import itertools
 from params import parse_args
-from main import main
+from main import main, format_checkpoint
+
+from collections import Counter
+from params import parse_args
+import copy
+import os
+from tqdm import tqdm
+from datetime import datetime
+import time
+
 
 def prep_str_args(str_args): # Code to parse the string style arguments, as shown below
     str_args = str_args.split('\n') # Split on newline
@@ -23,7 +32,7 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
         zeroshot_datasets = ['ILT-CLS']
         retrieval_datasets = ['ILT']
     else:
-        zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] # "WHU-RS19", "RSSCN7", "AID" -> NOT WORKING bc of different data-loading workings
+        zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] 
         if split == 'test': # Test split includes other remote sensing dataset
             zeroshot_datasets += ["WHU-RS19", "RSSCN7", "AID", "RESISC45"]
         retrieval_datasets = ["RSICD", "UCM", "Sydney"]
@@ -45,3 +54,116 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
             lst_args += ['--eval-file', eval_file]
         args = parse_args(lst_args)
         main(args)
+        
+def get_evaluation_history(eval_file):
+    # Count the models that have been trained and evaluated already, based on their parameters 
+    results = []
+    if os.path.exists('./results/eval_ilt.txt'):   
+        with open('./results/eval_ilt.txt', 'r') as f:
+            results = f.readlines()
+
+    # Remove any non-result lines from the eval file, and split the lines on the tab character
+    # (results have format: model_name\tdataset_name\tmetric_name\tmetric_value)
+    results = [r.replace('\n','').split('\t')[0] for r in results if '\t' in r]
+    model_history = results
+    # Remove the timestamp from the model names, as well as the specific fold - rest of the name contains params
+    model_history = ['-'.join(m.split('-')[2:]).split('-fold')[0] for m in model_history]
+    model_history = dict(Counter(model_history))
+    return model_history
+
+# Returns the default base arguments for the models. NOTE: parameters that are tuned will NOT be added to args here!!!
+def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str = ''):
+    
+    base_str_args = f''' 
+    --train-data {data}
+    --val-data {data}
+    --save-freq 5
+    --eval-file {eval_file}
+    --zeroshot-frequency 5
+    --method base
+    '''
+    base_methods = ['baseline']
+    al_methods = ['basic-al', 'probvlm']
+    pl_methods = ['hard-pl', 'soft-pl', 's-clip'] 
+    
+    methods = base_methods + al_methods + pl_methods
+    if method not in methods:
+        print('Unknown method. Possible methods are', methods)
+        return None
+    if method in al_methods:
+        base_str_args += '\n--active-learning'
+        if method =='probvlm':
+            base_str_args += '\n--probvlm'
+    if method in pl_methods:
+        base_str_args.replace('--method base', '--method ours')
+        base_str_args += f'\n--keyword-path {keyword_path}'
+        if len(keyword_path) == 0: # Check if keyword path is specified, warn if it's not
+            print('WARNING: keyword path is empty but will be used. Example of a correct path: "keywords/RS/class_name.txt"')
+    
+    return base_str_args
+
+# Gridsearch params: string of base arguments, dict of gridsearch arguments, how often to repeat the training + eval of a model config
+# And the number of evaluations that are done per model (to be able to calculate how often a config has been used already)
+def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval_file:str, split:str, num_repeats:int = 5, num_evals_per_model:int = 20, change_seed:bool = False):
+    '''
+    base_str_args (str): a string with the base arguments for all models in the gridsearch. 
+                    Example of format: "--train-data RSICD\n--val-data RSICD"
+    gridsearch_dict (dict): a dictionary with the parameters to search.
+                    Example of format: {"--lr" : [5e-4, 5e-5, 5e-6], "--batch-size" : [32, 64, 128]}
+    model_history (dict): a dictionary which contains the number of evaluations a model configuration has had. Can be obtained with the function "get_evaluation_history" (with the same eval_file as here).
+                    Example of format: {"model-name-1": 20, "model-name-2": 40}
+    eval_file (str): the path to the evaluation file where we want to store the results of evaluating the model configs.
+                    Example of format: "./results/eval.txt"
+    split (str): which split to evaluate on, should be "val" for the validation split or "test" for the test split of a dataset.
+    num_repeats (int): the number of times we evaluate each model configuration in the gridsearch. Default: 5.
+    num_evals_per_model (int): the number by which we divide the number of evaluations from model_history. This is done because each model is evaluated using multiple metrics and on multiple dataset (subsets). E.g. the number of evaluations might be on [(dataset1, metric1), (dataset2, metric1), (dataset3, metric1), ..., (datasetn, metric1), ... (datasetn, metricn)]. Dividing the model_history by the length of this list is how we determine how often the model has been evaluated.
+    change_seed (bool): Whether to change the default seed (=42). If True, which repeat we are on for the config determines the seed.
+    '''
+    # Get a list of the gridsearch parameters
+    gridsearch_values = list(gridsearch_dict.values())
+    gridsearch_keys = list(gridsearch_dict.keys())
+    configs = list(itertools.product(*gridsearch_values))
+    print('Number of configs:', len(configs))
+    
+    t_start = datetime.now()  # Keep track of time
+    
+    # Loop over the configs -> gridsearch
+    for c, config in enumerate(configs): 
+        str_args = copy.deepcopy(base_str_args)
+        # Add the gridsearch parameters to the base arguments
+        for i, param in enumerate(config):
+            param_name = gridsearch_keys[i]
+            str_args += '\n{} {}'.format(param_name, param)
+
+        str_args = prep_str_args(str_args)
+        print(str_args)
+        args = parse_args(str_args)
+        checkpoint_hypothetical = format_checkpoint(args)
+        # Remove the timestamp from the hypothetical checkpoint, so we can compare to the params of other checkpoints
+        checkpoint_params = '-'.join(checkpoint_hypothetical.split('-')[2:]).split('-fold')[0]
+
+        # Check if we've already trained the exact same model, correct the number of training iterations we still need to do
+        if checkpoint_params in model_history:
+            # The number of times to repeat depends on how often the model's been evaluated already
+            start_repeat = int(model_history[checkpoint_params]/num_evals_per_model)
+        else: # If we've never trained + evaluated the model before, just use num_repeats
+            start_repeat = 0
+        print(f'Config number {c}: {max(0,num_repeats-start_repeat)} repeats')
+        for i in range(start_repeat, num_repeats):
+            args = parse_args(str_args)
+            if change_seed: # Set seed based on the number of repeats
+                args.seed = i
+            # We compute here for which epochs we need to evaluate (based on for which epochs we checkpoint)
+            epoch_freq = args.save_freq
+            epochs = list(range(epoch_freq,args.epochs+1,epoch_freq))
+
+            checkpoint_path = main(args) # Calls the main.py function of S-CLIP
+            for epoch in epochs:
+                t_start = time.time()
+                evaluate_checkpoint(checkpoint_path, epoch = epoch, split = split, eval_file = eval_file)
+                print(f'Evaluation time: {round(time.time()-t_start, 3)}')
+            # Remove the checkpoint after evaluating, to save space
+            os.system(f"rm -r {checkpoint_path}")  
+
+    t_delta = datetime.now() - t_start   
+    print(f'Elapsed time: {t_delta}')
