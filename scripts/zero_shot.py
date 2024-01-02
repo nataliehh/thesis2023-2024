@@ -11,17 +11,20 @@ from imagenet_zeroshot_data import imagenet_classnames, openai_imagenet_template
 def zero_shot_classifier(model, classnames, templates, args):
     tokenizer = get_tokenizer(args.model)
     with torch.no_grad():
+        all_texts = []
         zeroshot_weights = []
         for classname in (classnames): 
-            texts = [template(classname) for template in templates]  # format with class
-            texts = tokenizer(texts).to(args.device)  # tokenize
-            class_embeddings = model.encode_text(texts)
-            class_embedding = F.normalize(class_embeddings, dim=-1).mean(dim=0)
-            class_embedding /= class_embedding.norm()
-            zeroshot_weights.append(class_embedding)
-        zeroshot_weights = torch.stack(zeroshot_weights, dim=1).to(args.device)
-    return zeroshot_weights
-
+            classname_texts = [template(classname) for template in templates]  # format with class
+            classname_texts = tokenizer(classname_texts).to(args.device)  # tokenize
+            all_texts.extend(classname_texts)
+#         print(all_texts)
+        all_texts = torch.stack(all_texts)
+        class_embeddings = model.encode_text(all_texts, normalize = True)
+#         class_embedding = F.normalize(class_embeddings, dim=-1).mean(dim=0)
+#             class_embedding /= class_embedding.norm()
+#             zeroshot_weights.append(class_embedding)
+#         zeroshot_weights = torch.stack(zeroshot_weights, dim=1).to(args.device)
+    return class_embeddings.T
 
 def accuracy(output, target, topk=(1,)):
     pred = output.topk(max(topk), 1, True, True)[1].t()

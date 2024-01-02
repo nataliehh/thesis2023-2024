@@ -220,7 +220,7 @@ class SydneyCaptions(RSICD):
 class ILT(CustomDataLoader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.image_root = "images"
+        self.image_root = "images_resized"
         
         data_anns = "dataset.json"
         # Load all data
@@ -239,7 +239,6 @@ class ILT(CustomDataLoader):
         if self.cls:
             cls_name = item['label']
             y = self.classes_idx[cls_name]
-            print(x, y)
             return x, y
         sentences = item["captions"] # y labels are the sentences of an image x
         
@@ -617,7 +616,8 @@ def create_datainfo(args, dataset, batch_size, is_train):
     num_samples = len(dataset)
     sampler = DistributedSampler(dataset) if args.distributed and is_train else None
     shuffle = is_train and sampler is None
-    workers = args.workers if not args.train_data else 0
+    # I disabled workers because they made data loading VERY slow for me during evaluation...
+    workers = 0 #args.workers if not args.train_data else 0
 
     dataloader = DataLoader(
         dataset,

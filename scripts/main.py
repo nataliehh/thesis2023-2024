@@ -11,6 +11,7 @@ import fsspec
 from open_clip import create_model_and_transforms, get_tokenizer, create_loss
 from tqdm import tqdm
 import gc
+import time
 
 sys.path.append('./scripts') # Add custom functions to PATH
 sys.path.append('/vol/tensusers4/nhollain/ProbVLM/src') # Allow probvlm imports
@@ -266,13 +267,15 @@ def main(args):
         if args.active_learning and iteration + 1 < args.al_iter:
             # Fine-tune the ProbVLM model with the current CLIP model
             if args.probvlm: 
-                print('ProbVLM tuning...')
+                t1 = time.time()
                 # Load the pre-trained ProbVLM adapter 
                 ProbVLM_Net = get_default_BayesCap_for_CLIP()
                 # Using coco_epochs + 10 to make ProbVLM get fine-tuned for 10 more epochs (resuming model at coco_epochs)
                 train_ProbVLM(model, ProbVLM_Net, data['train'].dataloader, data['val'].dataloader, Cri = TempCombLoss(),
                               device='cuda', dtype=torch.float, init_lr=8e-5, num_epochs=args.coco_epochs+10, eval_every=100, 
-                              ckpt_path=args.coco_save_ckpt, T1=1e0, T2=1e-4, resume_path = args.coco_resume_ckpt, log = False) 
+                              ckpt_path=args.coco_save_ckpt, T1=1e0, T2=1e-4, resume_path = args.coco_resume_ckpt, log = False)
+                t2 = time.time()
+                print(f'ProbVLM tuning took {round(t2-t1, 3)} seconds')
                 del ProbVLM_Net
 
             del data
