@@ -10,17 +10,19 @@ from losses import *
 from utils import *
 
 # From: https://discuss.pytorch.org/t/loading-a-saved-model-for-continue-training/17244/4
-def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Net_last.pth'):
+def load_checkpoint(model, optimizer, scheduler, resume_path='../ckpt/ProbVLM_Net_last.pth', log = True):
     # Note: Input model & optimizer should be pre-defined.  This routine only updates their states.
     start_epoch = 0
     if os.path.isfile(resume_path):
-        print("=> loading checkpoint '{}'".format(resume_path))
+        if log:
+            print("=> loading checkpoint '{}'".format(resume_path))
         checkpoint = torch.load(resume_path)
         start_epoch = checkpoint['epoch'] + 1
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         scheduler.load_state_dict(checkpoint['scheduler'])
-        print("=> loaded checkpoint '{}' (epoch {})".format(resume_path, checkpoint['epoch']))
+        if log:
+            print("=> loaded checkpoint '{}' (epoch {})".format(resume_path, checkpoint['epoch']))
     else:
         print("=> no checkpoint found at '{}'".format(resume_path))
 
@@ -39,7 +41,8 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
     optimizer = torch.optim.Adam(list(BayesCap_Net.img_BayesCap.parameters())+list(BayesCap_Net.txt_BayesCap.parameters()), lr=init_lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs)
     
-    model, optimizer, scheduler, start_epoch = load_checkpoint(BayesCap_Net, optimizer, scheduler, resume_path = resume_path)
+    model, optimizer, scheduler, start_epoch = load_checkpoint(BayesCap_Net, optimizer, scheduler, resume_path = resume_path,
+                                                              log = log)
     
     CLIP_Net.eval()
     ##
@@ -56,7 +59,8 @@ def train_ProbVLM(CLIP_Net, BayesCap_Net, train_loader, eval_loader, Cri = TempC
             for (idx, batch) in enumerate(tepoch):
                 if idx>2000:
                     break
-                tepoch.set_description('Epoch {}'.format(eph))
+                if log:
+                    tepoch.set_description('Epoch {}'.format(eph))
                 ##
                 xI, xT  = batch[0].to(device), batch[1].to(device)
                 with torch.no_grad():
@@ -118,7 +122,7 @@ def eval_ProbVLM(CLIP_Net, BayesCap_Net, eval_loader, device='cuda', dtype=torch
 
     with tqdm(eval_loader, unit='batch') as tepoch:
         for (idx, batch) in enumerate(tepoch):
-            tepoch.set_description('Validating ...')
+            if log: tepoch.set_description('Validating ...')
             ##
             xI, xT  = batch[0].to(device), batch[1].to(device)
             
