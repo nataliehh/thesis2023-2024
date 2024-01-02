@@ -596,6 +596,9 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
     else:
         d1 = [d[int(i)] for i in indices[:size]]
         d2 = [d[int(i)] for i in indices[size:]]
+#     print('indices d1:', sorted(indices[:size]), len(indices[:size]))
+#     print('indices d2:', sorted(indices[size:]), len(indices[size:]))
+
 
     # Clean up memory
     del indices
@@ -624,7 +627,7 @@ def create_datainfo(args, dataset, batch_size, is_train):
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=workers,
-        pin_memory=True,
+        pin_memory=False,#True,
         sampler=sampler,
         drop_last=is_train,
     )
@@ -649,6 +652,7 @@ def format_for_template(classname, dataset):
     
     c = c.replace('&', 'and') # Replace '&' with 'and'
     c = c.replace(' and ', ' or ') # Replace ' and ' with ' or '
+    c = c.replace('/', ' or ') # Replace '/' with ' or '
     
     c = TextBlob(c).words.singularize() # Make words singular (e.g. fields -> field)
     c = (' '.join(c)).lower() # Convert list to spaced string & make lowercase
@@ -656,7 +660,8 @@ def format_for_template(classname, dataset):
     # Replace faulty singularization (e.g. 'ties' -> 'ty')
     # And keep spelling consistent (e.g. jewelry, not jewellery)
     replacements = {'ty': 'tie', 'jean': 'jeans', 'glass': 'glasses', 'legging': 'leggings', 'pant': 'pants', 
-                    'bottom': 'bottoms', 'overpas': 'overpass', 'tenni': 'tennis', 'jewellery': 'jewelry'}
+                    'bottom': 'bottoms', 'overpas': 'overpass', 'tenni': 'tennis', 'jewellery': 'jewelry', 
+                    'miscellaneou':'miscellaneous'}
     for old, new in replacements.items():
         c = c.replace(old, new)
 

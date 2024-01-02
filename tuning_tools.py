@@ -159,9 +159,9 @@ def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval
 
             checkpoint_path = main(args) # Calls the main.py function of S-CLIP
             for epoch in epochs:
-                t_start = time.time()
+                t_1 = time.time()
                 evaluate_checkpoint(checkpoint_path, epoch = epoch, split = split, eval_file = eval_file)
-                print(f'Evaluation time: {round(time.time()-t_start, 3)}')
+                print(f'Evaluation time: {round(time.time()-t_1, 3)}')
             # Remove the checkpoint after evaluating, to save space
             os.system(f"rm -r {checkpoint_path}")  
 

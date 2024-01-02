@@ -71,7 +71,8 @@ def get_optimizer_scaler(args, model):
              {"params": rest_params, "weight_decay": args.wd},],
             lr=args.lr, betas=(args.beta1, args.beta2), eps=args.eps,
         )
-        scaler = torch.cuda.amp.GradScaler() if args.precision == "amp" else None
+        if args.precision == "amp":
+            scaler = torch.cuda.amp.GradScaler() if 'cuda' in args.device else None #
     return optimizer, scaler
 
 # From: https://stackoverflow.com/questions/658763/how-to-suppress-scientific-notation-when-printing-float-values
@@ -262,9 +263,13 @@ def main(args):
             # only save the last epoch to save server storage
             if completed_epoch % args.save_freq == 0: # args.epochs:
                 torch.save(checkpoint_dict, os.path.join(args.checkpoint_path, f"epoch_{completed_epoch}.pt"))
+                del checkpoint_dict
+                torch.cuda.empty_cache()
+                gc.collect()
 
         # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
         if args.active_learning and iteration + 1 < args.al_iter:
+            
             # Fine-tune the ProbVLM model with the current CLIP model
             if args.probvlm: 
                 t1 = time.time()
@@ -275,9 +280,10 @@ def main(args):
                               device='cuda', dtype=torch.float, init_lr=8e-5, num_epochs=args.coco_epochs+10, eval_every=100, 
                               ckpt_path=args.coco_save_ckpt, T1=1e0, T2=1e-4, resume_path = args.coco_resume_ckpt, log = False)
                 t2 = time.time()
-                print(f'ProbVLM tuning took {round(t2-t1, 3)} seconds')
+                print(f'(AL-iter {iteration}) ProbVLM tuning took {round(t2-t1, 3)} seconds')
                 del ProbVLM_Net
-
+            else:
+                print(f'AL-iter {iteration}')
             del data
             data = get_data(args,(preprocess_train, preprocess_val),iter=iteration+1,
                             tokenizer=get_tokenizer(args.model),model = model)
