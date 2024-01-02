@@ -1,2 +1,0 @@
-./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
-
