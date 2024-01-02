@@ -1,0 +1,224 @@
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_13_19-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_16_03-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_19_27-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_22_52-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_26_07-data_ILT-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_27_34-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_30_33-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_31_59-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_33_25-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_34_35-data_ILT-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_35_50-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_37_01-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_38_07-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_39_14-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_40_26-data_ILT-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_41_38-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_42_49-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_44_01-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_45_13-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_46_23-data_ILT-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_47_30-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_48_39-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_49_51-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_51_02-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
+
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT-CLS	zeroshot-val-top1	40.00
+
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@1	55.00
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@5	85.00
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	image_to_text_R@10	100.00
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@1	45.00
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@5	90.00
+./checkpoint\2023_12_31-14_52_09-data_ILT-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	ILT	text_to_image_R@10	100.00
