@@ -25,8 +25,9 @@ from open_clip import create_model_and_transforms
 from textblob import TextBlob
 import nltk
 import re
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+# Uncomment to download these if they're not already installed!
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
 
 class SharedEpoch:
     def __init__(self, epoch: int = 0):
@@ -550,7 +551,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         logging.info(f'Labeled size: {size}')
 
     if perform_AL: # Active learning
-        data = DataLoader(d,batch_size=128,shuffle=False,num_workers=0,pin_memory=True,sampler=None,)
         if model is None: # Load in base CLIP model if we don't have an existing model
             logging.info('Loading base CLIP...')
             model, _, _ = create_model_and_transforms(args.model, args.pretrained, precision=args.precision, 
@@ -559,9 +559,12 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         if args.current_iter > 0:
             chosen_idx = args.chosen_idx
         # Only allow indices to be picked if they're not already in our selected set
-        possible_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
-        possible_idx = np.sort(possible_idx) # Ensure the indices are sorted
+        unlabeled_idx = np.array(list(set(perm_indices.tolist()) - set(chosen_idx)))
+        unlabeled_idx = np.sort(unlabeled_idx) # Ensure the indices are sorted
         
+        # Filter the data only to the unlabeled part
+        d_unlabeled = [d[int(i)] for i in unlabeled_idx]
+        data = DataLoader(d_unlabeled, batch_size=128, shuffle=False, num_workers=0, pin_memory=True, sampler=None,)
         # Get the indices of the data in order of most uncertain to least uncertain
         # Either use ProbVLM or basic AL to get these indices
         if args.probvlm: 
@@ -573,17 +576,15 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         else: # Use basic active learning if we're not using ProbVLM
             uncertainty_idx = basic_active_learning(args, data, model, classnames, templates)
 
-        # Keep only indices of images that are not labeled yet -> find overlap between the unlabeled idx and the uncertainty idx
-        filter_for_possible_idx = torch.where(torch.isin(uncertainty_idx, torch.from_numpy(possible_idx).to(args.device))) 
-        sorted_possible_idx = uncertainty_idx[filter_for_possible_idx] # Filter for the possible_idx indices
 
-        # The indices are the labels with the highest uncertainty + already labeled indices
-        indices = sorted_possible_idx.cpu().numpy()
+        # The indices are of images with the highest uncertainty + already labeled indices
+        sorted_unlabeled_idx = unlabeled_idx[uncertainty_idx] # Get the indices, sorted using the uncertainties
+        indices = sorted_unlabeled_idx.cpu().numpy()
         args.chosen_idx = np.append(chosen_idx, indices[:current_size])
         indices = np.append(chosen_idx, indices)
         
         # Clean up memory 
-        del data, uncertainty_idx, possible_idx, filter_for_possible_idx, sorted_possible_idx, chosen_idx
+        del data, uncertainty_idx, unlabeled_idx, filter_for_unlabeled_idx, sorted_unlabeled_idx, chosen_idx
         torch.cuda.empty_cache()
         gc.collect()
         
@@ -598,7 +599,6 @@ def split_data(d, split_ratio, seed=42, hf_data=False, args = None, classnames =
         d2 = [d[int(i)] for i in indices[size:]]
 #     print('indices d1:', sorted(indices[:size]), len(indices[:size]))
 #     print('indices d2:', sorted(indices[size:]), len(indices[size:]))
-
 
     # Clean up memory
     del indices
@@ -619,8 +619,8 @@ def create_datainfo(args, dataset, batch_size, is_train):
     num_samples = len(dataset)
     sampler = DistributedSampler(dataset) if args.distributed and is_train else None
     shuffle = is_train and sampler is None
-    # I disabled workers because they made data loading VERY slow for me during evaluation...
-    workers = 0 #args.workers if not args.train_data else 0
+    # I sometimes use 0 workers because they can make data loading VERY slow for me during evaluation...
+    workers = args.workers if not args.train_data else 0
 
     dataloader = DataLoader(
         dataset,

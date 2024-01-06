@@ -87,7 +87,8 @@ def format_checkpoint(args):
     name = '-'.join([date_str, f"data_{args.train_data}",
         f"ratio_{args.label_ratio}", f"model_{args.model}", f"method_{args.method}", f"kw_{keyword_type}",
         f"ProbVLM_{args.probvlm}", f"AL.iter_{args.al_iter}", f"AL.epochs_{args.al_epochs}",
-        f"PL_{args.pl_method}", f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), f"bs_{args.batch_size}",
+        f"PL_{args.pl_method}", f"vit_{args.use_vit}", f"epochs_{args.epochs}", "lr_" + format_float(args.lr), 
+         f"bs_{args.batch_size}",
         ])
     if args.k_fold >= 0:
         # print('kfold:', args.k_fold)
@@ -237,11 +238,11 @@ def main(args):
         return
 
     loss = create_loss(args)
-    iterations = args.al_iter if args.al_iter is not None else 1
+    iterations = args.al_iter + 1 if args.al_iter is not None else 1
     for iteration in range(iterations):
         if args.active_learning:
             logging.info('Active Learning iteration: ' + str(iteration))
-        if args.active_learning and iteration + 1 < args.al_iter:
+        if args.active_learning and iteration < args.al_iter:
             epochs = args.al_epochs
         else:
             epochs = args.epochs
@@ -268,7 +269,7 @@ def main(args):
                 gc.collect()
 
         # For AL, we get the data for the next iteration (hence, iteration+1) and reset our model        
-        if args.active_learning and iteration + 1 < args.al_iter:
+        if args.active_learning and iteration < args.al_iter + 1:
             
             # Fine-tune the ProbVLM model with the current CLIP model
             if args.probvlm: 
