@@ -21,21 +21,41 @@ def prep_str_args(str_args): # Code to parse the string style arguments, as show
     str_args = list(itertools.chain(*str_args)) # Flatten the resulting list of lists
     str_args = [s for s in str_args if len(s) > 0] # Remove arguments that are empty
     return str_args
-    
-def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', dataset = 'RS', eval_file = ''):
-    # print('=> Resuming checkpoint {} (epoch {})'.format(checkpoint, epoch))
-    checkpoint = checkpoint_path 
+
+# Compute how many evaluations are done each time the model is called. 
+# This is done because each model is evaluated using multiple metrics and on multiple dataset (subsets). 
+# E.g. if we evaluate on [(dataset1, metric1), (dataset2, metric1), ..., (datasetn, metric1), ... (datasetn, metricn)]. 
+# Then the length of this list is how often the model is evaluated when it is called.
+def get_num_evals(zeroshot_datasets, retrieval_datasets):
+    zeroshot_num = 1 # We compute classification accuracy once
+    retrieval_num = 6 # We compute recall @ 1, 5 and 10, for both text-to-image and image-to-text (=3*2)
+    total_evals = zeroshot_num * len(zeroshot_datasets) + retrieval_num * len(retrieval_datasets)
+    return total_evals
+
+# Obtain the datasets for which we evaluate, based on the type of data we're working with
+def get_eval_datasets(checkpoint, split, dataset):
+    possible_datasets = ['Fashion', 'ILT', 'RS']
     if 'Fashion' in dataset or 'Fashion' in str(checkpoint):
         zeroshot_datasets = ["Fashion200k-SUBCLS", "Fashion200k-CLS", "FashionGen-CLS", "FashionGen-SUBCLS", "Polyvore-CLS", ]
         retrieval_datasets = ["FashionGen", "Polyvore", "Fashion200k",]
     elif 'ILT' in dataset or 'ILT' in str(checkpoint):
         zeroshot_datasets = ['ILT-CLS']
         retrieval_datasets = ['ILT']
-    else:
+    elif 'RS' in dataset or 'RS' in str(checkpoint):
         zeroshot_datasets = ["RSICD-CLS", "UCM-CLS"] 
         if split == 'test': # Test split includes other remote sensing dataset
             zeroshot_datasets += ["WHU-RS19", "RSSCN7", "AID", "RESISC45"]
-        retrieval_datasets = ["RSICD", "UCM", "Sydney"]
+        retrieval_datasets = ["RSICD", "UCM", "Sydney"] 
+    else:
+        print('No known dataset for this checkpoint. Possible datasets are', possible_datasets)
+        zeroshot_datasets, retrieval_datasets = None, None
+    return zeroshot_datasets, retrieval_datasets
+
+def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', dataset = 'RS', eval_file = ''):
+    # print('=> Resuming checkpoint {} (epoch {})'.format(checkpoint, epoch))
+    checkpoint = checkpoint_path
+    # Get the datasets to evaluated on
+    zeroshot_datasets, retrieval_datasets = get_eval_datasets(checkpoint, split, dataset)
     
     for dataset in zeroshot_datasets:
         lst_args = [f'--imagenet-{split}', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
@@ -58,8 +78,8 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
 def get_evaluation_history(eval_file):
     # Count the models that have been trained and evaluated already, based on their parameters 
     results = []
-    if os.path.exists('./results/eval_ilt.txt'):   
-        with open('./results/eval_ilt.txt', 'r') as f:
+    if os.path.exists(eval_file):   
+        with open(eval_file, 'r') as f:
             results = f.readlines()
 
     # Remove any non-result lines from the eval file, and split the lines on the tab character
@@ -72,7 +92,7 @@ def get_evaluation_history(eval_file):
     return model_history
 
 # Returns the default base arguments for the models. NOTE: parameters that are tuned will NOT be added to args here!!!
-def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str = ''):
+def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str = '', pl_modality = ''):
     
     base_str_args = f''' 
     --train-data {data}
@@ -80,7 +100,6 @@ def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str =
     --save-freq 5
     --eval-file {eval_file}
     --zeroshot-frequency 5
-    --method base
     '''
     base_methods = ['baseline']
     al_methods = ['basic-al', 'probvlm']
@@ -94,17 +113,29 @@ def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str =
         base_str_args += '\n--active-learning'
         if method =='probvlm':
             base_str_args += '\n--probvlm'
+            base_str_args += '\n--device cuda'
     if method in pl_methods:
-        base_str_args.replace('--method base', '--method ours')
-        base_str_args += f'\n--keyword-path {keyword_path}'
+        base_str_args += '\n--method ours'
         if len(keyword_path) == 0: # Check if keyword path is specified, warn if it's not
-            print('WARNING: keyword path is empty but will be used. Example of a correct path: "keywords/RS/class_name.txt"')
-    
+            print('Did not specify keyword_path, will use default path based on the chosen dataset')
+            keyword_path = f'./keywords/{data}/class-name.txt'
+        if os.path.exists(keyword_path):
+            print('Using default keyword path:', keyword_path)
+        else:
+            print('WARNING: keyword path is not an existing path. Example of a correct path: "keywords/RS/class-name.txt"') 
+        base_str_args += f'\n--keyword-path {keyword_path}'
+        if len(pl_modality) > 0:
+            # the pl-method argument looks like hard.image, ot.image, soft.image, hard.text, etc.
+            # here, we format it if the modality has been provided
+            pl_name= 'ot' if method == 's-clip' else 'hard' if method == 'hard-pl' else 'soft'
+            base_str_args += f'\n--pl-method {pl_name}.{pl_modality}'
+    else:
+        base_str_args += '\n--method base'
     return base_str_args
 
 # Gridsearch params: string of base arguments, dict of gridsearch arguments, how often to repeat the training + eval of a model config
 # And the number of evaluations that are done per model (to be able to calculate how often a config has been used already)
-def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval_file:str, split:str, num_repeats:int = 5, num_evals_per_model:int = 20, change_seed:bool = False):
+def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval_file:str, split:str, num_repeats:int = 5, change_seed:bool = False):
     '''
     base_str_args (str): a string with the base arguments for all models in the gridsearch. 
                     Example of format: "--train-data RSICD\n--val-data RSICD"
@@ -115,10 +146,14 @@ def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval
     eval_file (str): the path to the evaluation file where we want to store the results of evaluating the model configs.
                     Example of format: "./results/eval.txt"
     split (str): which split to evaluate on, should be "val" for the validation split or "test" for the test split of a dataset.
-    num_repeats (int): the number of times we evaluate each model configuration in the gridsearch. Default: 5.
-    num_evals_per_model (int): the number by which we divide the number of evaluations from model_history. This is done because each model is evaluated using multiple metrics and on multiple dataset (subsets). E.g. the number of evaluations might be on [(dataset1, metric1), (dataset2, metric1), (dataset3, metric1), ..., (datasetn, metric1), ... (datasetn, metricn)]. Dividing the model_history by the length of this list is how we determine how often the model has been evaluated.
+    num_repeats (int): the number of times we evaluate each model configuration in the gridsearch. Default: 5. 
     change_seed (bool): Whether to change the default seed (=42). If True, which repeat we are on for the config determines the seed.
     '''
+    zeroshot_datasets, retrieval_datasets = get_eval_datasets(base_str_args, split, dataset = '')
+    num_evals_per_run = get_num_evals(zeroshot_datasets, retrieval_datasets)
+    print('Evaluations per model run:', num_evals_per_run)
+
+#     print('Model history', model_history)
     # Get a list of the gridsearch parameters
     gridsearch_values = list(gridsearch_dict.values())
     gridsearch_keys = list(gridsearch_dict.keys())
@@ -134,6 +169,7 @@ def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval
         for i, param in enumerate(config):
             param_name = gridsearch_keys[i]
             str_args += '\n{} {}'.format(param_name, param)
+        print('str args:', str_args)
 
         str_args = prep_str_args(str_args)
         print(str_args)
@@ -145,7 +181,9 @@ def gridsearch(base_str_args:str, gridsearch_dict:dict, model_history:dict, eval
         # Check if we've already trained the exact same model, correct the number of training iterations we still need to do
         if checkpoint_params in model_history:
             # The number of times to repeat depends on how often the model's been evaluated already
-            start_repeat = int(model_history[checkpoint_params]/num_evals_per_model)
+            num_evals = model_history[checkpoint_params]
+            print('num_evals already done of this model config:', num_evals)
+            start_repeat = int(num_evals/num_evals_per_run)
         else: # If we've never trained + evaluated the model before, just use num_repeats
             start_repeat = 0
         print(f'Config number {c}: {max(0,num_repeats-start_repeat)} repeats')
