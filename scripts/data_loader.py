@@ -840,9 +840,11 @@ if 'tensusers' in cwd:
 
     from utils import get_features_uncer_ProbVLM, sort_wrt_uncer
 else:
-    from probvlm.utils import get_features_uncer_ProbVLM, sort_wrt_uncer
     sys.path.append('./probvlm/')
     sys.path.append('./probvlm/src')
+    
+    from probvlm.src.utils import get_features_uncer_ProbVLM, sort_wrt_uncer
+    
     
 from networks import get_default_BayesCap_for_CLIP
 
