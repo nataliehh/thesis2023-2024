@@ -366,7 +366,8 @@ class FashionGen(CustomDataLoader):
         if self.cls:
             self.data = self._load_annotation_db(self.split) 
             self.classes = set()
-            for cls in self.data['input_category']:
+            category = 'input_subcategory' if self.subclass else 'input_category'
+            for cls in self.data[category]:
                 cls = cls[0].decode('UTF-8').lower()
                 self.classes.add(cls)
             self.classes = list(sorted(list(self.classes)))
@@ -374,10 +375,13 @@ class FashionGen(CustomDataLoader):
             self.data, self.images = self._load_annotation_db(self.split)
         
     def _load_annotation_db(self, split):
-        split = {'train': 'train', 'val': 'validation'}[split]
-        h5_path = os.path.join(self.root, f"fashiongen_256_256_{split}.h5") # hdf5
+        splits = {'train': 'train', 'val': 'validation'}
+        split_keys = list(splits.keys())
+        chosen_split = splits[split]
+        h5_path = os.path.join(self.root, f"fashiongen_256_256_{chosen_split}.h5") # hdf5
         h5_file = h5py.File(h5_path)
-        if self.cls:
+        
+        if self.cls:       
             return h5_file
 
         # Access the relevant lists for the for-loop
@@ -405,11 +409,15 @@ class FashionGen(CustomDataLoader):
     def __getitem__(self, idx):
         if self.cls:
             key = 'input_subcategory' if self.subclass else 'input_category'
+            if self.subclass:
+                print('self.subclass')
             x = self.data['input_image'][idx]
             x = Image.fromarray(x)
             x = self.transform(x)
     
             cls_name = self.data[key][idx][0].decode('UTF-8').lower()
+            print('cls_name', cls_name)
+            print('self.classes', self.classes)
             y = self.classes.index(cls_name)
             return x, y
         item = self.data[idx]
@@ -422,36 +430,6 @@ class FashionGen(CustomDataLoader):
         sentences += item['input_desc']
 
         return dict(x=x, captions=sentences)
-
-# Data from: https://github.com/tingyaohsu/SciCap
-class SciCap(CustomDataLoader):
-    MAXLEN = 77  # maximum length for caption
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.image_root = os.path.join("SciCap-No-Subfig-Img", self.split)
-        self.data = self._init_data()
-
-    def _init_data(self):
-        json_root = os.path.join(self.root, "SciCap-Caption-All", self.split)
-
-        data = []
-        for filename in os.listdir(json_root):
-            json_object = read_json(os.path.join(json_root, filename))
-            if json_object["contains-subfigure"]: # Only keep images without subfigures for simplicity
-                continue
-
-            path = str(filename).replace("json", "png")
-            caption = json_object['0-originally-extracted'] # Contains the text caption of the figure
-            caption = caption[:self.MAXLEN]  # cut long captions
-            data.append({'image_path': path, 'class_name': caption})
-
-        return data
-
-    def __getitem__(self, idx):
-        item = self.data[idx]
-        x = self.get_x(item)
-        return x, item['class_name']
-
 
 class TokenizedDataset(torch.utils.data.Dataset):
     def __init__(self, dataset, image_key=None, text_key=None,
@@ -627,7 +605,7 @@ def create_datainfo(args, dataset, batch_size, is_train):
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=workers,
-        pin_memory=False,#True,
+        pin_memory=True,
         sampler=sampler,
         drop_last=is_train,
     )

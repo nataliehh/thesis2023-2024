@@ -1,262 +1,59 @@
-,,,,,,,,,,,value,value,value
-,,,,,,,,,,,mean,std,count
-method,PL,AL.epochs,AL.iter,metric,bs,lr,dataset,ratio,epochs,ProbVLM,,,
-base,None,5.0,5.0,image_to_text_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-base,None,5.0,5.0,image_to_text_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-base,None,5.0,5.0,image_to_text_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-base,None,5.0,5.0,text_to_image_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-base,None,5.0,5.0,text_to_image_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-base,None,5.0,5.0,text_to_image_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-base,None,5.0,5.0,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,15,False,66.67,,1
-base,None,5.0,10.0,image_to_text_R@1,8,5e-05,ILT,0.1,15,False,57.14,,1
-base,None,5.0,10.0,image_to_text_R@10,8,5e-05,ILT,0.1,15,False,100.0,,1
-base,None,5.0,10.0,image_to_text_R@5,8,5e-05,ILT,0.1,15,False,95.24,,1
-base,None,5.0,10.0,text_to_image_R@1,8,5e-05,ILT,0.1,15,False,57.14,,1
-base,None,5.0,10.0,text_to_image_R@10,8,5e-05,ILT,0.1,15,False,100.0,,1
-base,None,5.0,10.0,text_to_image_R@5,8,5e-05,ILT,0.1,15,False,95.24,,1
-base,None,5.0,10.0,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,15,False,66.67,,1
-base,None,5.0,20.0,image_to_text_R@1,8,5e-05,ILT,0.2,15,False,33.33,,1
-base,None,5.0,20.0,image_to_text_R@10,8,5e-05,ILT,0.2,15,False,90.48,,1
-base,None,5.0,20.0,image_to_text_R@5,8,5e-05,ILT,0.2,15,False,71.43,,1
-base,None,5.0,20.0,text_to_image_R@1,8,5e-05,ILT,0.2,15,False,23.81,,1
-base,None,5.0,20.0,text_to_image_R@10,8,5e-05,ILT,0.2,15,False,95.24,,1
-base,None,5.0,20.0,text_to_image_R@5,8,5e-05,ILT,0.2,15,False,66.67,,1
-base,None,5.0,20.0,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,15,False,38.1,,1
-base,None,5.0,40.0,image_to_text_R@1,8,5e-05,ILT,0.4,15,False,23.81,,1
-base,None,5.0,40.0,image_to_text_R@10,8,5e-05,ILT,0.4,15,False,80.95,,1
-base,None,5.0,40.0,image_to_text_R@5,8,5e-05,ILT,0.4,15,False,57.14,,1
-base,None,5.0,40.0,text_to_image_R@1,8,5e-05,ILT,0.4,15,False,28.57,,1
-base,None,5.0,40.0,text_to_image_R@10,8,5e-05,ILT,0.4,15,False,80.95,,1
-base,None,5.0,40.0,text_to_image_R@5,8,5e-05,ILT,0.4,15,False,66.67,,1
-base,None,5.0,40.0,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,15,False,33.33,,1
-base,None,5.0,80.0,image_to_text_R@1,8,5e-05,ILT,0.8,15,False,33.33,,1
-base,None,5.0,80.0,image_to_text_R@10,8,5e-05,ILT,0.8,15,False,90.48,,1
-base,None,5.0,80.0,image_to_text_R@5,8,5e-05,ILT,0.8,15,False,80.95,,1
-base,None,5.0,80.0,text_to_image_R@1,8,5e-05,ILT,0.8,15,False,28.57,,1
-base,None,5.0,80.0,text_to_image_R@10,8,5e-05,ILT,0.8,15,False,95.24,,1
-base,None,5.0,80.0,text_to_image_R@5,8,5e-05,ILT,0.8,15,False,80.95,,1
-base,None,5.0,80.0,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,15,False,61.9,,1
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.05,5,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.05,10,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.05,15,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.1,5,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.1,10,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.1,15,False,57.14,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.2,5,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.2,10,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.2,15,False,38.1,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.4,5,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.4,10,False,38.1,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.4,15,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.8,5,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.8,10,False,42.86,0.0,5
-base,None,,,image_to_text_R@1,8,5e-05,ILT,0.8,15,False,42.86,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.05,5,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.05,10,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.05,15,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.1,5,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.1,10,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.1,15,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.2,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.2,10,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.2,15,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.4,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.4,10,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.4,15,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.8,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.8,10,False,100.0,0.0,5
-base,None,,,image_to_text_R@10,8,5e-05,ILT,0.8,15,False,100.0,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.05,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.05,10,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.05,15,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.1,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.1,10,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.1,15,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.2,5,False,95.24,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.2,10,False,90.48,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.2,15,False,80.95,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.4,5,False,85.71,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.4,10,False,90.48,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.4,15,False,90.48,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.8,5,False,85.71,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.8,10,False,90.48,0.0,5
-base,None,,,image_to_text_R@5,8,5e-05,ILT,0.8,15,False,85.71,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.05,5,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.05,10,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.05,15,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.1,5,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.1,10,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.1,15,False,57.14,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.2,5,False,66.67,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.2,10,False,42.86,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.2,15,False,42.86,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.4,5,False,42.86,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.4,10,False,42.86,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.4,15,False,42.86,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.8,5,False,28.57,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.8,10,False,47.62,0.0,5
-base,None,,,text_to_image_R@1,8,5e-05,ILT,0.8,15,False,42.86,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.05,5,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.05,10,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.05,15,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.1,5,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.1,10,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.1,15,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.2,5,False,95.24,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.2,10,False,85.71,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.2,15,False,85.71,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.4,5,False,85.71,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.4,10,False,95.24,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.4,15,False,95.24,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.8,5,False,85.71,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.8,10,False,100.0,0.0,5
-base,None,,,text_to_image_R@10,8,5e-05,ILT,0.8,15,False,100.0,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.05,5,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.05,10,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.05,15,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.1,5,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.1,10,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.1,15,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.2,5,False,95.24,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.2,10,False,80.95,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.2,15,False,80.95,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.4,5,False,71.43,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.4,10,False,80.95,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.4,15,False,80.95,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.8,5,False,80.95,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.8,10,False,100.0,0.0,5
-base,None,,,text_to_image_R@5,8,5e-05,ILT,0.8,15,False,95.24,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,5,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,10,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,15,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,5,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,10,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,15,False,66.67,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,5,False,57.14,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,10,False,42.86,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,15,False,42.86,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,5,False,42.86,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,10,False,61.9,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,15,False,52.38000000000001,7.944109290391274e-15,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,5,False,38.1,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,10,False,42.86,0.0,5
-base,None,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,15,False,47.62,0.0,5
-ours,hard.text,,,image_to_text_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-ours,hard.text,,,image_to_text_R@1,8,5e-05,ILT,0.1,15,False,42.86,,1
-ours,hard.text,,,image_to_text_R@1,8,5e-05,ILT,0.2,15,False,23.81,,1
-ours,hard.text,,,image_to_text_R@1,8,5e-05,ILT,0.4,15,False,42.86,,1
-ours,hard.text,,,image_to_text_R@1,8,5e-05,ILT,0.8,15,False,47.62,,1
-ours,hard.text,,,image_to_text_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-ours,hard.text,,,image_to_text_R@10,8,5e-05,ILT,0.1,15,False,85.71,,1
-ours,hard.text,,,image_to_text_R@10,8,5e-05,ILT,0.2,15,False,90.48,,1
-ours,hard.text,,,image_to_text_R@10,8,5e-05,ILT,0.4,15,False,95.24,,1
-ours,hard.text,,,image_to_text_R@10,8,5e-05,ILT,0.8,15,False,95.24,,1
-ours,hard.text,,,image_to_text_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-ours,hard.text,,,image_to_text_R@5,8,5e-05,ILT,0.1,15,False,71.43,,1
-ours,hard.text,,,image_to_text_R@5,8,5e-05,ILT,0.2,15,False,61.9,,1
-ours,hard.text,,,image_to_text_R@5,8,5e-05,ILT,0.4,15,False,80.95,,1
-ours,hard.text,,,image_to_text_R@5,8,5e-05,ILT,0.8,15,False,90.48,,1
-ours,hard.text,,,text_to_image_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-ours,hard.text,,,text_to_image_R@1,8,5e-05,ILT,0.1,15,False,33.33,,1
-ours,hard.text,,,text_to_image_R@1,8,5e-05,ILT,0.2,15,False,23.81,,1
-ours,hard.text,,,text_to_image_R@1,8,5e-05,ILT,0.4,15,False,33.33,,1
-ours,hard.text,,,text_to_image_R@1,8,5e-05,ILT,0.8,15,False,38.1,,1
-ours,hard.text,,,text_to_image_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-ours,hard.text,,,text_to_image_R@10,8,5e-05,ILT,0.1,15,False,76.19,,1
-ours,hard.text,,,text_to_image_R@10,8,5e-05,ILT,0.2,15,False,76.19,,1
-ours,hard.text,,,text_to_image_R@10,8,5e-05,ILT,0.4,15,False,95.24,,1
-ours,hard.text,,,text_to_image_R@10,8,5e-05,ILT,0.8,15,False,95.24,,1
-ours,hard.text,,,text_to_image_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-ours,hard.text,,,text_to_image_R@5,8,5e-05,ILT,0.1,15,False,61.9,,1
-ours,hard.text,,,text_to_image_R@5,8,5e-05,ILT,0.2,15,False,61.9,,1
-ours,hard.text,,,text_to_image_R@5,8,5e-05,ILT,0.4,15,False,90.48,,1
-ours,hard.text,,,text_to_image_R@5,8,5e-05,ILT,0.8,15,False,80.95,,1
-ours,hard.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,15,False,66.67,,1
-ours,hard.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,15,False,28.57,,1
-ours,hard.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,15,False,38.1,,1
-ours,hard.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,15,False,23.81,,1
-ours,hard.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,15,False,28.57,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.05,5,False,57.14,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.05,10,False,57.14,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.1,15,False,4.76,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.2,15,False,4.76,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.4,15,False,4.76,,1
-ours,ot.image,,,image_to_text_R@1,8,5e-05,ILT,0.8,15,False,4.76,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.05,5,False,100.0,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.05,10,False,100.0,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.1,15,False,47.62,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.2,15,False,47.62,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.4,15,False,47.62,,1
-ours,ot.image,,,image_to_text_R@10,8,5e-05,ILT,0.8,15,False,47.62,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.05,5,False,95.24,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.05,10,False,95.24,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.1,15,False,23.81,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.2,15,False,23.81,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.4,15,False,23.81,,1
-ours,ot.image,,,image_to_text_R@5,8,5e-05,ILT,0.8,15,False,23.81,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.05,5,False,57.14,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.05,10,False,57.14,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.05,15,False,57.14,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.1,15,False,4.76,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.2,15,False,4.76,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.4,15,False,4.76,,1
-ours,ot.image,,,text_to_image_R@1,8,5e-05,ILT,0.8,15,False,4.76,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.05,5,False,100.0,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.05,10,False,100.0,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.05,15,False,100.0,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.1,15,False,47.62,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.2,15,False,47.62,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.4,15,False,47.62,,1
-ours,ot.image,,,text_to_image_R@10,8,5e-05,ILT,0.8,15,False,47.62,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.05,5,False,95.24,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.05,10,False,95.24,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.05,15,False,95.24,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.1,15,False,23.81,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.2,15,False,23.81,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.4,15,False,23.81,,1
-ours,ot.image,,,text_to_image_R@5,8,5e-05,ILT,0.8,15,False,23.81,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,5,False,66.67,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,10,False,66.67,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,15,False,66.67,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,15,False,19.05,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,15,False,19.05,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,15,False,19.05,,1
-ours,ot.image,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,15,False,19.05,,1
-ours,soft.text,,,image_to_text_R@1,8,5e-05,ILT,0.05,15,False,57.14,0.0,4
-ours,soft.text,,,image_to_text_R@1,8,5e-05,ILT,0.1,15,False,19.05,,1
-ours,soft.text,,,image_to_text_R@1,8,5e-05,ILT,0.2,15,False,38.1,,1
-ours,soft.text,,,image_to_text_R@1,8,5e-05,ILT,0.4,15,False,33.33,,1
-ours,soft.text,,,image_to_text_R@1,8,5e-05,ILT,0.8,15,False,28.57,,1
-ours,soft.text,,,image_to_text_R@10,8,5e-05,ILT,0.05,15,False,100.0,0.0,4
-ours,soft.text,,,image_to_text_R@10,8,5e-05,ILT,0.1,15,False,95.24,,1
-ours,soft.text,,,image_to_text_R@10,8,5e-05,ILT,0.2,15,False,76.19,,1
-ours,soft.text,,,image_to_text_R@10,8,5e-05,ILT,0.4,15,False,90.48,,1
-ours,soft.text,,,image_to_text_R@10,8,5e-05,ILT,0.8,15,False,95.24,,1
-ours,soft.text,,,image_to_text_R@5,8,5e-05,ILT,0.05,15,False,95.24,0.0,4
-ours,soft.text,,,image_to_text_R@5,8,5e-05,ILT,0.1,15,False,71.43,,1
-ours,soft.text,,,image_to_text_R@5,8,5e-05,ILT,0.2,15,False,61.9,,1
-ours,soft.text,,,image_to_text_R@5,8,5e-05,ILT,0.4,15,False,66.67,,1
-ours,soft.text,,,image_to_text_R@5,8,5e-05,ILT,0.8,15,False,80.95,,1
-ours,soft.text,,,text_to_image_R@1,8,5e-05,ILT,0.05,15,False,57.14,0.0,4
-ours,soft.text,,,text_to_image_R@1,8,5e-05,ILT,0.1,15,False,19.05,,1
-ours,soft.text,,,text_to_image_R@1,8,5e-05,ILT,0.2,15,False,23.81,,1
-ours,soft.text,,,text_to_image_R@1,8,5e-05,ILT,0.4,15,False,33.33,,1
-ours,soft.text,,,text_to_image_R@1,8,5e-05,ILT,0.8,15,False,38.1,,1
-ours,soft.text,,,text_to_image_R@10,8,5e-05,ILT,0.05,15,False,100.0,0.0,4
-ours,soft.text,,,text_to_image_R@10,8,5e-05,ILT,0.1,15,False,85.71,,1
-ours,soft.text,,,text_to_image_R@10,8,5e-05,ILT,0.2,15,False,85.71,,1
-ours,soft.text,,,text_to_image_R@10,8,5e-05,ILT,0.4,15,False,90.48,,1
-ours,soft.text,,,text_to_image_R@10,8,5e-05,ILT,0.8,15,False,95.24,,1
-ours,soft.text,,,text_to_image_R@5,8,5e-05,ILT,0.05,15,False,95.24,0.0,4
-ours,soft.text,,,text_to_image_R@5,8,5e-05,ILT,0.1,15,False,76.19,,1
-ours,soft.text,,,text_to_image_R@5,8,5e-05,ILT,0.2,15,False,66.67,,1
-ours,soft.text,,,text_to_image_R@5,8,5e-05,ILT,0.4,15,False,76.19,,1
-ours,soft.text,,,text_to_image_R@5,8,5e-05,ILT,0.8,15,False,90.48,,1
-ours,soft.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.05,15,False,66.67,0.0,4
-ours,soft.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.1,15,False,23.81,,1
-ours,soft.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.2,15,False,28.57,,1
-ours,soft.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.4,15,False,57.14,,1
-ours,soft.text,,,zeroshot-val-top1,8,5e-05,ILT-CLS,0.8,15,False,52.38,,1
+,,,,,,,,,,,value,value,value,value,value,value
+,,,,,,,,,,,mean,std,count,all,min,max
+metric,PL,ProbVLM,AL.epochs,method,ratio,bs,dataset,epochs,lr,AL.iter,,,,,,
+image_to_text_R@1,None,False,,base,0.1,8,ILT,5,5e-05,,47.83,0.0,5,"[47.83, 47.83, 47.83, 47.83, 47.83]",47.83,47.83
+image_to_text_R@1,None,False,,base,0.2,8,ILT,5,5e-05,,53.910000000000004,3.8907582808496324,5,"[52.17, 52.17, 52.17, 60.87, 52.17]",52.17,60.87
+image_to_text_R@1,None,False,,base,0.4,8,ILT,5,5e-05,,26.088,5.323558020722608,5,"[26.09, 26.09, 21.74, 34.78, 21.74]",21.74,34.78
+image_to_text_R@1,None,False,,base,0.8,8,ILT,5,5e-05,,37.391999999999996,9.017217974519635,5,"[47.83, 30.43, 43.48, 39.13, 26.09]",26.09,47.83
+image_to_text_R@1,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,47.83,0.0,5,"[47.83, 47.83, 47.83, 47.83, 47.83]",47.83,47.83
+image_to_text_R@1,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,43.48,3.07591449816148,5,"[43.48, 43.48, 47.83, 43.48, 39.13]",39.13,47.83
+image_to_text_R@1,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,27.827999999999996,3.886286144894635,5,"[26.09, 26.09, 26.09, 34.78, 26.09]",26.09,34.78
+image_to_text_R@1,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,5.220000000000001,3.6394711154232287,5,"[0.0, 4.35, 8.7, 8.7, 4.35]",0.0,8.7
+image_to_text_R@10,None,False,,base,0.1,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@10,None,False,,base,0.2,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@10,None,False,,base,0.4,8,ILT,5,5e-05,,85.218,11.745280754413665,5,"[91.3, 86.96, 65.22, 86.96, 95.65]",65.22,95.65
+image_to_text_R@10,None,False,,base,0.8,8,ILT,5,5e-05,,93.91,2.3825931251474772,5,"[91.3, 95.65, 95.65, 95.65, 91.3]",91.3,95.65
+image_to_text_R@10,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@10,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@10,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,85.22,2.3825931251474697,5,"[86.96, 82.61, 82.61, 86.96, 86.96]",82.61,86.96
+image_to_text_R@10,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,43.48,5.327640190553411,5,"[47.83, 34.78, 43.48, 43.48, 47.83]",34.78,47.83
+image_to_text_R@5,None,False,,base,0.1,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@5,None,False,,base,0.2,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@5,None,False,,base,0.4,8,ILT,5,5e-05,,67.828,12.524071622280035,5,"[78.26, 69.57, 47.83, 65.22, 78.26]",47.83,78.26
+image_to_text_R@5,None,False,,base,0.8,8,ILT,5,5e-05,,89.566,3.88572773106918,5,"[86.96, 91.3, 86.96, 95.65, 86.96]",86.96,95.65
+image_to_text_R@5,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+image_to_text_R@5,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,90.432,1.9409070044698191,5,"[91.3, 86.96, 91.3, 91.3, 91.3]",86.96,91.3
+image_to_text_R@5,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,63.48,2.3825931251474732,5,"[60.87, 60.87, 65.22, 65.22, 65.22]",60.87,65.22
+image_to_text_R@5,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,21.74,3.075914498161482,5,"[21.74, 17.39, 21.74, 21.74, 26.09]",17.39,26.09
+text_to_image_R@1,None,False,,base,0.1,8,ILT,5,5e-05,,43.48,0.0,5,"[43.48, 43.48, 43.48, 43.48, 43.48]",43.48,43.48
+text_to_image_R@1,None,False,,base,0.2,8,ILT,5,5e-05,,45.218,7.275058075369571,5,"[43.48, 39.13, 47.83, 56.52, 39.13]",39.13,56.52
+text_to_image_R@1,None,False,,base,0.4,8,ILT,5,5e-05,,23.476,7.274161807383721,5,"[30.43, 30.43, 21.74, 21.74, 13.04]",13.04,30.43
+text_to_image_R@1,None,False,,base,0.8,8,ILT,5,5e-05,,33.912,7.1450416373874255,5,"[39.13, 30.43, 43.48, 30.43, 26.09]",26.09,43.48
+text_to_image_R@1,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,43.48,0.0,5,"[43.48, 43.48, 43.48, 43.48, 43.48]",43.48,43.48
+text_to_image_R@1,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,53.912,4.95669446304692,5,"[56.52, 52.17, 52.17, 60.87, 47.83]",47.83,60.87
+text_to_image_R@1,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,43.477999999999994,5.323558020722607,5,"[39.13, 43.48, 39.13, 43.48, 52.17]",39.13,52.17
+text_to_image_R@1,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,4.35,3.0759144981614814,5,"[4.35, 4.35, 8.7, 0.0, 4.35]",0.0,8.7
+text_to_image_R@10,None,False,,base,0.1,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+text_to_image_R@10,None,False,,base,0.2,8,ILT,5,5e-05,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+text_to_image_R@10,None,False,,base,0.4,8,ILT,5,5e-05,,81.74,9.912948602711507,5,"[86.96, 95.65, 69.57, 78.26, 78.26]",69.57,95.65
+text_to_image_R@10,None,False,,base,0.8,8,ILT,5,5e-05,,91.30199999999999,5.32355802072261,5,"[82.61, 95.65, 95.65, 91.3, 91.3]",82.61,95.65
+text_to_image_R@10,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+text_to_image_R@10,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,100.0,0.0,5,"[100.0, 100.0, 100.0, 100.0, 100.0]",100.0,100.0
+text_to_image_R@10,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,92.172,4.762448949857628,5,"[100.0, 91.3, 86.96, 91.3, 91.3]",86.96,100.0
+text_to_image_R@10,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,43.48,0.0,5,"[43.48, 43.48, 43.48, 43.48, 43.48]",43.48,43.48
+text_to_image_R@5,None,False,,base,0.1,8,ILT,5,5e-05,,86.96,0.0,5,"[86.96, 86.96, 86.96, 86.96, 86.96]",86.96,86.96
+text_to_image_R@5,None,False,,base,0.2,8,ILT,5,5e-05,,99.13,1.9453791404248146,5,"[100.0, 100.0, 100.0, 95.65, 100.0]",95.65,100.0
+text_to_image_R@5,None,False,,base,0.4,8,ILT,5,5e-05,,53.914,14.290385929008352,5,"[65.22, 69.57, 56.52, 39.13, 39.13]",39.13,69.57
+text_to_image_R@5,None,False,,base,0.8,8,ILT,5,5e-05,,72.174,9.525580297283732,5,"[56.52, 78.26, 78.26, 78.26, 69.57]",56.52,78.26
+text_to_image_R@5,ot.text,False,,ours,0.1,16,ILT,5,0.0005,,86.96,0.0,5,"[86.96, 86.96, 86.96, 86.96, 86.96]",86.96,86.96
+text_to_image_R@5,ot.text,False,,ours,0.2,16,ILT,5,0.0005,,90.432,1.9409070044698191,5,"[91.3, 86.96, 91.3, 91.3, 91.3]",86.96,91.3
+text_to_image_R@5,ot.text,False,,ours,0.4,16,ILT,5,0.0005,,74.782,3.635886411867131,5,"[73.91, 69.57, 73.91, 78.26, 78.26]",69.57,78.26
+text_to_image_R@5,ot.text,False,,ours,0.8,16,ILT,5,0.0005,,21.74,0.0,5,"[21.74, 21.74, 21.74, 21.74, 21.74]",21.74,21.74
+zeroshot-val-top1,None,False,,base,0.1,8,ILT-CLS,5,5e-05,,69.57,0.0,5,"[69.57, 69.57, 69.57, 69.57, 69.57]",69.57,69.57
+zeroshot-val-top1,None,False,,base,0.2,8,ILT-CLS,5,5e-05,,46.955999999999996,4.759709024719896,5,"[52.17, 43.48, 52.17, 43.48, 43.48]",43.48,52.17
+zeroshot-val-top1,None,False,,base,0.4,8,ILT-CLS,5,5e-05,,32.174,5.830920167520733,5,"[26.09, 26.09, 34.78, 34.78, 39.13]",26.09,39.13
+zeroshot-val-top1,None,False,,base,0.8,8,ILT-CLS,5,5e-05,,45.215999999999994,11.748241570550036,5,"[39.13, 30.43, 43.48, 60.87, 52.17]",30.43,60.87
+zeroshot-val-top1,ot.text,False,,ours,0.1,16,ILT-CLS,5,0.0005,,69.57,0.0,5,"[69.57, 69.57, 69.57, 69.57, 69.57]",69.57,69.57
+zeroshot-val-top1,ot.text,False,,ours,0.2,16,ILT-CLS,5,0.0005,,50.434000000000005,2.3771158995724226,5,"[47.83, 47.83, 52.17, 52.17, 52.17]",47.83,52.17
+zeroshot-val-top1,ot.text,False,,ours,0.4,16,ILT-CLS,5,0.0005,,19.129999999999995,3.8907582808496333,5,"[21.74, 17.39, 21.74, 21.74, 13.04]",13.04,21.74
+zeroshot-val-top1,ot.text,False,,ours,0.8,16,ILT-CLS,5,0.0005,,22.607999999999997,5.668255463544316,5,"[21.74, 26.09, 30.43, 17.39, 17.39]",17.39,30.43

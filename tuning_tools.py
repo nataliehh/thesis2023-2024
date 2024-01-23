@@ -129,6 +129,9 @@ def create_base_str_args(method:str, data:str, eval_file:str, keyword_path:str =
             # here, we format it if the modality has been provided
             pl_name= 'ot' if method == 's-clip' else 'hard' if method == 'hard-pl' else 'soft'
             base_str_args += f'\n--pl-method {pl_name}.{pl_modality}'
+        else:
+            print('PL modality (e.g. text, image) was not specified, so the intended PL method may not be used (default = ot.image).')
+            print('Make sure to specify the modality. This can be done either when calling create_base_str_args or when specifying the gridsearch parameters.')
     else:
         base_str_args += '\n--method base'
     return base_str_args

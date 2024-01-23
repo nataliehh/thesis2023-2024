@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+from scipy import stats
 
 def shuffle_and_sample(x, txt_path):
     shuffled = x.sample(frac = 1, random_state = 0) # Shuffle the data with a fixed random state
@@ -77,7 +79,7 @@ def prep_and_store_results(txt_path: str): # Prepare the (text-file) results to 
                     ('count', lambda x: shuffle_and_sample(x, txt_path).shape[0]),
                     ('all', lambda x: list(shuffle_and_sample(x, txt_path))), # keep a list of all the runs
                     ('min', lambda x: shuffle_and_sample(x, txt_path).min()),
-                    ('max', lambda x: shuffle_and_sample(x, txt_path).max()),     
+                    ('max', lambda x: shuffle_and_sample(x, txt_path).max()),
                  ]
     }) 
 
@@ -85,9 +87,9 @@ def prep_and_store_results(txt_path: str): # Prepare the (text-file) results to 
     display(df_grouped)
     return df_grouped
 
-def get_results_per_method(df, hyperparam_tuning = True):
+def get_results_per_method(df, hyperparam_tuning = True, label_ratio = 0.1):
     if hyperparam_tuning: # Only report on the results for a specific label ratio if we're hyperparam tuning
-        df = df[(df['ratio'] == 0.1)]
+        df = df[(df['ratio'] == label_ratio)]
 #     df_no_finetune = df[(df['epochs']==0)]
     df_baseline = df[((df['AL.iter'].isna()) & (df['method'] == 'base') & (df['epochs'] > 0)) | (df['ratio'] == 0 )]
     df_S_CLIP = df[(df['AL.iter'].isna()) & (df['method'] == 'ours') & (df['PL'].str.contains('ot.'))]
@@ -113,19 +115,21 @@ def performance_per_label_ratio(df, metric, dataset):
     std = df_filtered[('value', 'std')].to_numpy()
     min_ = df_filtered[('value', 'min')].to_numpy()
     max_ = df_filtered[('value', 'max')].to_numpy()
+    all_ = np.hstack(df_filtered[('value', 'all')]).flatten()
 
-    return {'mean': mean, 'std': std, 'min': min_, 'max': max_}
+    return {'mean': mean, 'std': std, 'min': min_, 'max': max_, 'all': all_}
 
 
 def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', epochs_dict = {}, ax = None,
                          save_results = True, display_table_results = False, label = True, base_fontsize = 14,
-                         confidence_band_type = 'min-max'):
+                         confidence_band_type = 'min-max', sign_tests = True):
     one_plot = False # Keep track of whether we are dealing with one or more plots
     if ax is None: # Set an axis
         fig, ax = plt.subplots(figsize=(12, 6)) 
         one_plot = True
     only_scores = {}
     models = results_dict.keys()
+    results_to_compare = {}
     
     # Filter for specific types of models
     if which_models == 'pseudo-labeling':
@@ -135,7 +139,7 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
         
     # Which epochs to filter to, for each model
     if not epochs_dict: # Use default dictionary if one wasn't specified
-        epochs = {'baseline': [0, 25], 'basic-al': [20], 'probvlm': [25], 
+        epochs_dict = {'baseline': [0, 25], 'basic-al': [20], 'probvlm': [25], 
                   's-clip': [25], 'soft-pl': [30], 'hard-pl': [25], }
     
     # The label ratios that we use
@@ -153,6 +157,7 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
     ylabel = 'recall' if 'R@' in metric else 'accuracy'
     ax.set_ylabel(ylabel, fontsize = base_fontsize)
     ax.set_xlabel('Label ratio', fontsize = base_fontsize)
+    ax.set_ylim(0, 100)
     
     # Get the performance of each model, for the given metric and dataset
     for i, model in enumerate(models):
@@ -161,17 +166,22 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
         # If we have any results for the given model, add it to the plot
         if model_results is not None and model_results.shape[0] > 0: 
             # Filter for correct number of epochs
-            model_results = model_results[model_results['epochs'].isin(epochs[model])]
+            model_results = model_results[model_results['epochs'].isin(epochs_dict[model])]
             if display_table_results:
                 print(model, metric, dataset)
                 display(df_filtered)
             performance = performance_per_label_ratio(model_results, metric, dataset)
+            all_results = performance['all']
+            results_to_compare[model] = all_results
             mean = performance['mean']
             
             # Pad the performance if it misses results at label_ratio = 0 (start) and label_ratio = 1 (end)
-            pad_end = 1 if len(mean) != len(label_ratios) else 0
+            reported_label_ratios = model_results['ratio'].tolist()
+            not_reported_label_ratios = list(set(label_ratios) - set(reported_label_ratios))
+            
+            pad_end = len([l for l in not_reported_label_ratios if l > max(reported_label_ratios)])
             # compute how much to pad at start - this is equal to 1 if all results are known
-            pad_start = len(label_ratios) - len(mean) - pad_end 
+            pad_start = len([l for l in not_reported_label_ratios if l < min(reported_label_ratios)])
             
             # Pad the mean, std, max and min performance, if necessary, at label_ratio = 0 and = 1
             mean = np.pad(mean, (pad_start, pad_end), 'constant', constant_values=np.nan)
@@ -191,7 +201,9 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
             only_scores[model] = model_results_all_scores
     
     # Generic path for the results of this method, metric, dataset
-    file_path = f'./results/data_{dataset}_metric_{metric}_methods_{which_models}'
+    os.makedirs('./results', exist_ok = True) # Ensure folders exist
+    os.makedirs('./results/individual_results', exist_ok = True)
+    file_path = f'./results/individual_results/data_{dataset}_metric_{metric}_methods_{which_models}'
     if one_plot:
         ax.legend()
         # Store the image both as a pdf and a png for flexibility
@@ -200,19 +212,55 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
         plt.show()
     if save_results:
         model_results.to_csv(file_path + '.csv')
+    if sign_tests: 
+        models = list(models)
+        M = len(models)
+        model_comparisons = []
+        datasets = []
+        metrics = []
+        mann_whitney_u = []
+        p_val = []
+        for i in range(M):
+            for j in range(i+1, M):
+                model1, model2 = models[i], models[j]
+                results1, results2 = np.array(results_to_compare[model1]).flatten(), np.array(results_to_compare[model2]).flatten() 
+                model_comparisons.append(f'{model1} vs {model2}')
+#                 print(results1, results2)
+                U1, p = stats.mannwhitneyu(results1, results2, method="auto")
+                mann_whitney_u.append(U1)
+                p_val.append(round(p, 3))
+                metrics.append(metric)
+                datasets.append(dataset)
+#                 print(f'Mann-Whitney-U = {U1} (p-val {p})')
+#         print(([model_comparisons, datasets, metrics, mann_whitney_u, p_val]))
+        df = pd.DataFrame(np.array([model_comparisons, datasets, metrics, mann_whitney_u, p_val]).T, 
+                          columns = ['Comparing', 'dataset', 'metric', 'Mann-Whitney-U', 'p-val'])
+        df['p significant?'] = df['p-val'].astype(float) <= 0.05 
+        display(df[df['p-val'].astype(float)<=0.05])
     return only_scores
 
 def plot_recall_model_comparison(results_dict, retrieval_metrics, retrieval_datasets, base_fontsize = 14, k = 1, 
-                                confidence_band_type = 'min-max'):
+                                ylim_max = None, **kwargs):
     r_m, r_d = len(retrieval_metrics), len(retrieval_datasets)
-    fig, axes = plt.subplots(r_m, r_d, figsize = (30, 15))
-    for row, metric in enumerate(retrieval_metrics):
-        for col, dataset in enumerate(retrieval_datasets):
+    fig, axes = plt.subplots(r_m, r_d, figsize = (20, 25))
+    for row, dataset in enumerate(retrieval_datasets):
+        for col, metric in enumerate(retrieval_metrics):
             metric_at_k = metric.format(k)
             label = row == 0 and col == 0 # only assign a legend label for the first subplot (prevents duplicates)
-            plot_model_comparison(results_dict, metric_at_k, dataset, ax = axes[row][col], label = label,
-                                 base_fontsize = base_fontsize, confidence_band_type = confidence_band_type)
-    fig.legend(loc='upper center', ncol=6, fancybox=True,  bbox_to_anchor=(0.5, 1.05), fontsize = base_fontsize, 
-              )
+            # Depending on whether either the cols or rows of the subplot = 1, choose the current axis
+            if r_m == 1 and r_d > 1:
+                ax = axes[col]
+            elif r_d == 1 and r_m > 1:
+                ax = axes[row]
+            elif r_m > 1 and r_d > 1:
+                ax = axes[row][col]
+            else:
+                ax = axes
+            
+            plot_model_comparison(results_dict, metric_at_k, dataset, ax = ax, label = label,
+                                 base_fontsize = base_fontsize, **kwargs)
+            if ylim_max is not None:
+                ax.set_ylim(0, ylim_max)
+    fig.legend(loc='upper center', ncol=6, fancybox=True,  bbox_to_anchor=(0.5, 1.05), fontsize = base_fontsize + 2)
     plt.tight_layout()
-    plt.show()
+#     plt.show()

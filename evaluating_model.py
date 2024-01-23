@@ -35,7 +35,7 @@ base_args = parse_args(prep_str_args(base_str_args))
 gridsearch_dict = {
     '--epochs' : [25],
     '--batch-size' : [32], # NOTE: batch size for probvlm has to be small (i.e. 32) to fit model in memory
-    '--al-iter': [5], 
+    '--al-iter': [5],
     '--al-epochs': [10],
     '--label-ratio': [0.05, 0.1, 0.2, 0.4, 0.8] if split == 'test' else [0.1],
 }
