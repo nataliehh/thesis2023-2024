@@ -88,7 +88,7 @@ def add_base_args(parser):
 
     # Own arguments for active learning
     parser.add_argument("--active-learning", action='store_true', default=False, help="Whether to apply (cold start) active learning.")
-    parser.add_argument("--al-iter", type=int, default=1, help="How many times to apply active learning.")
+    parser.add_argument("--al-iter", type=int, default=1, help="How many times to apply active learning. Scales with label_ratio. Define the number of iterations for label_ratio = 0.1!")
     parser.add_argument("--al-epochs", type=int, default=5, help="How many epochs to train for during the AL phase.")
     parser.add_argument("--probvlm", action='store_true', default=False, help="Whether to use ProbVLM for active learning.")
     parser.add_argument("--coco-epochs", type=int, default=60, help="How many epochs ProbVLM should've been pre-trained on with COCO.")
