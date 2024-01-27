@@ -1,0 +1,4 @@
+./checkpoint/2024_01_07-17_18_22-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_32	Fashion200k-SUBCLS	zeroshot-val-top1	24.27
+
+./checkpoint/2024_01_07-17_18_22-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_32	Fashion200k-CLS	zeroshot-val-top1	65.68
+

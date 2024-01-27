@@ -1,0 +1,290 @@
+./checkpoint/2024_01_10-11_25_14-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	26.91
+
+./checkpoint/2024_01_10-11_25_14-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	71.20
+
+./checkpoint/2024_01_10-11_25_14-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	43.75
+
+./checkpoint/2024_01_10-13_53_36-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	31.05
+
+./checkpoint/2024_01_10-13_53_36-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	70.81
+
+./checkpoint/2024_01_10-13_53_36-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_12-11_01_49-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	30.82
+
+./checkpoint/2024_01_12-11_01_49-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	74.10
+
+./checkpoint/2024_01_12-11_01_49-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	56.25
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	32.77
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	74.33
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	68.75
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	75.00
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	58.42
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	11.80
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	28.65
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	38.40
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	11.05
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	27.20
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	36.76
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	3.94
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	9.90
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	13.04
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	2.84
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	7.88
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	11.04
+
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	2.74
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	9.22
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	14.58
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	2.48
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	8.85
+./checkpoint/2024_01_12-13_21_47-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	14.51
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	34.43
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	76.67
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	56.25
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	65.33
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	14.75
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	34.69
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	45.87
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	15.13
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	34.21
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	45.14
+
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	4.95
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	11.64
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	15.22
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	3.75
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	9.57
+./checkpoint/2024_01_12-13_57_10-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_5-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	13.00
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	30.91
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	73.34
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	31.25
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	40.27
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	13.02
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	30.75
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	41.10
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	11.70
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	29.11
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	40.02
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	4.02
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	9.41
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	12.54
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	2.77
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	7.41
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	10.40
+
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	3.26
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	10.60
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	16.16
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	3.65
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	10.90
+./checkpoint/2024_01_12-14_43_40-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	16.32
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	30.32
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	72.64
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	25.00
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	37.50
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	45.56
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	18.14
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	39.77
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	50.74
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	17.66
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	38.87
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	49.46
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	4.87
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	10.77
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	13.65
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	3.88
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	9.19
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	12.04
+
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	4.52
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	13.88
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	20.69
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	4.58
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	14.07
+./checkpoint/2024_01_12-17_01_42-data_Fashion.ALL-ratio_0.1-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	21.15
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	36.95
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	82.78
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	43.75
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	36.14
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	22.56
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	46.76
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	58.52
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	22.17
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	45.46
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	57.73
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	5.92
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	13.03
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	16.47
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	5.43
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	11.89
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	15.24
+
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	6.13
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	18.01
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	26.05
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	6.18
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	18.12
+./checkpoint/2024_01_12-19_45_02-data_Fashion.ALL-ratio_0.2-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	26.15
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	39.16
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	80.17
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	31.25
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	31.25
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	23.05
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	28.14
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	54.32
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	66.19
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	27.28
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	53.96
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	65.37
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	7.99
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	15.87
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	19.27
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	6.71
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	14.22
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	17.57
+
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	9.20
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	23.66
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	33.00
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	8.95
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	23.98
+./checkpoint/2024_01_13-00_06_41-data_Fashion.ALL-ratio_0.4-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	33.43
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	40.10
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	78.77
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	20.68
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	34.15
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	62.42
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	72.79
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	33.34
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	61.50
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	73.02
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	10.06
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	19.04
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	22.54
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	8.84
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	17.48
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	21.10
+
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	12.06
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	29.59
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	39.81
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	12.00
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	30.01
+./checkpoint/2024_01_13-06_58_29-data_Fashion.ALL-ratio_0.8-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	40.08
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	32.13
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	76.70
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	43.75
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	37.50
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	44.91
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	13.55
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	30.35
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	40.79
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	12.48
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	30.32
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	39.14
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	3.62
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	8.90
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	11.72
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	2.52
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	6.97
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	9.64
+
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	3.38
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	10.64
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	16.48
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	3.44
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	10.46
+./checkpoint/2024_01_15-14_50_04-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	16.37
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-SUBCLS	zeroshot-val-top1	28.96
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k-CLS	zeroshot-val-top1	75.75
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-CLS	zeroshot-val-top1	50.00
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen-SUBCLS	zeroshot-val-top1	56.25
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore-CLS	zeroshot-val-top1	47.43
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@1	12.98
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@5	30.50
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	image_to_text_R@10	40.35
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@1	12.22
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@5	29.26
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	FashionGen	text_to_image_R@10	38.94
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@1	3.70
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@5	8.81
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	image_to_text_R@10	11.67
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@1	2.67
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@5	6.88
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Polyvore	text_to_image_R@10	9.37
+
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@1	3.11
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@5	10.43
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	image_to_text_R@10	16.21
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@1	3.06
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@5	10.23
+./checkpoint/2024_01_15-17_39_38-data_Fashion.ALL-ratio_0.05-model_RN50-method_base-kw_none-ProbVLM_False-AL.iter_None-AL.epochs_None-PL_None-vit_False-epochs_25-lr_0.00005-bs_64	Fashion200k	text_to_image_R@10	15.98
+
