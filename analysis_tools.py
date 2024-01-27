@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from scipy import stats
+import string
 
 def shuffle_and_sample(x, txt_path):
     shuffled = x.sample(frac = 1, random_state = 0) # Shuffle the data with a fixed random state
@@ -122,7 +123,7 @@ def performance_per_label_ratio(df, metric, dataset):
 
 def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', epochs_dict = {}, ax = None,
                          save_results = True, display_table_results = False, label = True, base_fontsize = 14,
-                         confidence_band_type = 'min-max', sign_tests = True):
+                         confidence_band_type = 'min-max', sign_tests = True, table_label_ratio = 0.1):
     one_plot = False # Keep track of whether we are dealing with one or more plots
     if ax is None: # Set an axis
         fig, ax = plt.subplots(figsize=(12, 6)) 
@@ -143,14 +144,18 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
                   's-clip': [25], 'soft-pl': [30], 'hard-pl': [25], }
     
     # The label ratios that we use
-    label_ratios = [0.0, 0.05, 0.1, 0.2, 0.4, 0.8, 1.0] 
+    label_ratios = [0.0, 0.05, 0.1, 0.2, 0.4, 0.8, 1.0]
+    if 'ILT' in dataset:
+        label_ratios.remove(0.05)
     
     # Get list of colors (used to make the plot of the mean and the std around it have the same color)
     cmap = plt.cm.get_cmap("tab10")
     color_list = cmap.colors
     
     # Add information about the dataset, metric and label ratios to the plot
-    metric_formatted = metric.replace('_', ' ')
+    metric_formatted = metric.replace('_', '-')
+    metric_formatted = metric_formatted.replace('-R@', ' R@')
+    metric_formatted = metric_formatted.replace('zeroshot-val-top1', 'classification accuracy')
     ax.set_title(f'{metric_formatted} (dataset: {dataset})', fontsize = base_fontsize + 2)
     ax.set_xticks(label_ratios, label_ratios, fontsize = base_fontsize-2, rotation = 90)
     ax.tick_params(axis='y', labelsize= base_fontsize - 2)
@@ -169,7 +174,31 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
             model_results = model_results[model_results['epochs'].isin(epochs_dict[model])]
             if display_table_results:
                 print(model, metric, dataset)
-                display(df_filtered)
+                # Only filter for a specific label ratio (as well as no and fully labeled data)
+                model_results_filter = model_results.copy()
+                model_results_filter = model_results_filter[model_results_filter['ratio'].isin([0.0, table_label_ratio, 1.0])]
+                # For the recall@1, @5, etc., extract the number rank and write it with two digits (e.g. 01, 05, 10)
+                model_results_filter['recall_num'] = model_results_filter['metric'].map(lambda x: x.split('@')[-1].zfill(2) if '@' in x else '')
+                # Also extract which letter of the alphabet the recall metric starts with (compute index)
+                model_results_filter['recall_alphabet_idx'] = model_results_filter['metric'].map(lambda x: string.ascii_lowercase.index(x[0].lower()))
+                # Combine the number and alphabet index to get a sorting
+                model_results_filter['recall_sorting_num'] = model_results_filter['recall_alphabet_idx'].astype(str) + model_results_filter['recall_num'].astype(str)
+                # Sort the data by label ratio, metric name and dataset name
+                model_results_filter = model_results_filter.sort_values(['ratio', 'dataset', 'recall_sorting_num'])
+                # Make a column which has the format: "mean ± std"
+                model_results_filter['mean_str'] = model_results_filter[('value', 'mean')].round(2).astype(str)
+                model_results_filter['std_str'] = model_results_filter[('value', 'std')].round(2).astype(str)
+                model_results_filter['mean_std'] = model_results_filter['mean_str'] + ' $\\pm$ ' + model_results_filter['std_str'] 
+                # Keep only relevant columns
+                model_results_filter = model_results_filter[['ratio', 'dataset', 'metric', 'mean_std']]
+                # Print in latex table format for easier copying to results section
+                for ratio in set(model_results_filter['ratio'].values.tolist()):
+                    for dataset in set(model_results_filter['dataset'].values.tolist()):
+                        print(ratio, dataset)
+                        filtered = model_results_filter[(model_results_filter['ratio']==ratio) & (model_results_filter['dataset']==dataset)]
+                        # display(filtered)
+                        print(' & '.join(filtered[['mean_std']].values.flatten().tolist()))
+                # display(model_results_filter)
             performance = performance_per_label_ratio(model_results, metric, dataset)
             all_results = performance['all']
             results_to_compare[model] = all_results
@@ -242,16 +271,17 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
 def plot_recall_model_comparison(results_dict, retrieval_metrics, retrieval_datasets, base_fontsize = 14, k = 1, 
                                 ylim_max = None, **kwargs):
     r_m, r_d = len(retrieval_metrics), len(retrieval_datasets)
-    fig, axes = plt.subplots(r_m, r_d, figsize = (20, 25))
+    fig_size = (20,6) if 'ILT' in retrieval_datasets else (20,25)
+    fig, axes = plt.subplots(r_d, r_m, figsize = fig_size)
     for row, dataset in enumerate(retrieval_datasets):
         for col, metric in enumerate(retrieval_metrics):
             metric_at_k = metric.format(k)
             label = row == 0 and col == 0 # only assign a legend label for the first subplot (prevents duplicates)
             # Depending on whether either the cols or rows of the subplot = 1, choose the current axis
             if r_m == 1 and r_d > 1:
-                ax = axes[col]
-            elif r_d == 1 and r_m > 1:
                 ax = axes[row]
+            elif r_d == 1 and r_m > 1:
+                ax = axes[col]
             elif r_m > 1 and r_d > 1:
                 ax = axes[row][col]
             else:
@@ -261,6 +291,7 @@ def plot_recall_model_comparison(results_dict, retrieval_metrics, retrieval_data
                                  base_fontsize = base_fontsize, **kwargs)
             if ylim_max is not None:
                 ax.set_ylim(0, ylim_max)
-    fig.legend(loc='upper center', ncol=6, fancybox=True,  bbox_to_anchor=(0.5, 1.05), fontsize = base_fontsize + 2)
+    y_legend = 1.15 if 'ILT' in retrieval_datasets else 1.05
+    fig.legend(loc='upper center', ncol=6, fancybox=True,  bbox_to_anchor=(0.5, y_legend), fontsize = base_fontsize + 2)
     plt.tight_layout()
 #     plt.show()

@@ -61,6 +61,8 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
         lst_args = [f'--imagenet-{split}', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
         if checkpoint is not None:
             lst_args += ['--name', checkpoint]
+        if checkpoint is None and split == 'test':
+            lst_args += ['--label-ratio', 0]
         if len(eval_file) > 0:
             lst_args += ['--eval-file', eval_file]
         args = parse_args(lst_args)
@@ -70,6 +72,8 @@ def evaluate_checkpoint(checkpoint_path, epoch = 0, kfold = -1, split = 'val', d
         lst_args = [f'--{split}-data', dataset, '--resume-epoch', str(epoch), '--k-fold', str(kfold)]
         if checkpoint is not None:
             lst_args += ['--name', checkpoint]
+        if checkpoint is None and split == 'test':
+            lst_args += ['--label-ratio', 0]
         if len(eval_file) > 0:
             lst_args += ['--eval-file', eval_file]
         args = parse_args(lst_args)
