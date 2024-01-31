@@ -118,8 +118,7 @@ def performance_per_label_ratio(df, metric, dataset):
     max_ = df_filtered[('value', 'max')].to_numpy()
     all_ = np.hstack(df_filtered[('value', 'all')]).flatten()
 
-    return {'mean': mean, 'std': std, 'min': min_, 'max': max_, 'all': all_}
-
+    return {'mean': mean, 'std': std, 'min': min_, 'max': max_, 'all': all_} 
 
 def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', epochs_dict = {}, ax = None,
                          save_results = True, display_table_results = False, label = True, base_fontsize = 14,
@@ -191,14 +190,25 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
                 model_results_filter['mean_std'] = model_results_filter['mean_str'] + ' $\\pm$ ' + model_results_filter['std_str'] 
                 # Keep only relevant columns
                 model_results_filter = model_results_filter[['ratio', 'dataset', 'metric', 'mean_std']]
+                # Order the datasets in the same way as I do in latex
+                if 'ILT' in dataset:
+                    model_results_filter['dataset_cat'] = pd.Categorical(model_results_filter['dataset'],
+                                                                    ["ILT-CLS", "ILT"])
+                else:
+                    model_results_filter['dataset_cat'] = pd.Categorical(model_results_filter['dataset'],
+                                                                    ["RSICD-CLS", "UCM-CLS", "WHU-RS19", "RSSCN7", "AID", "RESISC45", "RSICD", "UCM", "Sydney"])
+                model_results_filter = model_results_filter.sort_values("dataset_cat")
                 # Print in latex table format for easier copying to results section
+                metrics = ['zeroshot-val-top1', 'text_to_image_R@1', 'image_to_text_R@1', 'text_to_image_R@5', 'image_to_text_R@5', 'text_to_image_R@10', 'image_to_text_R@10']
+                           
                 for ratio in set(model_results_filter['ratio'].values.tolist()):
-                    for dataset in set(model_results_filter['dataset'].values.tolist()):
-                        print(ratio, dataset)
-                        filtered = model_results_filter[(model_results_filter['ratio']==ratio) & (model_results_filter['dataset']==dataset)]
+                    for m in metrics:
+                        print(ratio, m)
+                        # Filter for the provided label ratio and dataset
+                        filtered = model_results_filter[(model_results_filter['ratio']==ratio) & (model_results_filter['metric']==m)]
                         # display(filtered)
                         print(' & '.join(filtered[['mean_std']].values.flatten().tolist()))
-                # display(model_results_filter)
+                    print('-' * 30)
             performance = performance_per_label_ratio(model_results, metric, dataset)
             all_results = performance['all']
             results_to_compare[model] = all_results
@@ -244,28 +254,49 @@ def plot_model_comparison(results_dict, metric, dataset, which_models = 'all', e
     if sign_tests: 
         models = list(models)
         M = len(models)
-        model_comparisons = []
-        datasets = []
-        metrics = []
-        mann_whitney_u = []
-        p_val = []
+        models_1, models_2, means_1, means_2, sizes_1, sizes_2, datasets, metrics, mann_whitney_u, p_val = [[] for _ in range(10)] 
+
+        # Compute the Mann-Whitney U statistic for each pair of models
         for i in range(M):
             for j in range(i+1, M):
-                model1, model2 = models[i], models[j]
-                results1, results2 = np.array(results_to_compare[model1]).flatten(), np.array(results_to_compare[model2]).flatten() 
-                model_comparisons.append(f'{model1} vs {model2}')
-#                 print(results1, results2)
+                model1, model2 = models[i].title(), models[j].title()
+                # Capitalize the methods properly
+                capitalization = {'Pl': 'PL', 'Al': 'AL', 'vlm': 'VLM', 'Clip': 'CLIP'}
+                for key in capitalization:
+                    replacement = capitalization[key]
+                    model1 = model1.replace(key, replacement)
+                    model2 = model2.replace(key, replacement)
+                # Keep track of which models are compared, the sample sizes, means
+                results1, results2 = np.array(results_to_compare[model1.lower()]).flatten(), np.array(results_to_compare[model2.lower()]).flatten() 
+                models_1.append(model1)
+                models_2.append(model2)
+                mean1, mean2 = np.round(np.mean(results1), 2), np.round(np.mean(results2), 2)
+                means_1.append('{0:.2f}'.format(mean1))
+                means_2.append('{0:.2f}'.format(mean2))
+                sizes_1.append(results1.shape[0])
+                sizes_2.append(results2.shape[0])
+                # Compute the U statistic and corresponding p value
                 U1, p = stats.mannwhitneyu(results1, results2, method="auto")
                 mann_whitney_u.append(U1)
-                p_val.append(round(p, 3))
-                metrics.append(metric)
+                p = '{0:.3f}'.format(p) # Always provide 3 decimals for p value
+                p_val.append(p)
+                # Format metric names properly
+                metric_name = metric.replace('_', '-')
+                metric_name = metric_name.replace('zeroshot-val-top1', 'accuracy')
+                metrics.append(metric_name)
                 datasets.append(dataset)
-#                 print(f'Mann-Whitney-U = {U1} (p-val {p})')
-#         print(([model_comparisons, datasets, metrics, mann_whitney_u, p_val]))
-        df = pd.DataFrame(np.array([model_comparisons, datasets, metrics, mann_whitney_u, p_val]).T, 
-                          columns = ['Comparing', 'dataset', 'metric', 'Mann-Whitney-U', 'p-val'])
-        df['p significant?'] = df['p-val'].astype(float) <= 0.05 
+        # Convert to dataframe
+        df = pd.DataFrame(np.array([models_1, models_2, means_1, means_2, sizes_1, sizes_2, datasets, metrics, mann_whitney_u, p_val]).T, 
+                          columns = ['Model 1', 'Model 2', '$\\mu_1$', '$\\mu_2$', 'N1', 'N2', 'dataset', 'metric', 'U statistic', 'p-val'])
+        df['p < 0.05?'] = df['p-val'].astype(float) <= 0.05  # Check for significant values
         display(df[df['p-val'].astype(float)<=0.05])
+        latex_table = df.to_latex(float_format="{:.3f}".format, index = False).split('\n')
+        for i in range(len(latex_table)):
+            if 'True' in latex_table[i]:
+                latex_table[i] = '\\rowcolor[gray]{.8} ' + latex_table[i] 
+            latex_table[i] += '\\hline'
+        latex_table = '\n'.join(latex_table)
+        print(latex_table)
     return only_scores
 
 def plot_recall_model_comparison(results_dict, retrieval_metrics, retrieval_datasets, base_fontsize = 14, k = 1, 
